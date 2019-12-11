@@ -1,0 +1,136 @@
+;*************************************************************
+; common_io.dsi
+;
+; This file contains definitions for the Leds, Relays and I/O.
+; dS1242, dS3484, dS378, dS2824 and TCP184 are automatically 
+; defined depending on which module you have connected to the
+; IDE when you compile.
+;
+;*************************************************************
+
+
+digitalport  Rly1   1               ; Relays physical and virtual
+digitalport  Rly2   2
+digitalport  Rly3   3
+digitalport  Rly4   4
+digitalport  Rly5   5
+digitalport  Rly6   6
+digitalport  Rly7   7
+digitalport  Rly8   8
+digitalport  Rly9   9
+digitalport  Rly10  10
+digitalport  Rly11  11
+digitalport  Rly12  12
+digitalport  Rly13  13
+digitalport  Rly14  14
+digitalport  Rly15  15
+digitalport  Rly16  16
+digitalport  Rly17  17
+digitalport  Rly18  18
+digitalport  Rly19  19
+digitalport  Rly20  20
+digitalport  Rly21  21
+digitalport  Rly22  22
+digitalport  Rly23  23
+digitalport  Rly24  24
+digitalport  Rly25  25
+digitalport  Rly26  26
+digitalport  Rly27  27
+digitalport  Rly28  28
+digitalport  Rly29  29
+digitalport  Rly30  30
+digitalport  Rly31  31
+digitalport  Rly32  32
+
+digitalport  LedBlue    33
+digitalport  LedGreen   34
+digitalport  LedRed     35
+
+#ifdef DS3484
+    const App_PhysRelays 4  ; number of physical relays (depends on the module)
+#endif
+
+#ifdef DS1242
+    const App_PhysRelays 2  ; number of physical relays (depends on the module)
+#endif
+
+#ifdef DS2824
+    const App_PhysRelays 24 ; number of physical relays (depends on the module)
+#endif
+
+#ifdef DS378
+    const App_PhysRelays 8  ; number of physical relays (depends on the module)
+#endif
+
+#ifdef TCP184
+    const App_PhysRelays 4  ; number of physical relays (depends on the module)
+#endif
+
+#ifdef DS1242 || DS2824 || DS3484 || DS378
+    analogport TS1      100             ; on-board temp sensor
+    analogport PSU      101             ; DC power voltage
+#endif
+
+#ifdef DS1242 || DS3484                 ; Shared by the dS1242 and dS3484
+    const Inp1 41
+    const Inp2 42
+    const Inp3 43 
+    const Inp4 44
+    
+    digitalport IO1 Inp1
+    digitalport IO2 Inp2
+    digitalport IO3 Inp3
+    digitalport IO4 Inp4
+    
+    analogport  AD1 1
+    analogport  AD2 2
+#endif
+
+#ifdef DS3484                           ; Only on the dS3484
+    const Inp5 45  
+    const Inp6 46  
+    const Inp7 47  
+    const Inp8 48
+    
+    digitalport IO5 Inp5    
+    digitalport IO6 Inp6
+    digitalport IO7 Inp7
+    digitalport IO8 Inp8
+
+    analogport  AD3 3
+    analogport  AD4 4
+#endif
+
+#ifdef DS378 || DS2824 || TCP184        ; Shared by the dS378, dS2824 and tcp184
+    const Inp1 1
+    const Inp2 2
+    const Inp3 3 
+    const Inp4 4
+    const Inp5 5  
+    const Inp6 6  
+    const Inp7 7
+    
+    flexport    IO1 Inp1    digitalpullup   ;
+    flexport    IO2 Inp2    digitalpullup   ; 
+    flexport    IO3 Inp3    digitalpullup   ; or digitalnopullup
+    flexport    IO4 Inp4    digitalpullup   ; analogref3  (dS378 only)
+    flexport    IO5 Inp5    digitalpullup   ; analogref4, analogref5 (dS2824, tcp184 only) 
+    flexport    IO6 Inp6    digitalpullup   ; counter, counterpullup (tcp184 only)
+    flexport    IO7 Inp7    digitalpullup   ;
+
+    flexport    IO1_s   9               ; These are read-only status bits.
+    flexport    IO2_s   10              ;   7   6    5     4    3   2 1 0
+    flexport    IO3_s   11              ; | x | x | Out | Inp | x | Mode |
+    flexport    IO4_s   12              ; x     unused
+    flexport    IO5_s   13              ; Out   Ouput, 0=inactive, 1=active
+    flexport    IO6_s   14              ; Inp   Input, could be from actual input or result of driving the output active.
+    flexport    IO7_s   15              ; mode  0=digital no pullup, 1=digital with pullup, 3=analog 3.3v ref, 4=analog 4.096v ref, 5=analog 5v ref.
+#endif
+
+#ifdef DS2824 || TCP184                 ; Only on the dS2824 and tcp184
+    const Inp8 8
+    
+    flexport    IO8 Inp8    digitalpullup
+
+    flexport    IO8_s   16  
+#endif
