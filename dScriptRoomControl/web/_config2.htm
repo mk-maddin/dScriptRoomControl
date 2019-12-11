@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration</title>
+    <link rel="stylesheet" type="text/css" href="dscript.css">
+ </head>
+
+<body onload="startAJAX()">
+    <div id="container">
+            <p id="ModuleName"> ~Module~ <span style="font-size: 40%">  System Configuration - Network </span> </p>
+            <p id="devantech"> By Martin Kraemer </p>
+          <br>
+        <div id="hr"> <hr style="width: 100%; height: 1px; background-color: #FFFFFF; border: none">  </div>
+          <div id="menubar">
+            <ul>
+                <div onmouseover="StatusText(this)"> <li><a href="_config.htm">Status</a></li> </div>
+                <div onmouseover="NetworkText(this)" onmouseout="StatusText(this)"> <li><a href="_config2.htm">Network</a></li> </div>
+                <div onmouseover="TCPIPText(this)" onmouseout="StatusText(this)"> <li><a href="_config3.htm">TCP/IP</a></li> </div>
+                <div onmouseover="SecurityText(this)" onmouseout="StatusText(this)"> <li><a href="_config4.htm">Webpage Security</a></li> </div>
+<!--                <div onmouseover="Relay1Text(this)" onmouseout="StatusText(this)"> <li><a href="_config5.htm">Relays</a></li> </div> -->
+<!--                <div onmouseover="IOText(this)" onmouseout="StatusText(this)"> <li><a href="_config7.htm">Input/Output</a></li> </div> -->
+<!--                <div onmouseover="EasyMailText(this)" onmouseout="StatusText(this)"> <li><a href="_config9.htm">Email</a></li> </div> -->
+<!--                <div onmouseover="P2PText(this)" onmouseout="StatusText(this)"> <li><a href="_config10.htm">Peer to Peer</a></li> </div> -->
+<!--                <div onmouseover="ScheduleText(this)" onmouseout="StatusText(this)"> <li><a href="_config11.htm">Scheduler</a></li> </div> -->
+<!--                <div onmouseover="CounterText(this)" onmouseout="StatusText(this)"> <li><a href="_config12.htm">Counter/Timer</a></li> </div> -->
+                <div onmouseover="AppCfgText(this)" onmouseout="StatusText(this)"> <li><a href="_config99.htm">App Settings</a></li> </div> 
+                <div onmouseover="AppText(this)" onmouseout="StatusText(this)"> <li><a href="index.htm">Application Page</a></li> </div> 
+            </ul>
+        </div>
+		
+        <div id="centerblock">
+            <div id="center">
+                <div onmouseover="HostText(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> Host Name </div>
+                    <input type="text" value = "~System_HostName~" onkeyup="newAJAXCommand('dscript.cgi?System_HostName='+document.getElementById('SystemHostName').value);" id="SystemHostName">
+                </div>
+                <div onmouseover="IPText(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> IP Address </div>
+                    <input type="text" value = "~System_IP~" onkeyup="newAJAXCommand('dscript.cgi?System_IP='+document.getElementById('SystemIP').value);" id="SystemIP">
+                </div>
+                <div onmouseover="SubText(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> Subnet Mask </div>
+                    <input type="text" value = "~System_SubNet~" onkeyup="newAJAXCommand('dscript.cgi?System_SubNet='+document.getElementById('SystemSubNet').value);" id="SystemSubNet">
+                </div>
+                <div onmouseover="GateText(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> Gateway Address </div>
+                    <input type="text" value = "~System_Gateway~" onkeyup="newAJAXCommand('dscript.cgi?System_Gateway='+document.getElementById('SystemGateway').value);" id="SystemGateway">
+                </div>
+                <div onmouseover="DNS1Text(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> Primary DNS </div>
+                    <input type="text" value = "~System_DNS1~" onkeyup="newAJAXCommand('dscript.cgi?System_DNS1='+document.getElementById('SystemDNS1').value);" id="SystemDNS1">
+                </div>
+                <div onmouseover="DNS2Text(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> Secondary DNS </div>
+                    <input type="text" value = "~System_DNS2~" onkeyup="newAJAXCommand('dscript.cgi?System_DNS2='+document.getElementById('SystemDNS2').value);" id="SystemDNS2">
+                </div>
+                <div onmouseover="DHCPText(this)" onmouseout="NetworkText(this)">
+                    <div class="item-line"> Enable DHCP </div>
+                    <input id="EnableDHCP" name="Enable DHCP" type="checkbox" ~DHCPChecked~ onclick="handleDHCP(this)" />
+                </div>
+            </div>
+        </div>
+
+        <div id="helpblock">
+            <div ID="help">
+            </div>
+            <div>
+                <div class='Indicator1'>  <img class='IO' id='Pend' src='DarkOff.png'/> Update Pending </div>
+            </div>
+        </div>
+
+    </div>
+
+ <script>
+
+NetworkText(0);
+setupDHCP(document.getElementById('EnableDHCP'));
+
+function DHCPText(x) {
+    document.getElementById('help').innerHTML = "<br>Enable DHCP (Not recommended)<br><br>Checking the box will enable DHCP so the device will get its IP address from the DHCP server on your network. <br><br>This is not recommended because the server could change the address causing communication failure.";
+}
+
+function setupDHCP(cb) {
+    if(cb.checked) {
+        document.getElementById('SystemIP').disabled = true;
+        document.getElementById('SystemSubNet').disabled = true;
+        document.getElementById('SystemGateway').disabled = true;
+        document.getElementById('SystemDNS1').disabled = true;
+        document.getElementById('SystemDNS2').disabled = true;
+    }
+    else {
+        document.getElementById('SystemIP').disabled = false;
+        document.getElementById('SystemSubNet').disabled = false;
+        document.getElementById('SystemGateway').disabled = false;
+        document.getElementById('SystemDNS1').disabled = false;
+        document.getElementById('SystemDNS2').disabled = false;
+    }
+}
+
+function handleDHCP(cb) {
+    if(cb.checked) {
+        document.getElementById('SystemIP').disabled = true;
+        document.getElementById('SystemSubNet').disabled = true;
+        document.getElementById('SystemGateway').disabled = true;
+        document.getElementById('SystemDNS1').disabled = true;
+        document.getElementById('SystemDNS2').disabled = true;
+        newAJAXCommand('dscript.cgi?System_EnableDHCP=1');
+    }
+    else {
+        document.getElementById('SystemIP').disabled = false;
+        document.getElementById('SystemSubNet').disabled = false;
+        document.getElementById('SystemGateway').disabled = false;
+        document.getElementById('SystemDNS1').disabled = false;
+        document.getElementById('SystemDNS2').disabled = false;
+        newAJAXCommand('dscript.cgi?System_EnableDHCP=0');
+    }
+    newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+}
+
+function CounterText(x) {
+    document.getElementById('help').innerHTML = "<br>Counter/Timers<br><br>Eight Counter/Timers.<br> Used as Counters when the count input is connected to an Input <br><br>Used as Timers when connected to the internal 1Hz clock, T1.<br><br>The 32-bit counter counts up from zero to a maximum of 2,147,483,647.";
+}
+
+function ScheduleText(x) {
+    document.getElementById('help').innerHTML = "<br>Scheduler<br><br>Schedule daily events with 8 schedules, 2 events per schedule and a week day mask.";
+}
+
+function P2PText(x) {
+    document.getElementById('help').innerHTML = "<br>Peer to Peer<br><br>Use inputs on this module to control relays on other dSxxxx modules which can be on your local LAN or across the internet.<br>";
+}
+
+function RelayText(x) {
+    document.getElementById('help').innerHTML = "<br>Relay Names<br><br>These are the labels on the relay buttons on the aplication page to give each relay a unique and descriptive name. <br><br>Maximum 20 characters.";
+}
+
+function IOText(x) {
+    document.getElementById('help').innerHTML = "<br>I/O Names<br><br>These are the I/O labels on the aplication page to give each I/O a unique and descriptive name. <br><br>Maximum 20 characters.";
+}
+
+function IOType(x) {
+    document.getElementById('help').innerHTML = "<br>I/O Types<br><br>Configure Digital I/O with or without pull-up resistors, or analogue inputs with 4.096v or 5v reference.";
+}
+
+function EasyMailText(x) {
+    document.getElementById('help').innerHTML = "<br>Easy Mail<br><br>Send secure emails in response to selected events.";
+}
+
+function HostText(x) {
+    document.getElementById('help').innerHTML = "<br>Host Name<br><br>A unique name for the device on your network. Use plain text such as:<br>MYMODULE";
+}
+
+function StatusText(x) {
+    document.getElementById('help').innerHTML = "<br>Status<br><br>Shows the current status of the module.";
+}
+
+function NetworkText(x) {
+    document.getElementById('help').innerHTML = "<br>Network<br><br>Configure network IP address and associated parameters.";
+}
+
+function TCPIPText(x) {
+    document.getElementById('help').innerHTML = "<br>TCP/IP<br><br>Configure the TCP/IP port and command set.";
+}
+
+function SecurityText(x) {
+    document.getElementById('help').innerHTML = "<br>Webpage Security<br><br>Configure the password for webpage security.";
+}
+
+function AppText(x) {
+    document.getElementById('help').innerHTML = "<br>Application<br><br>Jumps to the application webpage.";
+}
+
+function printDHCPhelp()
+{
+    document.getElementById('help').innerHTML = "<br>Static IP is disabled because DHCP is enabled.<br><br>Uncheck DHCP to allow static IP addresses.";
+}
+
+function IPText(x) {
+    if(document.getElementById('SystemIP').disabled == true) printDHCPhelp();
+    else document.getElementById('help').innerHTML = "<br>IP Address<br><br>Enter a static IP address for the device, for example:<br>192.168.0.123<br><br>Changes will come into effect after this device is re-booted. ";
+}
+
+function SubText(x) {
+    if(document.getElementById('SystemIP').disabled == true) printDHCPhelp();
+    else document.getElementById('help').innerHTML = "<br>SubNet Mask<br><br>Normally set to:<br>255.255.255.0<br><br>This must be identical to your networks subnet.";
+}
+
+function GateText(x) {
+    if(document.getElementById('SystemIP').disabled == true) printDHCPhelp();
+    else document.getElementById('help').innerHTML = "<br>Gateway Address<br><br>This is normally the address of your router. It is the way out of your local network to the wider internet.";
+}
+
+function DNS1Text(x) {
+    if(document.getElementById('SystemIP').disabled == true) printDHCPhelp();
+    else document.getElementById('help').innerHTML = "<br>Primary DNS Address<br><br>This can be the address of your router if your ISP has provided DNS addresses.<br>It can also be the address of the DNS server itself.<br><br> Google provides a free server at 8.8.8.8<br>This is a good choice for the secondary DNS";
+}
+
+function DNS2Text(x) {
+    if(document.getElementById('SystemIP').disabled == true) printDHCPhelp();
+    else document.getElementById('help').innerHTML = "<br>Secondary DNS Address<br><br>This can be the address of your router if your ISP has provided DNS addresses.<br>It can also be the address of the DNS server itself.<br><br> Google provides a free server at 8.8.8.8<br>This is a good choice for the secondary DNS";
+}
+
+
+
+
+</script>
+
+<script>
+function ajaxUpdate()
+{
+    LedStatus = getValue('FlashWritePending');
+    if(LedStatus>0) document.getElementById('Pend').src = 'RedOn.png';
+    else document.getElementById('Pend').src = 'DarkOff.png';
+}
+</script>
+
+</body>
+</html>
+

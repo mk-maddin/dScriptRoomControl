@@ -1,0 +1,278 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration</title>
+    <link rel="stylesheet" type="text/css" href="dscript.css">
+ </head>
+
+<body onload="startAJAX()">
+    <div id="container">
+            <p id="ModuleName"> ~Module~ <span style="font-size: 40%">  System Configuration - TCP/IP </span> </p>
+            <p id="devantech"> By Martin Kraemer </p>
+          <br>
+        <div id="hr"> <hr style="width: 100%; height: 1px; background-color: #FFFFFF; border: none">  </div>
+          <div id="menubar">
+            <ul>
+                <div onmouseover="StatusText(this)"> <li><a href="_config.htm">Status</a></li> </div>
+                <div onmouseover="NetworkText(this)" onmouseout="StatusText(this)"> <li><a href="_config2.htm">Network</a></li> </div>
+                <div onmouseover="TCPIPText(this)" onmouseout="StatusText(this)"> <li><a href="_config3.htm">TCP/IP</a></li> </div>
+                <div onmouseover="SecurityText(this)" onmouseout="StatusText(this)"> <li><a href="_config4.htm">Webpage Security</a></li> </div>
+<!--                <div onmouseover="Relay1Text(this)" onmouseout="StatusText(this)"> <li><a href="_config5.htm">Relays</a></li> </div> -->
+<!--                <div onmouseover="IOText(this)" onmouseout="StatusText(this)"> <li><a href="_config7.htm">Input/Output</a></li> </div> -->
+<!--                <div onmouseover="EasyMailText(this)" onmouseout="StatusText(this)"> <li><a href="_config9.htm">Email</a></li> </div> -->
+<!--                <div onmouseover="P2PText(this)" onmouseout="StatusText(this)"> <li><a href="_config10.htm">Peer to Peer</a></li> </div> -->
+<!--                <div onmouseover="ScheduleText(this)" onmouseout="StatusText(this)"> <li><a href="_config11.htm">Scheduler</a></li> </div> -->
+<!--                <div onmouseover="CounterText(this)" onmouseout="StatusText(this)"> <li><a href="_config12.htm">Counter/Timer</a></li> </div> -->
+                <div onmouseover="AppCfgText(this)" onmouseout="StatusText(this)"> <li><a href="_config99.htm">App Settings</a></li> </div> 
+                <div onmouseover="AppText(this)" onmouseout="StatusText(this)"> <li><a href="index.htm">Application Page</a></li> </div> 
+            </ul>
+        </div>
+        <div id="centerblock">
+            <div id="center">
+                <div onmouseover="ModBusText(this)" onmouseout="TCPIPText(this)" style="visibility: hidden;"> <!-- not supported yet -->
+                    <div class="item-line2"> ModBus </div>
+                    <input id="ModBusChkBox" name="Enable ModBus" type="checkbox" <<ModBusChecked>> onclick="handleModBus(this)" />
+                </div>
+                <div onmouseover="ASCIIText(this)" onmouseout="TCPIPText(this)" style="visibility: hidden;"> <!-- not supported yet -->
+                    <div class="item-line2"> ASCII </div>
+                    <input id="AsciiChkBox" name="Enable ASCII" type="checkbox" <<AsciiChecked>> onclick="handleASCII(this)" />
+                </div>
+                <div onmouseover="BinaryText(this)" onmouseout="TCPIPText(this)">
+                    <div class="item-line2"> Binary </div>
+                    <input id="BinaryChkBox" name="Enable Binary" type="checkbox" ~BinaryChecked~ onclick="handleBinary(this)" />
+                </div>
+                <div onmouseover="AESText(this)" onmouseout="TCPIPText(this)">
+                    <div class="item-line2"> AES Binary </div>
+                    <input id="AESChkBox" name="Enable AES" type="checkbox" ~AESChecked~ onclick="handleAES(this)" />
+                </div>
+                <div onmouseover="PortText(this)" onmouseout="TCPIPText(this)">
+                    <div class="item-line"> TCP/IP Port </div>
+                    <input type="text" value = ~System_TcpPort~ onkeyup="newAJAXCommand('dscript.cgi?System_TcpPort='+document.getElementById('SystemTcpPort').value);" id="SystemTcpPort">
+                </div>
+                <div onmouseover="AESkeyText(this)" onmouseout="TCPIPText(this)">
+                    <div class="item-line"> AES key </div>
+                    <input type="text" id="SystemAESkey" value = "~System_AES_key~" onkeyup="newAJAXCommand('dscript.cgi?System_AES_key='+encodeURIComponent(this.value));" disabled="true">
+                </div>
+                <div onmouseover="AppdScriptServerText(this)" onmouseout="TCPIPText(this)">
+                    <div class="item-line"> dScriptServer </div>
+                    <input type="text" id="AppdScriptServer" value = "~App_dScriptServer~" onkeyup="newAJAXCommand('dscript.cgi?App_dScriptServer='+document.getElementById('AppdScriptServer').value);">
+                </div>
+                <br>
+                <div id="mbus" style="display:none" onmouseover="ModbusParamsText(this)" onmouseout="TCPIPText(this)" style="visibility: hidden;"> <!-- not supported yet -->
+                    <div>
+                        <div class="item-line"> Modbus UID </div>
+                        <input style="width:45px;" type="text" value = ~System_ModbusUID~ onkeyup="newAJAXCommand('dscript.cgi?System_ModbusUID='+document.getElementById('SystemModbusUID').value);" id="SystemModbusUID">
+                    </div>
+                    <div>
+                        <div class="item-line"> Modbus Baudrate </div>
+                        <select style = "margin-top:5px" id='baud' onchange="newAJAXCommand('dscript.cgi?System_ModbusBaud='+this.value);">
+                            <option value='1'>9600</option>
+                            <option value='2'>19200</option>
+                            <option value='3'>31250</option>
+                            <option value='4'>38400</option>
+                            <option value='5'>57600</option>
+                            <option value='6'>115200</option>
+                            <option value='7'>250k</option>
+                            <option value='8'>500k</option>
+                            <option value='9'>1M</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="item-line"> Modbus Parity </div>
+                        <select style = "margin-top:8px" id='Parity' onchange="newAJAXCommand('dscript.cgi?System_ModbusParity='+this.value);">
+                            <option value='0'>None</option>
+                            <option value='1'>Even</option>
+                            <option value='2'>Odd</option>
+                        </select>
+                    </div>
+                </div> 
+            </div>
+        </div>
+
+        <div id="helpblock">
+            <div ID="help">
+            </div>
+            <div>
+                <div class='Indicator1'>  <img class='IO' id='Pend' src='DarkOff.png'/> Update Pending </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+TCPIPText();
+
+if(document.getElementById("ModBusChkBox").checked == true) document.getElementById('mbus').style.display = 'block';
+else document.getElementById('mbus').style.display = 'none';
+document.getElementById('baud').value = ~System_ModbusBaud~;
+document.getElementById('Parity').value = ~System_ModbusParity~;
+
+function AppdScriptServerText(x)
+{
+    document.getElementById('help').innerHTML = "<br>dScriptServer hostname/ip<br><br>The dScriptServer is a server provided via python modul. This server can receive consolidated information about multiple dScirpt modules to allow integration e.g. into home automation systems.<br>If this input is set to '' there are no status updates sent to the server.";
+}
+
+function ModbusParamsText(x)
+{
+    document.getElementById('help').innerHTML = "<br>Modbus Parameters<br><br>Modbus UID is the UID (address) for this unit. Normally leave this set to 1.<br>All other UID's are forwarded to other Modbus modules on the RS485 Modbus RTU port.<br><br>Modbus Baudrate & Parity<br>These are for the RS485 port only. <br>If you are not connecting another Modbus module, they can be ignored.<br><br>Changes take effect after next re-boot.";
+}
+
+function CounterText(x) {
+    document.getElementById('help').innerHTML = "<br>Counter/Timers<br><br>Eight Counter/Timers.<br> Used as Counters when the count input is connected to an Input <br><br>Used as Timers when connected to the internal 1Hz clock, T1.<br><br>The 32-bit counter counts up from zero to a maximum of 2,147,483,647.";
+}
+
+function ScheduleText(x) {
+    document.getElementById('help').innerHTML = "<br>Scheduler<br><br>Schedule daily events with 8 schedules, 2 events per schedule and a week day mask.";
+}
+
+function P2PText(x) {
+    document.getElementById('help').innerHTML = "<br>Peer to Peer<br><br>Use inputs on this module to control relays on other dSxxxx modules which can be on your local LAN or across the internet.<br>";
+}
+
+function AESText(x) {
+    document.getElementById('help').innerHTML = "<br>Enable AES Encryption<br><br>This uses the same commands as the binary command set, but uses AES256 encryption for the commands and the response.";
+}
+
+function AESkeyText(x) {
+    document.getElementById('help').innerHTML = "<br>AES Encryption key<br><br>Only required when AES Binary mode is selected.<br><br>This key MUST be 32 characters long.<br> Use ASCII characters in the range 0x20-0x7E excluding \" (0x22).<br><br>Use a random mix of upper & lower case, numbers and symbols: you don't need to memorise it! The identical key must be used in your encryption program.";
+}
+
+function RelayText(x) {
+    document.getElementById('help').innerHTML = "<br>Relay Names<br><br>These are the labels on the relay buttons on the aplication page to give each relay a unique and descriptive name. <br><br>Maximum 20 characters.";
+}
+
+function IOText(x) {
+    document.getElementById('help').innerHTML = "<br>I/O Names<br><br>These are the I/O labels on the aplication page to give each I/O a unique and descriptive name. <br><br>Maximum 20 characters.";
+}
+
+function IOType(x) {
+    document.getElementById('help').innerHTML = "<br>I/O Types<br><br>Configure Digital I/O with or without pull-up resistors, or analogue inputs with 4.096v or 5v reference.";
+}
+
+function EasyMailText(x) {
+    document.getElementById('help').innerHTML = "<br>Easy Mail<br><br>Send secure emails in response to selected events.";
+}
+
+function ASCIIText(x) {
+    document.getElementById('help').innerHTML = "<br>Enable ASCII command set.<br><br>The ASCII command set allows you to control the module by typing plain text commands into a TCP/IP terminal program, such as PuTTY.";
+}
+
+function BinaryText(x) {
+    document.getElementById('help').innerHTML = "<br>Enable Binary command set.<br><br>The Binary command set is the simplest if you are programming an application to control the module.<br><br>The commands are a subset of those used on our ETHxxx series.";
+}
+
+function ModBusText(x) {
+    document.getElementById('help').innerHTML = "<br>Enable ModBus over TCP/IP.<br><br>This alows the module to be controlled by a PLC or similar device that can issue ModBbus over TCP/IP commands.<br><br>Supported functions are 1, 4, 5 & 15.<br><br>TCP/IP port should be set to 502, the port assigned for Modbus over TCP/IP.";
+}
+
+function PortText(x) {
+    document.getElementById('help').innerHTML = "<br>The TCP/IP port number.<br><br>This the port number used for the ASCII, Binary or ModBus commands.<br>(default=17123; default modbus=502)";
+}
+
+function StatusText(x) {
+    document.getElementById('help').innerHTML = "<br>Status<br><br>Shows the current status of the module.";
+}
+
+function NetworkText(x) {
+    document.getElementById('help').innerHTML = "<br>Network<br><br>Configure network IP address and associated parameters.";
+}
+
+function TCPIPText(x) {
+    document.getElementById('help').innerHTML = "<br>TCP/IP<br><br>Choose the TCP/IP command set to use, or disable all check boxes for none.";
+}
+
+function SecurityText(x) {
+    document.getElementById('help').innerHTML = "<br>Webpage Security<br><br>Configure the password for webpage security.";
+}
+
+function AppText(x) {
+    document.getElementById('help').innerHTML = "<br>Application<br><br>Jumps to the application webpage.";
+}
+
+function handleAES(cb) {
+    if(cb.checked) {
+        newAJAXCommand('dscript.cgi?System_Cmd=4');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        document.getElementById('SystemTcpPort').disabled = false;
+        document.getElementById('ModBusChkBox').checked = false;
+        document.getElementById('AsciiChkBox').checked = false;
+        document.getElementById('BinaryChkBox').checked = false;
+        document.getElementById('SystemAESkey').disabled = false;
+        document.getElementById('mbus').style.display = 'none';
+
+    }
+    else {
+        newAJAXCommand('dscript.cgi?System_Cmd=0');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        document.getElementById('SystemAESkey').disabled = true;
+        if(document.getElementById('AsciiChkBox').checked == false && document.getElementById('ModBusChkBox').checked == false && document.getElementById('BinaryChkBox').checked == false) document.getElementById('SystemTcpPort').disabled = true;
+    }
+}
+
+function handleBinary(cb) {
+    if(cb.checked) {
+        newAJAXCommand('dscript.cgi?System_Cmd=3');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        document.getElementById('SystemTcpPort').disabled = false;
+        document.getElementById('ModBusChkBox').checked = false;
+        document.getElementById('AsciiChkBox').checked = false;
+        document.getElementById('AESChkBox').checked = false;
+        document.getElementById('SystemAESkey').disabled = true;
+        document.getElementById('mbus').style.display = 'none';
+    }
+    else {
+        newAJAXCommand('dscript.cgi?System_Cmd=0');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        if(document.getElementById('AsciiChkBox').checked == false && document.getElementById('ModBusChkBox').checked == false && document.getElementById('AESChkBox').checked == false) document.getElementById('SystemTcpPort').disabled = true;
+    }
+}
+
+function handleASCII(cb) {
+    if(cb.checked) {
+        newAJAXCommand('dscript.cgi?System_Cmd=2');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        document.getElementById('SystemTcpPort').disabled = false;
+        document.getElementById('ModBusChkBox').checked = false;
+        document.getElementById('BinaryChkBox').checked = false;
+        document.getElementById('AESChkBox').checked = false;
+        document.getElementById('SystemAESkey').disabled = true;
+        document.getElementById('mbus').style.display = 'none';
+    }
+    else {
+        newAJAXCommand('dscript.cgi?System_Cmd=0');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        if(document.getElementById('ModBusChkBox').checked == false && document.getElementById('BinaryChkBox').checked == false && document.getElementById('AESChkBox').checked == false) document.getElementById('SystemTcpPort').disabled = true;
+    }
+}
+
+function handleModBus(cb) {
+    if(cb.checked) {
+        newAJAXCommand('dscript.cgi?System_Cmd=1');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        document.getElementById('SystemTcpPort').disabled = false;
+        document.getElementById('AsciiChkBox').checked = false;
+        document.getElementById('BinaryChkBox').checked = false;
+        document.getElementById('AESChkBox').checked = false;
+        document.getElementById('SystemAESkey').disabled = true;
+        document.getElementById('mbus').style.display = 'block';        
+    }
+    else {
+        newAJAXCommand('dscript.cgi?System_Cmd=0');
+        newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+        if(document.getElementById('AsciiChkBox').checked == false && document.getElementById('BinaryChkBox').checked == false && document.getElementById('AESChkBox').checked == false) document.getElementById('SystemTcpPort').disabled = true;
+        document.getElementById('mbus').style.display = 'none';
+    }
+}
+
+
+function ajaxUpdate()
+{
+    LedStatus = getValue('FlashWritePending');
+    if(LedStatus>0) document.getElementById('Pend').src = 'RedOn.png';
+    else document.getElementById('Pend').src = 'DarkOff.png';
+}
+</script>
+
+</body>
+</html>
+
