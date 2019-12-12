@@ -340,109 +340,109 @@ function SetIO(int32 ioID, int32 State)         ; subroutine called from Ascii a
     endselect
     return
 endfunction
-function SetRelay(int32 RelayID, int32 State)   ; subroutine setting a relay (valid states are  0=off, 1=on or 3=toggle)
+function SetRelay(int32 RelayID, int32 State)   ; subroutine setting a relay (valid states are  0=off, 1=on, 2 or other=toggle)
     select RelayID
         case 1
-            if State==3 then Rly1 = Rly1 ^ 1
+            if State >= 2 then Rly1 = Rly1 ^ 1
             else Rly1 = State endif
         case 2
-            if State==3 then Rly2 = Rly2 ^ 1
+            if State >= 2 then Rly2 = Rly2 ^ 1
             else Rly2 = State endif
         case 3
-            if State==3 then Rly3 = Rly3 ^ 1
+            if State >= 2 then Rly3 = Rly3 ^ 1
             else Rly3 = State endif
         case 4
-            if State==3 then Rly4 = Rly4 ^ 1
+            if State >= 2 then Rly4 = Rly4 ^ 1
             else Rly4 = State endif
         case 5
-            if State==3 then Rly5 = Rly5 ^ 1
+            if State >= 2 then Rly5 = Rly5 ^ 1
             else Rly5 = State endif
         case 6
-            if State==3 then Rly6 = Rly6 ^ 1
+            if State >= 2 then Rly6 = Rly6 ^ 1
             else Rly6 = State endif
         case 7
-            if State==3 then Rly7 = Rly7 ^ 1
+            if State >= 2 then Rly7 = Rly7 ^ 1
             else Rly7 = State endif
         case 8
-            if State==3 then Rly8 = Rly8 ^ 1
+            if State >= 2 then Rly8 = Rly8 ^ 1
             else Rly8 = State endif
         case 9
-            if State==3 then Rly9 = Rly9 ^ 1
+            if State >= 2 then Rly9 = Rly9 ^ 1
             else Rly9 = State endif
         case 10
-            if State==3 then Rly10 = Rly10 ^ 1
+            if State >= 2 then Rly10 = Rly10 ^ 1
             else Rly10 = State endif
         case 11
-            if State==3 then Rly11 = Rly11 ^ 1
+            if State >= 2 then Rly11 = Rly11 ^ 1
             else Rly11 = State endif
         case 12
-            if State==3 then Rly12 = Rly12 ^ 1
+            if State >= 2 then Rly12 = Rly12 ^ 1
             else Rly12 = State endif
         case 13
-            if State==3 then Rly13 = Rly13 ^ 1
+            if State >= 2 then Rly13 = Rly13 ^ 1
             else Rly13 = State endif
         case 14
-            if State==3 then Rly14 = Rly14 ^ 1
+            if State >= 2 then Rly14 = Rly14 ^ 1
             else Rly14 = State endif
         case 15
-            if State==3 then Rly15 = Rly15 ^ 1
+            if State >= 2 then Rly15 = Rly15 ^ 1
             else Rly15 = State endif
         case 16
-            if State==3 then Rly16 = Rly16 ^ 1
+            if State >= 2 then Rly16 = Rly16 ^ 1
             else Rly16 = State endif
         case 17
-            if State==3 then Rly17 = Rly17 ^ 1
+            if State >= 2 then Rly17 = Rly17 ^ 1
             else Rly17 = State endif
         case 18
-            if State==3 then Rly18 = Rly18 ^ 1
+            if State >= 2 then Rly18 = Rly18 ^ 1
             else Rly18 = State endif
         case 19
-            if State==3 then Rly19 = Rly19 ^ 1
+            if State >= 2 then Rly19 = Rly19 ^ 1
             else Rly19 = State endif
         case 20
-            if State==3 then Rly20 = Rly20 ^ 1
+            if State >= 2 then Rly20 = Rly20 ^ 1
             else Rly20 = State endif
         case 21
-            if State==3 then Rly21 = Rly21 ^ 1
+            if State >= 2 then Rly21 = Rly21 ^ 1
             else Rly21 = State endif
         case 22
-            if State==3 then Rly22 = Rly22 ^ 1
+            if State >= 2 then Rly22 = Rly22 ^ 1
             else Rly22 = State endif
         case 23
-            if State==3 then Rly23 = Rly23 ^ 1
+            if State >= 2 then Rly23 = Rly23 ^ 1
             else Rly23 = State endif
         case 24
-            if State==3 then Rly24 = Rly24 ^ 1
+            if State >= 2 then Rly24 = Rly24 ^ 1
             else Rly24 = State endif
         case 25
-            if State==3 then Rly25 = Rly25 ^ 1
+            if State >= 2 then Rly25 = Rly25 ^ 1
             else Rly25 = State endif
         case 26
-            if State==3 then Rly26 = Rly26 ^ 1
+            if State >= 2 then Rly26 = Rly26 ^ 1
             else Rly26 = State endif
         case 27
-            if State==3 then Rly27 = Rly27 ^ 1
+            if State >= 2 then Rly27 = Rly27 ^ 1
             else Rly27 = State endif
         case 28
-            if State==3 then Rly28 = Rly28 ^ 1
+            if State >= 2 then Rly28 = Rly28 ^ 1
             else Rly28 = State endif
         case 29
-            if State==3 then Rly29 = Rly29 ^ 1
+            if State >= 2 then Rly29 = Rly29 ^ 1
             else Rly29 = State endif
         case 30
-            if State==3 then Rly30 = Rly30 ^ 1
+            if State >= 2 then Rly30 = Rly30 ^ 1
             else Rly30 = State endif
         case 31
-            if State==3 then Rly31 = Rly31 ^ 1
+            if State >= 2 then Rly31 = Rly31 ^ 1
             else Rly31 = State endif
         case 32
-            if State==3 then Rly32 = Rly32 ^ 1
+            if State >= 2 then Rly32 = Rly32 ^ 1
             else Rly32 = State endif
         else App_Message="Invalid relay id"
     endselect
     return
 endfunction
-function int8 GetRelay(int32 RelayID)           ; returns the current status of a specific relay 1=on, 0=off
+function int8 GetRelay(int32 RelayID)           ; returns the current status of a specific relay 0=off, 1=on
     select RelayID
         case 1  if Rly1  == off then return 0 else return 1 endif
         case 2  if Rly2  == off then return 0 else return 1 endif
@@ -589,14 +589,14 @@ endfunction
 function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all multiclicks related to lights
     App_InpType="Light"
     select Clicks
-        case 1  App_Message="toggle light" SetLight(LightID,0) 
+        case 1  App_Message="toggle light" SetLight(LightID,2) 
         case 2  App_Message="enable ALL lights" ; on this controller
             for LightID = 1 to App_Lights
                 SetLight(LightID,1)
             next
         case 3  App_Message="disable ALL lights" ; on this controller
             for LightID = 1 to App_Lights
-                SetLight(LightID,2)
+                SetLight(LightID,0)
             next
         else App_Message="Unhandled click count"
     endselect
@@ -611,13 +611,13 @@ function OtherClicksHandler(int32 InpID, int32 Clicks)          ; handles all mu
     return
 endfunction
 
-function SetLight(int32 LightID, int32 Action)      ; Sets the state of a light (Action: 1=ON; 2=OFF; 0 or any other=Toggle)
+function SetLight(int32 LightID, int32 Action)      ; Sets the state of a light (Action: 0=OFF; 1=ON; 2 or any other=Toggle)
     App_Message="SetLight"
     int32 RelayID
     RelayID=App_LightsOffset-(LightID-1)            ; calculate the corresponding relay id for light id
-    if Action == 1 then SetRelay(RelayID, on)
-    elseif Action == 2 then SetRelay(RelayID, off)
-    else SetRelay(RelayID, 3) endif ;3 means toggle relay
+    if Action == 0 then SetRelay(RelayID, off)
+    elseif Action == 1 then SetRelay(RelayID, on)
+    else SetRelay(RelayID, 2) endif ; 2 or any other means toggle relay
     dScriptServerTrigger(81, LightID)               ; trigger refresh on the dScriptServer
     return      
 endfunction
@@ -977,11 +977,6 @@ endfunction
 function BinarySetLight()                       ; SL, Set Light - light id, state, total 3 byte command
     select tcpInBuf[1]
         case 1 to App_Lights
-            select tcpInBuf[2]                      ; correct tcpInBuf2 to match SetLight function
-                case 0x00 tcpInBuf[2] = 2           ; off
-                case 0x01 tcpInBuf[2] = 1           ; on
-                else tcpInBuf[2] = 0                ; toggle
-            endselect
             if Nonce == NonceIn then                ; process command only Nonce counting is correct 
                 SetLight(tcpInBuf[1], tcpInBuf[2])  ; process command    
                 tcpOutBuf[0] = 0 endif              ; ACK
