@@ -207,7 +207,7 @@ thread main(const)
     InputsStart()                    ; start threads for physical & virtual input buttons
     threadstart TcpipCmd                ; start TCP/IP network server for communication
     threadstart dScriptServerContacter  ; start contacting the dScriptServer
-    dScriptServerTrigger(0,0)           ; send "master I am here" information to server
+    dScriptServerTrigger(0,0)           ; send hearbeat trigger to server
     
     App_Message="ready"      
     do FlashWritePending = system.FlashPending ; keep up-to-date so webpage can access it
@@ -1062,7 +1062,7 @@ function BinaryGetShutter()                     ; GH, Get Shutter - returns 2 by
     tcpLength = 2
     return
 endfunction
-function BinaryGetSocket()                      ; GC, Get Socket - returns 1 byte
+function BinaryGetSocket()                      ; GK, Get Socket - returns 1 byte
     int8 RelayID
     RelayID=App_PhysRelays-(tcpInBuf[1]-1)      ; replace socket id with rleay id
     tcpOutBuf[0] = GetRelay(RelayID)            
@@ -1083,7 +1083,7 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)      ; trigger requests on
     
     ;App_Message="dScriptServerTrigger"
     select cmdID
-        case 0  ; "master I am here" trigger to server - usually used on boot only
+        case 0  					; hearbeat trigger to server
             clientBuf[0] = cmdID clientBuf[1] = 0
         case 48 ; decimal value for: GS, Get Status
             clientBuf[0] = cmdID clientBuf[1] = objID
@@ -1202,7 +1202,7 @@ thread ValidateCountLightsAndShutters(1000) ; validate the number of lights and 
 endthread
 
 thread dScriptServerContacter(600000)     ; try to contact the dScriptServer at least every 10 minutes
-    dScriptServerTrigger(0,0)       ; send "master I am here" information to server   
+    dScriptServerTrigger(0,0)       ; send heartbeat trigger to server   
 endthread
 
 thread Input1(input Inp1)   ; triggered as soon as physical IO receives high
