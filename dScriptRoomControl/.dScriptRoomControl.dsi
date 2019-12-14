@@ -136,7 +136,7 @@ int32   NonceIn
 
 ; application working variables #################################
 string  System_MAC[6]           ; MAC address of the devices ehternet port
-string  System_MACString[17]    ; MAC address in common string format 00:00:00:00:00:00
+string  System_MACString[11]    ; MAC address in common string format 00:00:00:00:00:00
 string  App_Message[32]         ; status message output
 
 int32 App_IOCtr1    ;counter values to follow up multi button press commands
