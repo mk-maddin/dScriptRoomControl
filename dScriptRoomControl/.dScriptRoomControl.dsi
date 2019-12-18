@@ -631,6 +631,8 @@ function SetSocket(int32 SocketID, int32 Action)    ; Sets the state of a Socket
     App_Message="SetSocket"
     int32 RelayID
     RelayID=App_PhysRelays-(SocketID-1)             ; calculate the corresponding relay id for socket id
+    ;if Action == 1 then SetRelay(RelayID, off)       ; sockets are usually connected to NC instead of NO - so invert here (do exactly the opposite to the relay)
+    ;elseif Action == 2 then SetRelay(RelayID, on)  ; if the socket should be on turn the releay off - if the socket should be off, turn the relay on
     if Action == 1 then SetRelay(RelayID, on)
     elseif Action == 2 then SetRelay(RelayID, off)
     else SetRelay(RelayID, 3) endif ;3 means toggle relay
@@ -1023,8 +1025,8 @@ function BinarySetSocket()                      ; SC, Set Socket - socket id, st
         select tcpInBuf[1]
             case 1 to App_Sockets
                 select tcpInBuf[2]                      ; correct tcpInBuf2 to match SetSocket function
-                    case 0x00 tcpInBuf[2] = 1           ; 0=off (in request) 2=off (in SetSocket) -> do exactly the opposite since sockets are usucally NC instead of NO
-                    case 0x01 tcpInBuf[2] = 2           ; 1=on (in request) 1=on (in SetSocket) -> do exactly the opposite since sockets are usucally NC instead of NO
+                    case 0x00 tcpInBuf[2] = 2           ; off
+                    case 0x01 tcpInBuf[2] = 1           ; on
                     else tcpInBuf[2] = 0                ; toggle
                 endselect
                 if Nonce == NonceIn then                ; process command only Nonce counting is correct 
@@ -1075,8 +1077,8 @@ function BinaryGetSocket()                      ; GK, Get Socket - returns 1 byt
     int8 RelayID
     RelayID=App_PhysRelays-(tcpInBuf[1]-1)      ; replace socket id with rleay id
     tcpOutBuf[0] = GetRelay(RelayID)            
-    if tcpOutBuf[0] == 0 then tcpOutBuf[0] = 1       ; sockets are usually connected to NC instead of NO - so invert here
-    elseif tcpOutBuf[0] == 1 tcpOutBuf[0] = 0 endif
+    ;if tcpOutBuf[0] == 0 then tcpOutBuf[0] = 1       ; sockets are usually connected to NC instead of NO - so invert here
+    ;elseif tcpOutBuf[0] == 1 tcpOutBuf[0] = 0 endif
     tcpLength = 1
     return
 endfunction
