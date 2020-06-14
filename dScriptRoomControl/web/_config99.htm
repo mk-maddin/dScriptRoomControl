@@ -55,6 +55,10 @@
                     <div class="item-line"> Door shut CT </div>
                     <input type="text" value = ~App_DoorShutterCT~ onkeyup="newAJAXCommand('dscript.cgi?App_DoorShutterCT='+document.getElementById('AppDoorShutterCT').value);" id="AppDoorShutterCT">
                 </div>
+                <div onmouseover="MotionLightsText(this)" onmouseout="AppCfgText(this)">
+                    <div class="item-line"> Motion LightIDs </div>
+                    <input type="text" value = "~App_MotionLights~" onkeyup="newAJAXCommand('dscript.cgi?App_MotionLights='+document.getElementById('AppMotionLights').value);" id="AppMotionLights">
+                </div>
                 <br>
                 <table>
                     <tr><td>
@@ -200,7 +204,28 @@ function UpdateAppShutters(x) {
     newAJAXCommand('dscript.cgi?App_Shutters='+document.getElementById('AppShutters').value);
     for (x = 1; x <= 16; x++) {
         if (x <= document.getElementById('AppShutters').value) {
-            document.getElementById('AppShutterTypeL'+x).style.visibility  = 'visible';} 
+            switch(x){
+                case 1: v=~App_ShutterType1~;break;
+                case 2: v=~App_ShutterType2~;break;
+                case 3: v=~App_ShutterType3~;break;
+                case 4: v=~App_ShutterType4~;break;
+                case 5: v=~App_ShutterType5~;break;
+                case 6: v=~App_ShutterType6~;break;
+                case 7: v=~App_ShutterType7~;break;
+                case 8: v=~App_ShutterType8~;break;
+                case 9: v=~App_ShutterType9~;break;
+                case 10: v=~App_ShutterType10~;break;
+                case 11: v=~App_ShutterType11~;break;
+                case 12: v=~App_ShutterType12~;break;
+                case 13: v=~App_ShutterType13~;break;
+                case 14: v=~App_ShutterType14~;break;
+                case 15: v=~App_ShutterType15~;break;
+                case 16: v=~App_ShutterType16~;break;
+                default: v=0
+            }
+            document.getElementById('AppShutterType'+x).value = v;
+            document.getElementById('AppShutterTypeL'+x).style.visibility  = 'visible';
+            } 
         else {document.getElementById('AppShutterTypeL'+x).style.visibility  = 'hidden';}
     }
 }
@@ -283,6 +308,10 @@ function DoorShutterCTText(x) {
 
 function ShutterTypeText(x) {
     document.getElementById('help').innerHTML = "<br>Shutter closing type<br><br>Defines the shutter type based on which the closing time ('Window shut CT' OR 'Door shut CT') is selected.";
+}
+
+function MotionLightsText(x) {
+    document.getElementById('help').innerHTML = "<br>Comma separated list of lightIDs which should be controlled by motion sensor.";
 }
 
 function ajaxUpdate()

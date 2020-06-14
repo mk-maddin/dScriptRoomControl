@@ -3,7 +3,7 @@
 ;************************************
 
 const       AppMajor    1                       ; version of this application.
-const       AppMinor    4                      ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    6                      ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 flint32     initControl         ; rerun init on every AppMajor / AppMinor update
@@ -43,7 +43,7 @@ tcpip.dhcp      System_EnableDHCP
 flint8      System_Cmd              ; set tcp/ip communication protocol ( 1=Modbus; 2=ASCII; 3=Binary ; 4=BinaryAES ) currently supported only 2 & 3
 flint32     System_TcpPort          ; port used for tcp/ip communication (default=17123; default modbus=502) - used as dScriptServer listening port,too
 flstring    System_AES_key[33]     ; encryption key for BinaryAES mode; This MUST be 32 characters long.   
-flstring    App_dScriptServer[21]   ; the dScriptServer hostname/ip to send TCP/IP status update messages to
+flstring    App_dScriptServer[20]   ; the dScriptServer hostname/ip to send TCP/IP status update messages to
 
 ;int32     System_ModbusUID          ; temporary set as "int32" not flint32 for programming and testing
 ;int8      System_ModbusBaud         ; temporary set as "int8" not flint8 for programming and testing
@@ -64,7 +64,7 @@ clientport  dScriptServer App_dScriptServer System_TcpPort 3000
 
 ; config page 4 - Webpage Security #################################
 flint8      System_EnablePW
-flstring    System_Password[201]
+flstring    System_Password[20]
 flint32     System_HttpPort
 string      PWChecked[8]
 
@@ -79,13 +79,15 @@ html.setup      System_EnablePW
 ;int8    App_Lights                      ; temporary set as "int8" not eeint8 for programming and testing
 ;int8    App_Shutters                    ; temporary set as "int8" not eeint8 for programming and testing
 ;int8    App_LightsOffset                ; temporary set as "int8" not eeint8 for programming and testing
+;jstring   App_MotionLights[20]           ; temporary set as "string" not eestring for programming and testing
 
 eeint32   App_ClickSleep                ; wait time for input clicks to complete for multi click handling
 eeint32   App_WindowShutterCT           ; time it takes until a window shutter is fully closed from fully open
 eeint32   App_DoorShutterCT             ; time it takes until a door shutter is fully closed from fully open
 eeint8    App_Lights                    ; number of lights connected to relays
 eeint8    App_Shutters                  ; number of shutters connected to relays
-eeint8    App_LightsOffset              ; relay number where light connections begin (e.g. 10 means first light is at 10, second light at 9, third at 8 etc.)
+eeint8    App_LightsOffset              ; relay number where light connections begin (e.g. 10 means first light is at 10 relay, second light at 9 relay, third at 8 etc.)
+eestring  App_MotionLights[20]          ; comma separated list of LightIDs which should be turned on/off by motion sensor
 
 ;int8 App_ShutterType1                  ; temporary set as "int8" not eeint8 for programming and testing
 ;int8 App_ShutterType2                  ; temporary set as "int8" not eeint8 for programming and testing
@@ -138,6 +140,7 @@ int32   NonceIn
 string  System_MAC[6]           ; MAC address of the devices ehternet port
 string  System_MACString[17]    ; MAC address in common string format 00:00:00:00:00:00
 string  App_Message[32]         ; status message output
+int32   App_Debug                 ; variable to temporary store values and show them on app page (for Debug help)
 
 int32 App_IOCtr1    ;counter values to follow up multi button press commands
 int32 App_IOCtr2 
@@ -147,6 +150,9 @@ int32 App_IOCtr5
 int32 App_IOCtr6
 int32 App_IOCtr7
 int32 App_IOCtr8
+
+int8 App_IOActive[8]    ;tracking values to check which pyhsical inputs are active and which are not [0] is not used
+int8 App_MotionInit     ;variable to indicate that motion sensor was initialized successfully
 
 int8 App_ShutterLevel1
 int8 App_ShutterLevel2
@@ -168,14 +174,13 @@ int8 App_ShutterLevel16
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[8]            ; variable writing the input type to webpage information input
 int8    App_Sockets               ; number of sockets connected to relays ( =physical_relays-(light_relays+shutter_relays)) )
+int32   App_InpMotion             ; variable holding the input id of a triggerd motion sensor
 
 int8  App_ShutterStates[16]     ; stores the current status of shutters (0 = stopped; 1 = opening; 2 = closing)
 int8  App_ShutterTLevels[16]    ; stores the "to be" level of a shutter ( 100 = fully open; 0 = fully closed)
 int8  App_ShutterCLevels[16]    ; stores the current level of a shutter to prevent a lot of eeprom writings while moving ( 100 = fully open; 0 = fully closed)
 ;int8  App_ShutterLevels[16]     ; temporary set as "int8" not eeint8 for program testing
 eeint8    App_ShutterLevels[16] ; to restore shutter closed/open level after power outage  ( 100 = fully open; 0 = fully closed)
-
-int32 App_Debug                 ; variable to temporary store values and show them on app page (for Debug help)
 
 ; ###############################################################
 
@@ -218,7 +223,7 @@ thread main(const)
     App_Message="ready"      
     do FlashWritePending = system.FlashPending ; keep up-to-date so webpage can access it
        threadsleep 100
-    loop 
+    loop
     threadsuspend
 endthread
 
@@ -261,6 +266,7 @@ function Init()         ; initializes volatile/permantent variables with program
     App_ClickSleep = 800        ; we have 0.8 seconds time to press button multiple times
     App_WindowShutterCT = 10000 ; windows shutter needs 55 seconds to close
     App_DoorShutterCT = 20000   ; door shutter needs 110 seconds (1 minute and 50 seconds) to close
+    App_MotionLights = ""
 
     App_ShutterType1 = 0        ; set closing time by default to window (0 = window; 1 = door)
     App_ShutterType2 = App_ShutterType1
@@ -310,7 +316,10 @@ function InitRestore()  ; restore temporary from volatile variables
     App_Debug=-99   ; set nonse initial value to see value change in case of 0
     threadstart UpdateCheckedStrings ; keep config page checkboxes updated
     SystemCmdUpdated=1               ; trigger UpdateCheckedStrings during startup
-       
+
+    App_InpMotion = 0           ; reset variable temporary holding active motion sensor
+    App_MotionInit = 0          ; reset variable indicating motion sensor initialization
+    
     App_IOCtr1 = 0              ; reset counters for multi button presses
     App_IOCtr2 = App_IOCtr1
     App_IOCtr3 = App_IOCtr1
@@ -320,6 +329,15 @@ function InitRestore()  ; restore temporary from volatile variables
     App_IOCtr7 = App_IOCtr1
     App_IOCtr8 = App_IOCtr1
 
+    App_IOActive[0] = 0         ; reset states for tracking active input buttons pressed
+    App_IOActive[1] = App_IOActive[0]
+    App_IOActive[2] = App_IOActive[0]
+    App_IOActive[3] = App_IOActive[0]
+    App_IOActive[4] = App_IOActive[0]
+    App_IOActive[5] = App_IOActive[0]
+    App_IOActive[6] = App_IOActive[0]
+    App_IOActive[7] = App_IOActive[0]
+    
     int32 ShutterID
     for ShutterID = 1 to 16
         App_ShutterStates[ShutterID-1] = 0 ; 0 = stopped; 1 = opening; 2 = closing
@@ -555,9 +573,13 @@ function InputHandler(int32 InpID, int32 Clicks) ; handles inputs dynamically ba
         
         if ( App_Lights // 2 ) == 1 and ( App_Shutters // 2 ) == 0 ShuttersOffset = 1  ; other button between light & shutter buttons exists
         if InpID == ( App_Lights + ShuttersOffset ) then ; other button between light & shutter buttons was pressed
-            OtherClicksHandler(InpID, Clicks) return
+            ;OtherClicksHandler(InpID, Clicks)
+            MotionSensorHandler(InpID, Clicks)
+            return
         elseif InpID > ( App_Lights + App_Shutters + ShuttersOffset ) then ; other button after all light & shutter buttons was pressed
-            OtherClicksHandler(InpID, Clicks) return
+            ;OtherClicksHandler(InpID, Clicks)
+            MotionSensorHandler(InpID, Clicks)
+            return
         endif
         
         ShutterClicksHandler((InpID - App_Lights - ShuttersOffset),Clicks); shutter button was pressed
@@ -565,6 +587,22 @@ function InputHandler(int32 InpID, int32 Clicks) ; handles inputs dynamically ba
     return
 endfunction
 
+function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all multiclicks related to lights
+    App_InpType="Light"
+    select Clicks
+        case 1  App_Message="toggle light" SetLight(LightID,2) 
+        case 2  App_Message="enable ALL lights" ; on this controller
+            for LightID = 1 to App_Lights
+                SetLight(LightID,1)
+            next
+        case 3  App_Message="disable ALL lights" ; on this controller
+            for LightID = 1 to App_Lights
+                SetLight(LightID,0)
+            next
+        else App_Message="Unhandled click count"
+    endselect
+    return
+endfunction
 function ShutterClicksHandler(int32 ShutterID, int32 Clicks)    ; handles all multiclicks related to shutters
     App_InpType="Shutter"
     select Clicks
@@ -592,20 +630,16 @@ function ShutterClicksHandler(int32 ShutterID, int32 Clicks)    ; handles all mu
     endselect
     return
 endfunction
-function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all multiclicks related to lights
-    App_InpType="Light"
-    select Clicks
-        case 1  App_Message="toggle light" SetLight(LightID,2) 
-        case 2  App_Message="enable ALL lights" ; on this controller
-            for LightID = 1 to App_Lights
-                SetLight(LightID,1)
-            next
-        case 3  App_Message="disable ALL lights" ; on this controller
-            for LightID = 1 to App_Lights
-                SetLight(LightID,0)
-            next
-        else App_Message="Unhandled click count"
-    endselect
+function MotionSensorHandler(int32 InpID, int32 Clicks)          ; handles all clicks related to motion sensor
+    if App_MotionInit == 0 then    ; mark motion handler as initialized
+        App_Message="Motion init"
+        App_IOActive[InpID-1] = 0
+        App_MotionInit = 1 return
+    endif
+
+    App_InpType="Motion"
+    App_InpMotion = InpID   ; trggers the MotionSensor thread
+    threadstart MotionSensor
     return
 endfunction
 function OtherClicksHandler(int32 InpID, int32 Clicks)          ; handles all multiclicks not related to anything else
@@ -631,8 +665,6 @@ function SetSocket(int32 SocketID, int32 Action)    ; Sets the state of a Socket
     App_Message="SetSocket"
     int32 RelayID
     RelayID=App_PhysRelays-(SocketID-1)             ; calculate the corresponding relay id for socket id
-    ;if Action == 1 then SetRelay(RelayID, off)       ; sockets are usually connected to NC instead of NO - so invert here (do exactly the opposite to the relay)
-    ;elseif Action == 2 then SetRelay(RelayID, on)  ; if the socket should be on turn the releay off - if the socket should be off, turn the relay on
     if Action == 1 then SetRelay(RelayID, on)
     elseif Action == 2 then SetRelay(RelayID, off)
     else SetRelay(RelayID, 3) endif ;3 means toggle relay
@@ -1025,8 +1057,8 @@ function BinarySetSocket()                      ; SC, Set Socket - socket id, st
         select tcpInBuf[1]
             case 1 to App_Sockets
                 select tcpInBuf[2]                      ; correct tcpInBuf2 to match SetSocket function
-                    case 0x00 tcpInBuf[2] = 2           ; off
-                    case 0x01 tcpInBuf[2] = 1           ; on
+                    case 0x00 tcpInBuf[2] = 1           ; 0=off (in request) 2=off (in SetSocket) -> do exactly the opposite since sockets are usucally NC instead of NO
+                    case 0x01 tcpInBuf[2] = 2           ; 1=on (in request) 1=on (in SetSocket) -> do exactly the opposite since sockets are usucally NC instead of NO
                     else tcpInBuf[2] = 0                ; toggle
                 endselect
                 if Nonce == NonceIn then                ; process command only Nonce counting is correct 
@@ -1077,8 +1109,8 @@ function BinaryGetSocket()                      ; GK, Get Socket - returns 1 byt
     int8 RelayID
     RelayID=App_PhysRelays-(tcpInBuf[1]-1)      ; replace socket id with rleay id
     tcpOutBuf[0] = GetRelay(RelayID)            
-    ;if tcpOutBuf[0] == 0 then tcpOutBuf[0] = 1       ; sockets are usually connected to NC instead of NO - so invert here
-    ;elseif tcpOutBuf[0] == 1 tcpOutBuf[0] = 0 endif
+    if tcpOutBuf[0] == 0 then tcpOutBuf[0] = 1       ; sockets are usually connected to NC instead of NO - so invert here
+    elseif tcpOutBuf[0] == 1 tcpOutBuf[0] = 0 endif
     tcpLength = 1
     return
 endfunction
@@ -1095,6 +1127,7 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)      ; trigger requests on
     ;App_Message="dScriptServerTrigger"
     select cmdID
         case 0  					; hearbeat trigger to server
+            App_Message="dScriptServerHeartbeat"
             clientBuf[0] = cmdID clientBuf[1] = 0
         case 48 ; decimal value for: GS, Get Status
             clientBuf[0] = cmdID clientBuf[1] = objID
@@ -1212,42 +1245,83 @@ thread ValidateCountLightsAndShutters(1000) ; validate the number of lights and 
     threadsuspend        
 endthread
 
-thread dScriptServerContacter(600000)     ; try to contact the dScriptServer at least every 10 minutes
+thread dScriptServerContacter(120000)     ; try to contact the dScriptServer at least every 10 minutes
     dScriptServerTrigger(0,0)       ; send heartbeat trigger to server   
 endthread
 
-thread Input1(input Inp1)   ; triggered as soon as physical IO receives high
-    App_IOCtr1 +=1
+thread Input1(^input Inp1)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[0] == 0 then
+        App_IOCtr1 +=1
+        App_IOActive[0] = 1
+    else
+        App_IOActive[0] = 0
+    endif
     threadsuspend
 endthread
-thread Input2(input Inp2)   ; triggered as soon as physical IO receives high
-    App_IOCtr2 +=1
+thread Input2(^input Inp2)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[1] == 0 then
+        App_IOCtr2 +=1
+        App_IOActive[1] = 1
+    else
+        App_IOActive[1] = 0
+    endif
     threadsuspend
 endthread
-thread Input3(input Inp3)   ; triggered as soon as physical IO receives high
-    App_IOCtr3 +=1
+thread Input3(^input Inp3)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[2] == 0 then
+        App_IOCtr3 +=1
+        App_IOActive[2] = 1
+    else
+        App_IOActive[2] = 0
+    endif
     threadsuspend
 endthread
-thread Input4(input Inp4)   ; triggered as soon as physical IO receives high
-    App_IOCtr4 +=1
+thread Input4(^input Inp4)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[3] == 0 then
+        App_IOCtr4 +=1
+        App_IOActive[3] = 1
+    else
+        App_IOActive[3] = 0
+    endif
     threadsuspend
 endthread
-thread Input5(input Inp5)   ; triggered as soon as physical IO receives high
-    App_IOCtr5 +=1
+thread Input5(^input Inp5)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[4] == 0 then
+        App_IOCtr5 +=1
+        App_IOActive[4] = 1
+    else
+        App_IOActive[4] = 0
+    endif
     threadsuspend
 endthread
-thread Input6(input Inp6)   ; triggered as soon as physical IO receives high
-    App_IOCtr6 +=1
+thread Input6(^input Inp6)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[5] == 0 then
+        App_IOCtr6 +=1
+        App_IOActive[5] = 1
+    else
+        App_IOActive[5] = 0
+    endif
     threadsuspend
 endthread
-thread Input7(input Inp7)   ; triggered as soon as physical IO receives high
-    App_IOCtr7 +=1
+thread Input7(^input Inp7)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[6] == 0 then
+        App_IOCtr7 +=1
+        App_IOActive[6] = 1
+    else
+        App_IOActive[6] = 0
+    endif
     threadsuspend
 endthread
-thread Input8(input Inp8)   ; triggered as soon as physical IO receives high
-    App_IOCtr8 +=1
+thread Input8(^input Inp8)   ; triggered as soon as physical IO receives high/low
+    if App_IOActive[7] == 0 then
+        App_IOCtr8 +=1
+        App_IOActive[7] = 1
+    else
+        App_IOActive[7] = 0
+    endif
     threadsuspend
 endthread
+
 
 thread InputWeb(App_WebInput)   ; triggered as soon as a web button was pressed
     select App_WebInput
@@ -1259,6 +1333,7 @@ thread InputWeb(App_WebInput)   ; triggered as soon as a web button was pressed
         case 6 App_IOCtr6 +=1
         case 7 App_IOCtr7 +=1
         case 8 App_IOCtr8 +=1
+        case 99 dScriptServerTrigger(0,0)
         case 100 Init()         ; reset button on config page
     endselect
     App_WebInput=0
@@ -1392,6 +1467,49 @@ thread MoveShutter15(const)  ; handles the shutter movement and state
 endthread
 thread MoveShutter16(const)  ; handles the shutter movement and state
     ShutterMoveThreadX(16)
+    threadsuspend
+endthread
+
+thread MotionSensor(const)
+    int32 idx
+    int32 LightID
+
+    if App_MotionLights[0] == 0 then           ; skip if no App_MotionLight is defined
+        App_Message="No App_MotionLights"
+        threadsuspend 
+    endif
+
+    App_Message="enable motion lights"
+    idx = 0
+    LightID = 0
+    do while idx <= App_MotionLights.Length    ; while idx is lower then the string length check if next characters are a number
+        LightID = App_MotionLights.GetNumAscii(idx)
+        App_Message=idx
+        App_Debug=LightID
+        if LightID > 0 then                         ; if next characters are a number process this number
+            SetLight(LightID,1)                 ; turn the light with found number on
+        endif        
+        idx = idx + 1
+    loop
+
+    do while App_IOActive[App_InpMotion-1] > 0    ; sleep 
+        threadsleep 100
+    loop
+
+    App_Message="disable motion lights"
+    idx = 0
+    LightID = 0
+    do while idx <= App_MotionLights.Length    ; while idx is lower then the string length check if next characters are a number
+        LightID = App_MotionLights.GetNumAscii(idx)
+        App_Message=idx
+        App_Debug=LightID
+        if LightID > 0 then                         ; if next characters are a number process this number
+            SetLight(LightID,0)                 ; turn the light with found number off
+        endif        
+        idx = idx + 1
+    loop
+
+    App_InpMotion = 0 
     threadsuspend
 endthread
 

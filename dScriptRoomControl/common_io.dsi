@@ -125,6 +125,11 @@ digitalport  LedRed     35
     flexport    IO5_s   13              ; Out   Ouput, 0=inactive, 1=active
     flexport    IO6_s   14              ; Inp   Input, could be from actual input or result of driving the output active.
     flexport    IO7_s   15              ; mode  0=digital no pullup, 1=digital with pullup, 3=analog 3.3v ref, 4=analog 4.096v ref, 5=analog 5v ref.
+
+    const  AD1 0
+    const  AD2 0
+    const  AD3 0
+    const  AD4 0
 #endif
 
 #ifdef DS2824 || TCP184                 ; Only on the dS2824 and tcp184
