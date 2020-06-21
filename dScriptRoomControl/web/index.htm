@@ -14,7 +14,7 @@
         <tr><td>App version:</td><td>~AppVerMajor~.~AppVerMinor~ (<a href="_config.htm">configure</a>)</td></tr>
         <tr><td>App message:</td><td><input id='Message' type="text" readonly="true" size="64"></td></tr>  
         <tr><td>App debug:</td><td><input id='Debug' type="text" readonly="true" size="64"></td></tr>
-        <tr><td><button id='Srv' type="button" onmousedown="newAJAXCommand('dscript.cgi?App_WebInput=99');">contact Server</button></td><td></td></tr> 
+        <tr><td><button id='Srv' type="button" onmousedown="newAJAXCommand('dscript.cgi?App_WebInput=99');">contact Server</button></td><td>~App_dScriptServer~</td></tr> 
     </table>
     
     <hr>
@@ -44,25 +44,25 @@
     <p  align="center"> Shutters:
         <table align="center">
             <tr>
-                <td>S01 <progress id='SH1' value="0" max="100"></progress></td>
-                <td>S02 <progress id='SH2' value="0" max="100"></progress></td>
-                <td>S03 <progress id='SH3' value="0" max="100"></progress></td>
-                <td>S04 <progress id='SH4' value="0" max="100"></progress></td>
+                <td id="tdSH1">S01 <progress id='SH1' value="0" max="100"></progress></td>
+                <td id="tdSH2">S02 <progress id='SH2' value="0" max="100"></progress></td>
+                <td id="tdSH3">S03 <progress id='SH3' value="0" max="100"></progress></td>
+                <td id="tdSH4">S04 <progress id='SH4' value="0" max="100"></progress></td>
             </tr><tr>
-                <td>S05 <progress id='SH5' value="0" max="100"></progress></td>
-                <td>S06 <progress id='SH6' value="0" max="100"></progress></td>
-                <td>S07 <progress id='SH7' value="0" max="100"></progress></td>
-                <td>S08 <progress id='SH8' value="0" max="100"></progress></td>
+                <td id="tdSH5">S05 <progress id='SH5' value="0" max="100"></progress></td>
+                <td id="tdSH6">S06 <progress id='SH6' value="0" max="100"></progress></td>
+                <td id="tdSH7">S07 <progress id='SH7' value="0" max="100"></progress></td>
+                <td id="tdSH8">S08 <progress id='SH8' value="0" max="100"></progress></td>
             </tr><tr>
-                <td>S09 <progress id='SH9' value="0" max="100"></progress></td>
-                <td>S10 <progress id='SH10' value="0" max="100"></progress></td>
-                <td>S11 <progress id='SH11' value="0" max="100"></progress></td>
-                <td>S12 <progress id='SH12' value="0" max="100"></progress></td>
+                <td id="tdSH9">S09 <progress id='SH9' value="0" max="100"></progress></td>
+                <td id="tdSH10">S10 <progress id='SH10' value="0" max="100"></progress></td>
+                <td id="tdSH11">S11 <progress id='SH11' value="0" max="100"></progress></td>
+                <td id="tdSH12">S12 <progress id='SH12' value="0" max="100"></progress></td>
             </tr><tr>
-                <td>S13 <progress id='SH13' value="0" max="100"></progress></td>
-                <td>S14 <progress id='SH14' value="0" max="100"></progress></td>
-                <td>S15 <progress id='SH15' value="0" max="100"></progress></td>
-                <td>S16 <progress id='SH16' value="0" max="100"></progress></td>
+                <td id="tdSH13">S13 <progress id='SH13' value="0" max="100"></progress></td>
+                <td id="tdSH14">S14 <progress id='SH14' value="0" max="100"></progress></td>
+                <td id="tdSH15">S15 <progress id='SH15' value="0" max="100"></progress></td>
+                <td id="tdSH16">S16 <progress id='SH16' value="0" max="100"></progress></td>
             </tr>
         </table>
     </p>
@@ -119,6 +119,9 @@
     </p>
 
 <script type="text/javascript">
+
+IOViews();
+ShutterViews();
 
 function ajaxUpdate()
 {
@@ -187,6 +190,38 @@ function ajaxUpdate()
     document.getElementById('R31').src = (getValue('Rly31')=='1') ? 'RedOn.png' : 'DarkOff.png';
     document.getElementById('R32').src = (getValue('Rly32')=='1') ? 'RedOn.png' : 'DarkOff.png';
 }
+
+
+function IOViews() {
+    for (x = 1; x <= 8; x++) {   
+        switch(x){
+            case 1: t=~App_IOType1~;break;
+            case 2: t=~App_IOType2~;break;
+            case 3: t=~App_IOType3~;break;
+            case 4: t=~App_IOType4~;break;
+            case 5: t=~App_IOType5~;break;
+            case 6: t=~App_IOType6~;break;
+            case 7: t=~App_IOType7~;break;
+            case 8: t=~App_IOType8~;break;
+            default: t=0;
+        }
+        if(t == 4){document.getElementById('Inp'+x).style.visibility  = 'hidden';
+            document.getElementById('IC'+x).disabled = true;            
+        } else {
+            document.getElementById('Inp'+x).style.visibility  = 'visible';
+            document.getElementById('IC'+x).disabled = false;}
+    }
+}
+
+function ShutterViews() {
+    for (x = 1; x <= 16; x++) {   
+        if(x > ~App_Shutters~){document.getElementById('tdSH'+x).style.visibility  = 'hidden';          
+        } else {
+            document.getElementById('tdSH'+x).style.visibility  = 'visible';
+        }
+    }
+}
+
 </script>
 
 </body>

@@ -8,7 +8,6 @@
 ;
 ;*************************************************************
 
-
 digitalport  Rly1   1               ; Relays physical and virtual
 digitalport  Rly2   2
 digitalport  Rly3   3

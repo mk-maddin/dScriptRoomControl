@@ -219,6 +219,26 @@ input[type=radio] {
 }
 
 
+#reboot {
+    clear: both;
+    margin-top: 150px;
+    text-align: center;
+}
+
+#restart {
+    width:30%;
+    height:35px;
+    background-color: #485860;
+    color: white;
+}
+
+#Reset {
+    width:30%;
+    height:35px;
+    background-color: #485860;
+    color: white;
+}
+
 .button {
     width: 110px;
     height: 45px;
