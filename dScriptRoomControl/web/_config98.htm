@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration</title>
+    <link rel="stylesheet" type="text/css" href="dscript.css">
+ </head>
+
+<body onload="startAJAX()">
+    <div id="container">
+            <p id="ModuleName"> ~Module~ <span style="font-size: 40%">  System Configuration  - Shutters </span> </p>
+            <p id="devantech"> By Martin Kraemer </p>
+          <br>
+        <div id="hr"> <hr style="width: 100%; height: 1px; background-color: #FFFFFF; border: none">  </div>
+        <div w3-include-html="_menubar.htm"></div>
+        <div id="centerblock">
+            <div onmouseover="ShuttersConfigText(this)">
+                <div class="item-line"> </div>
+                 <select  disabled value='0' style="color: #FFFFFF; background: transparent; border: none;-moz-appearance: none;-webkit-appearance: none;">
+                   <option value='0'> Type</option>
+                   <option value="99" hidden >___________</option> <!-- dummy option for correct spacing -->
+                 </select>
+                <input  disabled type="text" value = "Closing Time (ms)" style="color: #FFFFFF; background: transparent; border: none;">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 1" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType1' onchange="newAJAXCommand('dscript.cgi?App_ShutterType1='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT1" value = "~App_ShutterCT1~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT1='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 2" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType2' onchange="newAJAXCommand('dscript.cgi?App_ShutterType2='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT2" value = "~App_ShutterCT2~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT2='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 3" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType3' onchange="newAJAXCommand('dscript.cgi?App_ShutterType3='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT3" value = "~App_ShutterCT3~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT3='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 4" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType4' onchange="newAJAXCommand('dscript.cgi?App_ShutterType4='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT4" value = "~App_ShutterCT4~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT4='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 5" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType5' onchange="newAJAXCommand('dscript.cgi?App_ShutterType5='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT5" value = "~App_ShutterCT5~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT5='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 6" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType6' onchange="newAJAXCommand('dscript.cgi?App_ShutterType6='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT6" value = "~App_ShutterCT6~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT6='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 7" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType7' onchange="newAJAXCommand('dscript.cgi?App_ShutterType7='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT7" value = "~App_ShutterCT7~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT7='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 8" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType8' onchange="newAJAXCommand('dscript.cgi?App_ShutterType8='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT8" value = "~App_ShutterCT8~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT8='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 9" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType9' onchange="newAJAXCommand('dscript.cgi?App_ShutterType9='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT9" value = "~App_ShutterCT9~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT9='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 10" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType10' onchange="newAJAXCommand('dscript.cgi?App_ShutterType10='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT10" value = "~App_ShutterCT10~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT10='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 11" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType11' onchange="newAJAXCommand('dscript.cgi?App_ShutterType11='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT11" value = "~App_ShutterCT11~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT11='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 12" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType12' onchange="newAJAXCommand('dscript.cgi?App_ShutterType12='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT12" value = "~App_ShutterCT12~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT12='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 13" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType13' onchange="newAJAXCommand('dscript.cgi?App_ShutterType13='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT13" value = "~App_ShutterCT13~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT13='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 14" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType14' onchange="newAJAXCommand('dscript.cgi?App_ShutterType14='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT14" value = "~App_ShutterCT14~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT14='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 15" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType15' onchange="newAJAXCommand('dscript.cgi?App_ShutterType15='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT15" value = "~App_ShutterCT15~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT15='+this.value);">
+            </div>
+            <div onmouseover="ShuttersConfigText(this)" onmouseout="PageText(this)">
+                <input  disabled type="text" value = "Shutter 16" style="color: #FFFFFF; background: transparent; border: none;text-align: right;">
+                 <select id='AppShutterType16' onchange="newAJAXCommand('dscript.cgi?App_ShutterType16='+this.value);">
+                  <option value="0" hidden >Auto</option>
+                  <option value="1">Roller</option>
+                  <option value="2">Raffstore</option>
+                  <option value="3">Jealousy</option>
+                </select>
+                <input type="number" min="1000" step="1" id="AppShutterCT16" value = "~App_ShutterCT16~" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT16='+this.value);">
+            </div>
+        </div>
+        <div id="helpblock">
+            <div ID="help">
+            </div>
+            <div>
+                <div class='Indicator1'>  <img class='IO' id='Pend' src='DarkOff.png'/> Update Pending </div>
+            </div>
+        </div>
+    </div>
+
+<script type='text/javascript' src='globalfunctions.js'></script>
+<script type='text/javascript' src='helptext.js'></script>
+<script>
+
+// define the default help text for this page
+function PageText(x) {
+    ShuttersConfigText(x)
+}
+
+// setup the dynamic page content
+includeHTML();
+PageText(0);
+
+UpdateAppShutters(0);
+
+function UpdateAppShutters(x) {
+    console.log('UpdateAppShutters...');   
+    for (x = 1; x <= 16; x++) {
+        if (x <= ~App_Shutters~) {
+            switch(x){
+                case 1: v=~App_ShutterType1~;break;
+                case 2: v=~App_ShutterType2~;break;
+                case 3: v=~App_ShutterType3~;break;
+                case 4: v=~App_ShutterType4~;break;
+                case 5: v=~App_ShutterType5~;break;
+                case 6: v=~App_ShutterType6~;break;
+                case 7: v=~App_ShutterType7~;break;
+                case 8: v=~App_ShutterType8~;break;
+                case 9: v=~App_ShutterType9~;break;
+                case 10: v=~App_ShutterType10~;break;
+                case 11: v=~App_ShutterType11~;break;
+                case 12: v=~App_ShutterType12~;break;
+                case 13: v=~App_ShutterType13~;break;
+                case 14: v=~App_ShutterType14~;break;
+                case 15: v=~App_ShutterType15~;break;
+                case 16: v=~App_ShutterType16~;break;
+                default: v=0
+            }
+            document.getElementById('AppShutterType'+x).value = v;
+            document.getElementById('AppShutterType'+x).disabled = false;
+            document.getElementById('AppShutterCT'+x).disabled = false;
+            //document.getElementById('AppShutterTypeL'+x).style.visibility  = 'visible';
+            } else {
+            document.getElementById('AppShutterType'+x).disabled = true;
+            document.getElementById('AppShutterCT'+x).disabled = true;
+            //document.getElementById('AppShutterTypeL'+x).style.visibility  = 'hidden';
+            }
+    }
+    console.log('UpdateAppShutters complete');
+}
+
+</script>
+
+</body>
+</html>

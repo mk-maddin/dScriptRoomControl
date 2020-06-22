@@ -15,32 +15,32 @@
         <div w3-include-html="_menubar.htm"></div>		
         <div id="centerblock">
             <div id="center">
-                <div onmouseover="HostText(this)" onmouseout="NetworkText(this)">
+                <div onmouseover="HostText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Host Name </div>
                     <input type="text" value = "~System_HostName~" onkeyup="newAJAXCommand('dscript.cgi?System_HostName='+document.getElementById('SystemHostName').value);" id="SystemHostName">
                 </div>
-                <div onmouseover="IPText(this)" onmouseout="NetworkText(this)">
+                <div onmouseover="IPText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> IP Address </div>
                     <input type="text" value = "~System_IP~" onkeyup="newAJAXCommand('dscript.cgi?System_IP='+document.getElementById('SystemIP').value);" id="SystemIP">
                 </div>
-                <div onmouseover="SubText(this)" onmouseout="NetworkText(this)">
+                <div onmouseover="SubText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Subnet Mask </div>
                     <input type="text" value = "~System_SubNet~" onkeyup="newAJAXCommand('dscript.cgi?System_SubNet='+document.getElementById('SystemSubNet').value);" id="SystemSubNet">
                 </div>
-                <div onmouseover="GateText(this)" onmouseout="NetworkText(this)">
+                <div onmouseover="GateText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Gateway Address </div>
                     <input type="text" value = "~System_Gateway~" onkeyup="newAJAXCommand('dscript.cgi?System_Gateway='+document.getElementById('SystemGateway').value);" id="SystemGateway">
                 </div>
-                <div onmouseover="DNS1Text(this)" onmouseout="NetworkText(this)">
+                <div onmouseover="DNS1Text(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Primary DNS </div>
                     <input type="text" value = "~System_DNS1~" onkeyup="newAJAXCommand('dscript.cgi?System_DNS1='+document.getElementById('SystemDNS1').value);" id="SystemDNS1">
                 </div>
-                <div onmouseover="DNS2Text(this)" onmouseout="NetworkText(this)">
+                <div onmouseover="DNS2Text(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Secondary DNS </div>
                     <input type="text" value = "~System_DNS2~" onkeyup="newAJAXCommand('dscript.cgi?System_DNS2='+document.getElementById('SystemDNS2').value);" id="SystemDNS2">
                 </div>
-                <div onmouseover="DHCPText(this)" onmouseout="NetworkText(this)">
-                    <div class="item-line"> Enable DHCP </div>
+                <div onmouseover="DHCPText(this)" onmouseout="PageText(this)">
+                    <div class="item-line2"> Enable DHCP </div>
                     <input id="EnableDHCP" name="Enable DHCP" type="checkbox" ~DHCPChecked~ onclick="handleDHCP(this)" />
                 </div>
             </div>

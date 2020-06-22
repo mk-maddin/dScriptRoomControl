@@ -48,6 +48,11 @@
 <script type='text/javascript' src='helptext.js'></script>
 <script>
 
+function ajaxUpdate() {
+    document.getElementById('DCvolts').innerHTML = Number(getValue('Volts')/10).toFixed(1) + " Vdc";
+    document.getElementById('T1').innerHTML = Number(getValue('BrdTemp')/10).toFixed(1) + " &deg;C";
+}
+
 // define the default help text for this page
 function PageText(x) {
     StatusText(x)

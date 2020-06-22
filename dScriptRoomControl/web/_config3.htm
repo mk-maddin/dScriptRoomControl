@@ -15,36 +15,36 @@
         <div w3-include-html="_menubar.htm"></div>        
         <div id="centerblock">
             <div id="center">
-                <div onmouseover="ModBusText(this)" onmouseout="TCPIPText(this)" style="visibility: hidden;"> <!-- not supported yet -->
+                <div onmouseover="ModBusText(this)" onmouseout="PageText(this)" style="visibility: hidden;"> <!-- not supported yet -->
                     <div class="item-line2"> ModBus </div>
                     <input id="ModBusChkBox" name="Enable ModBus" type="checkbox" <<ModBusChecked>> onclick="handleModBus(this)" />
                 </div>
-                <div onmouseover="ASCIIText(this)" onmouseout="TCPIPText(this)" style="visibility: hidden;"> <!-- not supported yet -->
+                <div onmouseover="ASCIIText(this)" onmouseout="PageText(this)" style="visibility: hidden;"> <!-- not supported yet -->
                     <div class="item-line2"> ASCII </div>
                     <input id="AsciiChkBox" name="Enable ASCII" type="checkbox" <<AsciiChecked>> onclick="handleASCII(this)" />
                 </div>
-                <div onmouseover="BinaryText(this)" onmouseout="TCPIPText(this)">
+                <div onmouseover="BinaryText(this)" onmouseout="PageText(this)">
                     <div class="item-line2"> Binary </div>
                     <input id="BinaryChkBox" name="Enable Binary" type="checkbox" ~BinaryChecked~ onclick="handleBinary(this)" />
                 </div>
-                <div onmouseover="AESText(this)" onmouseout="TCPIPText(this)">
+                <div onmouseover="AESText(this)" onmouseout="PageText(this)">
                     <div class="item-line2"> AES Binary </div>
                     <input id="AESChkBox" name="Enable AES" type="checkbox" ~AESChecked~ onclick="handleAES(this)" />
                 </div>
-                <div onmouseover="PortText(this)" onmouseout="TCPIPText(this)">
+                <div onmouseover="PortText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> TCP/IP Port </div>
                     <input type="text" value = ~System_TcpPort~ onkeyup="newAJAXCommand('dscript.cgi?System_TcpPort='+document.getElementById('SystemTcpPort').value);" id="SystemTcpPort">
                 </div>
-                <div onmouseover="AESkeyText(this)" onmouseout="TCPIPText(this)">
+                <div onmouseover="AESkeyText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> AES key </div>
                     <input type="text" id="SystemAESkey" value = "~System_AES_key~" onkeyup="newAJAXCommand('dscript.cgi?System_AES_key='+encodeURIComponent(this.value));" disabled="true">
                 </div>
-                <div onmouseover="AppdScriptServerText(this)" onmouseout="TCPIPText(this)">
+                <div onmouseover="AppdScriptServerText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> dScriptServer </div>
                     <input type="text" id="AppdScriptServer" value = "~App_dScriptServer~" onkeyup="newAJAXCommand('dscript.cgi?App_dScriptServer='+document.getElementById('AppdScriptServer').value);">
                 </div>
                 <br>
-                <div id="mbus" style="display:none" onmouseover="ModbusParamsText(this)" onmouseout="TCPIPText(this)" style="visibility: hidden;"> <!-- not supported yet -->
+                <div id="mbus" style="display:none" onmouseover="ModbusParamsText(this)" onmouseout="PageText(this)" style="visibility: hidden;"> <!-- not supported yet -->
                     <div>
                         <div class="item-line"> Modbus UID </div>
                         <input style="width:45px;" type="text" value = ~System_ModbusUID~ onkeyup="newAJAXCommand('dscript.cgi?System_ModbusUID='+document.getElementById('SystemModbusUID').value);" id="SystemModbusUID">

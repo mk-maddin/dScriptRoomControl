@@ -14,100 +14,114 @@
         <div id="hr"> <hr style="width: 100%; height: 1px; background-color: #FFFFFF; border: none">  </div>
         <div w3-include-html="_menubar.htm"></div>
         <div id="centerblock">
-            <div>
+            <div onmouseover="IOAutoText(this)" onmouseout="SecurityText(this)">
+                <div class="item-line2"> Auto I/O </div>
+                <input id="AutoIOChkBox" name="Enable Auto IO" type="checkbox" ~AutoIOChecked~ onclick="handleAutoIO(this)" />
+                
+            </div>
+            <br>
+            <div onmouseover="IOConfigText(this)">
+                <div class="item-line"> </div>
+                 <select  disabled value='0' style="color: #FFFFFF;background: transparent; border: none;-moz-appearance: none;-webkit-appearance: none;">
+                   <option value='0'> Type </option>
+                   <option value="99" hidden >_________</option> <!-- dummy option for correct spacing -->
+                 </select>
+                <input  disabled type="text" value = "Entity-ID" style="color: #FFFFFF;background: transparent; border: none;">
+            </div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 1 </div>
-                 <select id="IO1Type" onChange="newAJAXCommand('dscript.cgi?App_IOType1='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                 <select id="AppIOType1" onChange="updateIOType(1,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet1~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet1='+document.getElementById('IO1Sets').value);" id="IO1Sets">
+                <input type="text" value = "~App_IOSet1~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet1='+encodeURIComponent(this.value));" id="AppIOSet1">
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 2 </div>
-                <select id="IO2Type" onChange="newAJAXCommand('dscript.cgi?App_IOType2='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                <select id="AppIOType2" onChange="updateIOType(2,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet2~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet2='+document.getElementById('IO2Sets').value);" id="IO2Sets">
+                <input type="text" value = "~App_IOSet2~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet2='+encodeURIComponent(this.value));" id="AppIOSet2">
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 3 </div>
-                 <select id="IO3Type" onChange="newAJAXCommand('dscript.cgi?App_IOType3='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                 <select id="AppIOType3" onChange="updateIOType(3,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>               
-                <input type="text" value = "~App_IOSet3~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet3='+document.getElementById('IO3Sets').value);" id="IO3Sets">
+                <input type="text" value = "~App_IOSet3~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet3='+encodeURIComponent(this.value));" id="AppIOSet3">
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 4 </div>
-                <select id="IO4Type" onChange="newAJAXCommand('dscript.cgi?App_IOType4='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                <select id="AppIOType4" onChange="updateIOType(4,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet4~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet4='+document.getElementById('IO4Sets').value);" id="IO4Sets">
+                <input type="text" value = "~App_IOSet4~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet4='+encodeURIComponent(this.value));" id="AppIOSet4">
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 5 </div>
-                <select id="IO5Type" onChange="newAJAXCommand('dscript.cgi?App_IOType5='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                <select id="AppIOType5" onChange="updateIOType(5,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet5~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet5='+document.getElementById('IO5Sets').value);" id="IO5Sets">
+                <input type="text" value = "~App_IOSet5~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet5='+encodeURIComponent(this.value));" id="AppIOSet5">
 
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 6 </div>
-                <select id="IO6Type" onChange="newAJAXCommand('dscript.cgi?App_IOType6='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                <select id="AppIOType6" onChange="updateIOType(6,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet6~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet6='+document.getElementById('IO6Sets').value);" id="IO6Sets">
+                <input type="text" value = "~App_IOSet6~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet6='+encodeURIComponent(this.value));" id="AppIOSet6">
 
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 7 </div>
-                <select id="IO7Type" onChange="newAJAXCommand('dscript.cgi?App_IOType7='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                <select id="AppIOType7" onChange="updateIOType(7,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet7~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet7='+document.getElementById('IO7Sets').value);" id="IO7Sets">
+                <input type="text" value = "~App_IOSet7~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet7='+encodeURIComponent(this.value));" id="AppIOSet7">
             </div>
-            <div>
+            <div onmouseover="IOConfigText(this)">
                 <div class="item-line"> I/O 8 </div>
-                <select id="IO8Type" onChange="newAJAXCommand('dscript.cgi?App_IOType8='+encodeURIComponent(this.value));" onmouseover="AttachedTypeText(this)" onmouseout="IOText(this)">
-                  <option value="0">Auto</option>
+                <select id="AppIOType8" onChange="updateIOType(8,this)" onmouseout="PageText(this)">
+                  <option value="0" hidden >Auto</option>
                   <option value="1">Light</option>
                   <option value="2">Shutter</option>
                   <option value="3">Socket</option>
                   <option value="4">Motion</option>
                 </select>
-                <input type="text" value = "~App_IOSet8~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet8='+document.getElementById('IO8Sets').value);" id="IO8Sets">
+                <input type="text" value = "~App_IOSet8~" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet8='+encodeURIComponent(this.value));" id="AppIOSet8">
             </div>
-            
-            <div onmouseover="EnPassText(this)" onmouseout="SecurityText(this)">
-                <div class="item-line2"> I/O auto config </div>
-                <input id="AutoIOChkBox" name="Enable Auto IO" type="checkbox" ~AutoIOChecked~ onclick="handleAutoIO(this)" />
+            <br>
+            <div onmouseover="ClickSleepText(this)" onmouseout="PageText(this)">
+                <div class="item-line"> Multiclick Time </div>
+                    <input type="text" value = ~App_ClickSleep~ onkeyup="newAJAXCommand('dscript.cgi?App_ClickSleep='+encodeURIComponent(this.value));" id="AppClickSleep">
             </div>
         </div>
         <div id="helpblock">
@@ -134,18 +148,6 @@ PageText(0);
 
 setupAutoIO(document.getElementById('AutoIOChkBox'));
 
-function handleAutoIO(cb) {
-    console.log('handleAutoIO...'); 
-    if(cb.checked) {
-        newAJAXCommand('dscript.cgi?App_EnableAutoIO=1');
-    } else {
-        newAJAXCommand('dscript.cgi?App_EnableAutoIO=0');
-    }
-    newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
-    setupAutoIO(cb);
-    console.log('handleAutoIO complete');
-}
-
 function setupAutoIO(cb) {
     console.log('setupAutoIO...');
     for (x = 1; x <= 8; x++) {   
@@ -161,18 +163,46 @@ function setupAutoIO(cb) {
             default: t=0; s="";
         }
         if(cb.checked){
-            document.getElementById('IO'+ x + 'Type').disabled = true;
+            document.getElementById('AppIOType' + x).disabled = true;
             if(t != 4){ //do not disable motion type input (as people need to define which lights to turn on/off
-                document.getElementById('IO'+ x + 'Sets').disabled = true;  
+                document.getElementById('AppIOSet'+ x).disabled = true;
             }
         } else {
-            document.getElementById('IO'+ x + 'Type').disabled = false;
-            document.getElementById('IO'+ x + 'Sets').disabled = false; 
+            document.getElementById('AppIOType' + x).disabled = false;
+            document.getElementById('AppIOSet'+ x).disabled = false; 
         }
-        document.getElementById('IO'+ x + 'Type').value = t;
-        document.getElementById('IO'+ x + 'Sets').value = s;
+        document.getElementById('AppIOType' + x).value = t;
+        document.getElementById('AppIOSet'+ x).value = s;
     }
     console.log('setupAutoIO complete');
+}
+
+function handleAutoIO(cb) {
+    console.log('handleAutoIO...'); 
+    if(cb.checked) {
+        newAJAXCommand('dscript.cgi?App_EnableAutoIO=1');
+    } else {
+        newAJAXCommand('dscript.cgi?App_EnableAutoIO=0');
+    }
+    newAJAXCommand('dscript.cgi?SystemCmdUpdated=1');
+    setupAutoIO(cb);
+    console.log('handleAutoIO complete');
+}
+
+function updateIOType(x,obj) {
+    console.log('updateIOType...');
+    switch(x){
+        case 1: newAJAXCommand('dscript.cgi?App_IOType1='+ obj.value);break;
+        case 2: newAJAXCommand('dscript.cgi?App_IOType2='+ obj.value);break;
+        case 3: newAJAXCommand('dscript.cgi?App_IOType3='+ obj.value);break;
+        case 4: newAJAXCommand('dscript.cgi?App_IOType4='+ obj.value);break;
+        case 5: newAJAXCommand('dscript.cgi?App_IOType5='+ obj.value);break;
+        case 6: newAJAXCommand('dscript.cgi?App_IOType6='+ obj.value);break;
+        case 7: newAJAXCommand('dscript.cgi?App_IOType7='+ obj.value);break;
+        case 8: newAJAXCommand('dscript.cgi?App_IOType8='+ obj.value);break;
+    }
+    newAJAXCommand('dscript.cgi?App_EntityCountsUpdated=1');
+    console.log('updateIOType complete');
 }
 
 </script>

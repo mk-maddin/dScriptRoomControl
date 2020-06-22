@@ -8,161 +8,36 @@
 
 <body onload="startAJAX()">
     <div id="container">
-            <p id="ModuleName"> ~Module~ <span style="font-size: 40%">  System Configuration  - App Settings </span> </p>
+            <p id="ModuleName"> ~Module~ <span style="font-size: 40%">  System Configuration  - Entities </span> </p>
             <p id="devantech"> By Martin Kraemer </p>
           <br>
         <div id="hr"> <hr style="width: 100%; height: 1px; background-color: #FFFFFF; border: none">  </div>
         <div w3-include-html="_menubar.htm"></div>
         <div id="centerblock">
             <div id="center">
-                <div onmouseover="ClickSleepText(this)" onmouseout="AppCfgText(this)">
-                    <div class="item-line"> Multiclick Time </div>
-                    <input type="text" value = ~App_ClickSleep~ onkeyup="newAJAXCommand('dscript.cgi?App_ClickSleep='+document.getElementById('AppClickSleep').value);" id="AppClickSleep">
-                </div>
-                <div onmouseover="LightsText(this)" onmouseout="AppCfgText(this)">
+                <div onmouseover="LightsText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Count Lights </div>
                     <input type="text" value = "~App_Lights~" onkeyup="UpdateEntities(this)" id="AppLights">
-                </div>                
-                <div onmouseover="ShuttersText(this)" onmouseout="AppCfgText(this)">
-                    <div class="item-line"> Count Shutters </div>
-                    <input type="text" value = "~App_Shutters~" onkeyup="UpdateEntities(this)" id="AppShutters">
-                </div>                
-                <div onmouseover="LightsOffsetText(this)" onmouseout="AppCfgText(this)">
+                </div>
+                <div onmouseover="LightsOffsetText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Light Rly max </div>
                     <input type="text" value = "~App_LightsOffset~" onkeyup="UpdateEntities(this)" id="AppLightsOffset">
-                </div>  
-                <div onmouseover="WindowShutterCTText(this)" onmouseout="AppCfgText(this)">
-                    <div class="item-line"> Window shut CT </div>
-                    <input type="text" value = ~App_WindowShutterCT~ onkeyup="newAJAXCommand('dscript.cgi?App_WindowShutterCT='+document.getElementById('AppWindowShutterCT').value);" id="AppWindowShutterCT">
-                </div>
-				<div onmouseover="DoorShutterCTText(this)" onmouseout="AppCfgText(this)">
-                    <div class="item-line"> Door shut CT </div>
-                    <input type="text" value = ~App_DoorShutterCT~ onkeyup="newAJAXCommand('dscript.cgi?App_DoorShutterCT='+document.getElementById('AppDoorShutterCT').value);" id="AppDoorShutterCT">
                 </div>
                 <br>
-                <table>
-                    <tr><td>
-                        <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL1'>
-                            <div> S01 type:
-                            <select style = "margin-top:5px" id='AppShutterType1' onchange="newAJAXCommand('dscript.cgi?App_ShutterType1='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                        <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL2'>        
-                            <div> S02 type:
-                            <select style = "margin-top:5px" id='AppShutterType2' onchange="newAJAXCommand('dscript.cgi?App_ShutterType2='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL3'>
-                            <div> S03 type:
-                            <select style = "margin-top:5px" id='AppShutterType3' onchange="newAJAXCommand('dscript.cgi?App_ShutterType3='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL4'>        
-                            <div> S04 type:
-                            <select style = "margin-top:5px" id='AppShutterType4' onchange="newAJAXCommand('dscript.cgi?App_ShutterType4='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                      <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL5'>
-                            <div> S05 type:
-                            <select style = "margin-top:5px" id='AppShutterType5' onchange="newAJAXCommand('dscript.cgi?App_ShutterType5='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                      <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL6'>        
-                            <div> S06 type:
-                            <select style = "margin-top:5px" id='AppShutterType6' onchange="newAJAXCommand('dscript.cgi?App_ShutterType6='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL7'>
-                            <div> S07 type:
-                            <select style = "margin-top:5px" id='AppShutterType7' onchange="newAJAXCommand('dscript.cgi?App_ShutterType7='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL8'>        
-                            <div> S08 type:
-                            <select style = "margin-top:5px" id='AppShutterType8' onchange="newAJAXCommand('dscript.cgi?App_ShutterType8='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                      <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL9'>
-                            <div> S09 type:
-                            <select style = "margin-top:5px" id='AppShutterType9' onchange="newAJAXCommand('dscript.cgi?App_ShutterType9='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL10'>        
-                            <div> S10 type:
-                            <select style = "margin-top:5px" id='AppShutterType10' onchange="newAJAXCommand('dscript.cgi?App_ShutterType10='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL11'>
-                            <div> S11 type:
-                            <select style = "margin-top:5px" id='AppShutterType11' onchange="newAJAXCommand('dscript.cgi?App_ShutterType11='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL12'>        
-                            <div> S12 type:
-                            <select style = "margin-top:5px" id='AppShutterType12' onchange="newAJAXCommand('dscript.cgi?App_ShutterType12='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                      <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL13'>
-                            <div> S13 type:
-                            <select style = "margin-top:5px" id='AppShutterType13' onchange="newAJAXCommand('dscript.cgi?App_ShutterType13='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL14'>        
-                            <div> S14 type:
-                            <select style = "margin-top:5px" id='AppShutterType14' onchange="newAJAXCommand('dscript.cgi?App_ShutterType14='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr><tr><td>
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL15'>
-                            <div> S15 type:
-                            <select style = "margin-top:5px" id='AppShutterType15' onchange="newAJAXCommand('dscript.cgi?App_ShutterType15='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div></td><td>                
-                       <div onmouseover="ShutterTypeText(this)" onmouseout="AppCfgText(this)" id='AppShutterTypeL16'>        
-                            <div> S16 type:
-                            <select style = "margin-top:5px" id='AppShutterType16' onchange="newAJAXCommand('dscript.cgi?App_ShutterType16='+this.value);">
-                                <option value='0'>Window</option>
-                                <option value='1'>Door</option>
-                            </select></div>
-                        </div>
-                    </td></tr>
-                </table>
+                <div onmouseover="ShuttersText(this)" onmouseout="PageText(this)">
+                    <div class="item-line"> Count Shutters </div>
+                    <input type="text" value = "~App_Shutters~" onkeyup="UpdateEntities(this)" id="AppShutters">
+                </div>
+                <br>
+                <div onmouseover="SocketsText(this)" onmouseout="PageText(this)">
+                    <div class="item-line"> Count Sockets</div>
+                    <input type="text" disabled value = "~App_Sockets~" id="AppSockets">
+                </div>
+                <br>
+                <div onmouseover="MotionText(this)" onmouseout="PageText(this)">
+                    <div class="item-line"> Count Motions</div>
+                    <input type="text" disabled value = "~App_Motions~" id="AppMotions">
+                </div>
             </div>
         </div>
         <div id="helpblock">
@@ -187,9 +62,8 @@ function PageText(x) {
 includeHTML();
 PageText(0);
 
-UpdateAppShutters(0);
-document.getElementById('AppLights').value = ~App_Lights~;
-document.getElementById('AppShutters').value = ~App_Shutters~;
+// document.getElementById('AppLights').value = ~App_Lights~;
+// document.getElementById('AppShutters').value = ~App_Shutters~;
 
 function UpdateEntities(obj) {
     console.log('UpdateEntities...');
@@ -199,7 +73,6 @@ function UpdateEntities(obj) {
         newAJAXCommand('dscript.cgi?App_LightsOffset='+obj.value);
     } else if (obj.id == 'AppShutters'){
         newAJAXCommand('dscript.cgi?App_Shutters='+obj.value);
-        UpdateAppShutters(0);
         location.reload(true);
     }
     newAJAXCommand('dscript.cgi?App_EntityCountsUpdated=1');
@@ -207,39 +80,6 @@ function UpdateEntities(obj) {
     console.log('UpdateEntities complete');
 }
 
-function UpdateAppShutters(x) {
-    console.log('UpdateAppShutters...');   
-    for (x = 1; x <= 16; x++) {
-        if (x <= ~App_Shutters~) {
-            switch(x){
-                case 1: v=~App_ShutterType1~;break;
-                case 2: v=~App_ShutterType2~;break;
-                case 3: v=~App_ShutterType3~;break;
-                case 4: v=~App_ShutterType4~;break;
-                case 5: v=~App_ShutterType5~;break;
-                case 6: v=~App_ShutterType6~;break;
-                case 7: v=~App_ShutterType7~;break;
-                case 8: v=~App_ShutterType8~;break;
-                case 9: v=~App_ShutterType9~;break;
-                case 10: v=~App_ShutterType10~;break;
-                case 11: v=~App_ShutterType11~;break;
-                case 12: v=~App_ShutterType12~;break;
-                case 13: v=~App_ShutterType13~;break;
-                case 14: v=~App_ShutterType14~;break;
-                case 15: v=~App_ShutterType15~;break;
-                case 16: v=~App_ShutterType16~;break;
-                default: v=0
-            }
-            document.getElementById('AppShutterType'+x).value = v;
-            document.getElementById('AppShutterType'+x).disabled = false;
-            //document.getElementById('AppShutterTypeL'+x).style.visibility  = 'visible';
-            } else {
-            document.getElementById('AppShutterType'+x).disabled = true;
-            //document.getElementById('AppShutterTypeL'+x).style.visibility  = 'hidden';
-            }
-    }
-    console.log('UpdateAppShutters complete');
-}
 </script>
 
 </body>

@@ -34,6 +34,9 @@ function ClickSleepText(x) {
 function CounterText(x) {
     document.getElementById('help').innerHTML = "<br>Counter/Timers<br><br>Eight Counter/Timers.<br> Used as Counters when the count input is connected to an Input <br><br>Used as Timers when connected to the internal 1Hz clock, T1.<br><br>The 32-bit counter counts up from zero to a maximum of 2,147,483,647.";
 }
+function DebugText(x){
+    document.getElementById('help').innerHTML = "<br>Values Debug Page<br><br>Shows all variables configured and updates itself every 1 second.";
+}
 function DHCPText(x){
     document.getElementById('help').innerHTML = "<br>Static IP is disabled because DHCP is enabled.<br><br>Uncheck DHCP to allow static IP addresses.";
 }
@@ -64,6 +67,12 @@ function HostText(x) {
 function HttpText(x) {
     document.getElementById('help').innerHTML = "<br>The HTTP port number.<br><br>This the port number used for the webpages. The default is 80.<br>If you change it from 80, you will need to include the port number in the address.<br><br>Example if you change to port 1234:<br>168.192.0.145:1234/index.htm";
 }
+function IOAutoText(x) {
+    document.getElementById('help').innerHTML = "<br>Auto I/O Configuration<br><br>Automatically define the IO types and entity IDs based on the number of lights and shutters configured within Entities config page.";
+}
+function IOConfigText(x) {
+   document.getElementById('help').innerHTML = "<br>I/O Configuration<br><br>For every I/O you can define which type of entity (lights, shutters, sockets etc.) it should handle. You addiionally can define a comma separated list of entity IDs which should be handled by this IO.<br><br>Please note that the entity type 'Motion' always handles lights - so you have to enter light entity Ids there.";
+}
 function IOText(x) {
     document.getElementById('help').innerHTML = "<br>Input/Output<br><br>Configure the IO types on input and which entity ID they control.<br><br>The entity ID lists are maximum 20 characters.";
 }
@@ -75,7 +84,7 @@ function IPText(x) {
     else document.getElementById('help').innerHTML = "<br>IP Address<br><br>Enter a static IP address for the device, for example:<br>192.168.0.123<br><br>Changes will come into effect after this device is re-booted. ";
 }
 function LightsOffsetText(x) {
-    document.getElementById('help').innerHTML = "<br>Relay ID of first light<br><br>Lights are counted backwards. From highest relay to lowest. This number must be >= lights + shutters*2 to ensure enought relays are reserved.";
+    document.getElementById('help').innerHTML = "<br>Relay ID of first light<br><br>Lights are counted backwards. From highest relay to lowest. This number must be >= lights + shutters*2 to ensure enought relays are reserved.<br>This is the highes relady ID used for a light but at the same time the first light ID.";
 }
 function LightsText(x) {
     document.getElementById('help').innerHTML = "<br>Count of Lights<br><br>Number of lights managed via the DSBoard. Light connections start at relay ~App_LightsOffset~ of board and count downwards.";
@@ -85,6 +94,9 @@ function ModbusParamsText(x){
 }
 function ModBusText(x) {
     document.getElementById('help').innerHTML = "<br>Enable ModBus over TCP/IP.<br><br>This alows the module to be controlled by a PLC or similar device that can issue ModBbus over TCP/IP commands.<br><br>Supported functions are 1, 4, 5 & 15.<br><br>TCP/IP port should be set to 502, the port assigned for Modbus over TCP/IP.";
+}
+function MotionText(x) {
+    document.getElementById('help').innerHTML = "<br>Count of Motion Sensors<br><br>Number of motion sensors managed via the DSBoard. Motion sensors are connected to I/O ports and can be configured there.<br>(This value is ready only.)";
 }
 function NetworkText(x) {
     document.getElementById('help').innerHTML = "<br>Network<br><br>Configure network IP address and associated parameters.";
@@ -116,11 +128,14 @@ function ScheduleText(x) {
 function SecurityText(x) {
     document.getElementById('help').innerHTML = "<br>Webpage Security<br><br>Configure the password for webpage security.";
 }
+function ShuttersConfigText(x) {
+    document.getElementById('help').innerHTML = "<br>Shutter Configuration<br><br>Defines the shutter type for correct functions and maximum closing time (fully open to fully closed) per shutter.";
+}
 function ShuttersText(x) {
     document.getElementById('help').innerHTML = "<br>Count of Shutters<br><br>Number of shutters managed via the DSBoard. Shutter connections start at relay 0 of board and count upwards +2.";
 }
-function ShutterTypeText(x) {
-    document.getElementById('help').innerHTML = "<br>Shutter closing type<br><br>Defines the shutter type based on which the closing time ('Window shut CT' OR 'Door shut CT') is selected.";
+function SocketsText(x) {
+    document.getElementById('help').innerHTML = "<br>Count of Sockets<br><br>Number of sockets managed via the DSBoard. Socket connections start at relay ~App_PhysRelays~ of board and count downwards.<br>(This value is ready only.)";
 }
 function StatusText(x) {
     document.getElementById('help').innerHTML = "<br>Status<br><br>Shows the current status of the module.";

@@ -52,7 +52,7 @@ tcpip.gateway   System_Gateway
 tcpip.dhcp      System_EnableDHCP
 
 ; config page 3 - TCP/IP #################################
-;#ifdef DEVELOPMENT
+#ifdef DEVELOPMENT
     int8        System_Cmd
     int32       System_TcpPort
     string      System_AES_key[33]
@@ -61,8 +61,8 @@ tcpip.dhcp      System_EnableDHCP
     int32       System_ModbusUID
     int8        System_ModbusBaud
     int8        System_ModbusParity  
-;#else
-#ifdef NORMAL
+#else
+;#ifdef NORMAL
     flint8      System_Cmd                      ; set tcp/ip communication protocol ( 1=Modbus; 2=ASCII; 3=Binary ; 4=BinaryAES ) currently supported only 2 & 3
     flint32     System_TcpPort                  ; port used for tcp/ip communication (default=17123; default modbus=502) - used as dScriptServer listening port,too
     flstring    System_AES_key[33]              ; encryption key for BinaryAES mode; This MUST be 32 characters long.   
@@ -84,12 +84,12 @@ clientport  dScriptServer App_dScriptServer System_TcpPort 3000
 
 ; config page 4 - Webpage Security #################################
 
-;#ifdef DEVELOPMENT
+#ifdef DEVELOPMENT
     int8      System_EnablePW
     string    System_Password[NAMESIZE]
     eeint32     System_HttpPort             ;needs to be always eeint32 value for webpage to work
-;#else
-#ifdef NORMAL
+#else
+;#ifdef NORMAL
     flint8      System_EnablePW
     flstring    System_Password[NAMESIZE]
     eeint32     System_HttpPort
@@ -103,7 +103,7 @@ html.setup      System_EnablePW
 
 ; config page 7 - Input / Output #################################
 
-;#ifdef DEVELOPMENT
+#ifdef DEVELOPMENT
     int32 App_EnableAutoIO
 
     int8        App_IOType1
@@ -123,8 +123,8 @@ html.setup      System_EnablePW
     string      App_IOSet6[NAMESIZE]
     string      App_IOSet7[NAMESIZE]
     string      App_IOSet8[NAMESIZE]
-;#else
-#ifdef NORMAL
+#else
+;#ifdef NORMAL
     eeint8 App_EnableAutoIO             ; is IO input type defined automatically ( 0 = false; 1 = true)
     
     eeint8        App_IOType1           ; sets the IO input type (0 = Auto Type; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
@@ -157,16 +157,9 @@ int32   App_IOCtr6
 int32   App_IOCtr7
 int32   App_IOCtr8
 
-; config page 99 - App Settings #################################
+; config page 98 - Shutters #################################
 
-;#ifdef DEVELOPMENT
-    int32   App_ClickSleep
-    int32   App_WindowShutterCT             
-    int32   App_DoorShutterCT               
-    int8    App_Lights                      
-    int8    App_Shutters                    
-    int8    App_LightsOffset
-
+#ifdef DEVELOPMENT
     int8 App_ShutterType1                  
     int8 App_ShutterType2                  
     int8 App_ShutterType3                  
@@ -182,17 +175,27 @@ int32   App_IOCtr8
     int8 App_ShutterType13                 
     int8 App_ShutterType14                 
     int8 App_ShutterType15                 
-    int8 App_ShutterType16                 
-;#else
-#ifdef NORMAL
-    eeint32   App_ClickSleep                ; wait time for input clicks to complete for multi click handling
-    eeint32   App_WindowShutterCT           ; time it takes until a window shutter is fully closed from fully open
-    eeint32   App_DoorShutterCT             ; time it takes until a door shutter is fully closed from fully open
-    eeint8    App_Lights                    ; number of lights connected to relays
-    eeint8    App_Shutters                  ; number of shutters connected to relays
-    eeint8    App_LightsOffset              ; relay number where light connections begin (e.g. 10 means first light is at 10 relay, second light at 9 relay, third at 8 etc.)
+    int8 App_ShutterType16
 
-    eeint8 App_ShutterType1                 ; sets if shutter type is window or door for colosing time (0 = window; 1 = door)
+    int32 App_ShutterCT1
+    int32 App_ShutterCT2
+    int32 App_ShutterCT3
+    int32 App_ShutterCT4
+    int32 App_ShutterCT5
+    int32 App_ShutterCT6
+    int32 App_ShutterCT7
+    int32 App_ShutterCT8
+    int32 App_ShutterCT9
+    int32 App_ShutterCT10
+    int32 App_ShutterCT11
+    int32 App_ShutterCT12
+    int32 App_ShutterCT13
+    int32 App_ShutterCT14
+    int32 App_ShutterCT15
+    int32 App_ShutterCT16
+#else
+;#ifdef NORMAL
+    eeint8 App_ShutterType1                 ; sets the type of shutter for correct functions - to be implemented ( 0 = auto; 1 = roller; 2 = raffstore; 3 = jealousy )
     eeint8 App_ShutterType2
     eeint8 App_ShutterType3
     eeint8 App_ShutterType4
@@ -208,11 +211,46 @@ int32   App_IOCtr8
     eeint8 App_ShutterType14
     eeint8 App_ShutterType15
     eeint8 App_ShutterType16
+
+    eeint32 App_ShutterCT1                 ; time it takes until shutter is fully closed from fully open
+    eeint32 App_ShutterCT2
+    eeint32 App_ShutterCT3
+    eeint32 App_ShutterCT4
+    eeint32 App_ShutterCT5
+    eeint32 App_ShutterCT6
+    eeint32 App_ShutterCT7
+    eeint32 App_ShutterCT8
+    eeint32 App_ShutterCT9
+    eeint32 App_ShutterCT10
+    eeint32 App_ShutterCT11
+    eeint32 App_ShutterCT12
+    eeint32 App_ShutterCT13
+    eeint32 App_ShutterCT14
+    eeint32 App_ShutterCT15
+    eeint32 App_ShutterCT16
 #endif
+
+; config page 99 - Entities #################################
+
+#ifdef DEVELOPMENT
+    int32   App_ClickSleep             
+    int8    App_Lights                      
+    int8    App_Shutters                    
+    int8    App_LightsOffset            
+#else
+;#ifdef NORMAL
+    eeint32   App_ClickSleep                ; wait time for input clicks to complete for multi click handling
+    eeint8    App_Lights                    ; number of lights connected to relays
+    eeint8    App_Shutters                  ; number of shutters connected to relays
+    eeint8    App_LightsOffset              ; relay number where light connections begin (e.g. 10 means first light is at 10 relay, second light at 9 relay, third at 8 etc.)
+
+#endif
+
+int8    App_Motions               ; number of motion sensors connected to I/O
+int8    App_Sockets               ; number of sockets connected to relays ( =physical_relays-(light_relays+shutter_relays)) )
 
 int32 App_EntityCountsUpdated   ; used to tell when webpage updates the number of lights or shutters
 int8 App_IOActive[CFGSIZE]      ;tracking values to check which pyhsical inputs are active and which are not
-int8 App_MotionInit[CFGSIZE]    ;variable to indicate that motion sensor was initialized successfully
 
 ; general helping variables #################################
 int32   x
@@ -229,10 +267,10 @@ int32   NonceIn
 
 ; application working variables #################################
 
-;#ifdef DEVELOPMENT
+#ifdef DEVELOPMENT
     int8  App_ShutterLevels[IDSIZE]
-;#else
-#ifdef NORMAL
+#else
+;#ifdef NORMAL
     eeint8    App_ShutterLevels[IDSIZE] ; to restore shutter closed/open level after power outage  ( 100 = fully open; 0 = fully closed)
 #endif
 
@@ -260,7 +298,6 @@ int8 App_ShutterLevel16
 
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage information input
-int8    App_Sockets               ; number of sockets connected to relays ( =physical_relays-(light_relays+shutter_relays)) )
 
 int8  App_ShutterStates[IDSIZE]     ; stores the current status of shutters (0 = stopped; 1 = opening; 2 = closing)
 int8  App_ShutterTLevels[IDSIZE]    ; stores the "to be" level of a shutter ( 100 = fully open; 0 = fully closed)

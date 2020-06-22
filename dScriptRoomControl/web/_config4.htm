@@ -15,15 +15,15 @@
         <div w3-include-html="_menubar.htm"></div>		
         <div id="centerblock">
             <div id="center">
-                <div onmouseover="EnPassText(this)" onmouseout="SecurityText(this)">
+                <div onmouseover="EnPassText(this)" onmouseout="PageText(this)">
                     <div class="item-line2"> Enable _pw.htm </div>
                     <input id="PWChkBox" name="Enable PW" type="checkbox" ~PWChecked~ onclick="handlePW(this)" />
                 </div>
-                <div onmouseover="PasswordText(this)" onmouseout="SecurityText(this)">
+                <div onmouseover="PasswordText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Security Password </div>
                     <input type="text" value = "~System_Password~" onkeyup="newAJAXCommand('dscript.cgi?System_Password='+document.getElementById('SystemPassword').value);" id="SystemPassword">
                 </div>
-                <div onmouseover="HttpText(this)" onmouseout="SecurityText(this)">
+                <div onmouseover="HttpText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> HTTP Port </div>
                     <input type="text" value = "~System_HttpPort~" onkeyup="newAJAXCommand('dscript.cgi?System_HttpPort='+document.getElementById('SystemHttpPort').value);" id="SystemHttpPort">
                 </div>

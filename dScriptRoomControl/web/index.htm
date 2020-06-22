@@ -125,8 +125,12 @@ ShutterViews();
 
 function ajaxUpdate()
 {
+    var msg = getValue('App_Message');
+    if (msg != document.getElementById('Message').value){
+        console.log("App_Message: " + getValue('App_Message'));}
     document.getElementById('Message').value = getValue('App_Message');
     document.getElementById('Debug').value = getValue('App_Debug');
+    
 
     document.getElementById('InpType').value = getValue('App_InpType');
     document.getElementById('IC1').value = getValue('App_IOCtr1');
