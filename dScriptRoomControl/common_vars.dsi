@@ -236,14 +236,15 @@ int32   App_IOCtr8
     int32   App_ClickSleep             
     int8    App_Lights                      
     int8    App_Shutters                    
-    int8    App_LightsOffset            
+    int8    App_LightsOffset
+    int8    App_ShutterRelayCT        
 #else
 ;#ifdef NORMAL
     eeint32   App_ClickSleep                ; wait time for input clicks to complete for multi click handling
     eeint8    App_Lights                    ; number of lights connected to relays
     eeint8    App_Shutters                  ; number of shutters connected to relays
     eeint8    App_LightsOffset              ; relay number where light connections begin (e.g. 10 means first light is at 10 relay, second light at 9 relay, third at 8 etc.)
-
+    eeint8    App_ShutterRelayCT            ; define how relays for shutter are connected - parallel (one for up / one for down) or in row (one for moving / one for direction - up/down)
 #endif
 
 int8    App_Motions               ; number of motion sensors connected to I/O
@@ -299,6 +300,7 @@ int8 App_ShutterLevel16
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage information input
 
+int8  App_RaffstoreIOs[IDSIZE]      ; stores the IO which is machted to a specific raffstore on demand
 int8  App_ShutterStates[IDSIZE]     ; stores the current status of shutters (0 = stopped; 1 = opening; 2 = closing)
 int8  App_ShutterTLevels[IDSIZE]    ; stores the "to be" level of a shutter ( 100 = fully open; 0 = fully closed)
 int8  App_ShutterCLevels[IDSIZE]    ; stores the current level of a shutter to prevent a lot of eeprom writings while moving ( 100 = fully open; 0 = fully closed)

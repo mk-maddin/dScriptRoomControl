@@ -48,6 +48,7 @@ thread main(const)
     App_Message="ready"
     LedRed = off                        ; indicate that system is completed booting - physical
     FlashWritePending = 0               ; indicate that system is completed booting - config page
+    LedGreen = on
     do FlashWritePending = system.FlashPending ; keep up-to-date so webpage can access it
        threadsleep 100
     loop
@@ -152,30 +153,36 @@ function Init()         ; initializes volatile/permantent variables with program
     next
 
     ; config page 99 - Entities
+    App_ShutterRelayCT = 1      ; recommended way to connect shutters to relays is in row
     App_ClickSleep = 800        ; we have 0.8 seconds time to press button multiple times
            
     select system.ModuleID                          ; Releay ID where the lights begin/end (counted downwards)
-        case 30 App_LightsOffset = 4                ;"dS3484" - 4 physical relays
-                App_Lights = 2                      ; set nubmer of lights default
+        case 30 App_LightsOffset = 3                ;"dS3484" - 4 physical relays
+                App_Lights = 1                      ; set nubmer of lights default
                 App_Shutters = 1                    ; set number of shutters default
-        case 31 App_LightsOffset = 2                ;"dS1242" - 2 physical relays
-                App_Lights = 2                      ; set nubmer of lights default
+               ;App_Sockets = 1                     ; number of sockets is calculated automatically (PhysRelays - Shutters*2 - lights)
+        case 31 App_LightsOffset = 1                ;"dS1242" - 2 physical relays
+                App_Lights = 1                      ; set nubmer of lights default
                 App_Shutters = 0                    ; set number of shutters default
-        case 34 App_LightsOffset = 10               ;"dS2824" - 24 physical relays
+               ;App_Sockets = 1                     ; number of sockets is calculated automatically (PhysRelays - Shutters*2 - lights)
+        case 34 App_LightsOffset = 12               ;"dS2824" - 24 physical relays
                 App_Lights = 4                      ; set nubmer of lights default
                 App_Shutters = 3                    ; set number of shutters default
-        case 35 App_LightsOffset = 8                ;"dS378" - 8 physical relays
-                App_Lights = 2                      ; set nubmer of lights default
-                App_Shutters = 2                    ; set number of shutters default
-        case 36 App_LightsOffset = 4                ;"TCP184" - 4 physical relays
+               ;App_Sockets = 12                    ; number of sockets is calculated automatically (PhysRelays - Shutters*2 - lights)
+        case 35 App_LightsOffset = 4                ;"dS378" - 8 physical relays
                 App_Lights = 2                      ; set nubmer of lights default
                 App_Shutters = 1                    ; set number of shutters default
+               ;App_Sockets = 4                     ; number of sockets is calculated automatically (PhysRelays - Shutters*2 - lights)
+        case 36 App_LightsOffset = 3                ;"TCP184" - 4 physical relays
+                App_Lights = 1                      ; set nubmer of lights default
+                App_Shutters = 1                    ; set number of shutters default
+               ;App_Sockets = 1                     ; number of sockets is calculated automatically (PhysRelays - Shutters*2 - lights)
     endselect
 
     initControl = AppVersion
     return
 endfunction
-function InitRestore()  ; restore temporary from volatile variables
+function InitRestore()  ; restore temporary from volatile variables_
     App_Message="InitRestore"
     App_Debug=-99   ; set nonse initial value to see value change in case of 0
     threadstart UpdateCheckedStrings ; keep config page checkboxes updated
@@ -203,7 +210,8 @@ function InitRestore()  ; restore temporary from volatile variables
     
     int32 ShutterID
     for ShutterID = 1 to 16
-        App_ShutterStates[ShutterID-1] = 0 ; 0 = stopped; 1 = opening; 2 = closing
+        App_RaffstoreIOs[ShutterID-1] = 0                                   ; initialize with zero InpID
+        App_ShutterStates[ShutterID-1] = 0                                  ; 0 = stopped; 1 = opening; 2 = closing
         App_ShutterCLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1]    ; set current shutter level to last one saved
         App_ShutterTLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1]    ; set target shutter level to last one saved (to prevent moving at startup)
     next
@@ -473,18 +481,8 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
         AutoInputHandler(InpID, Clicks)
         return
     endif
-   
-    select InpID                        ; get the input type defined for this input
-        case 1 InpType = App_IOType1
-        case 2 InpType = App_IOType2
-        case 3 InpType = App_IOType3
-        case 4 InpType = App_IOType4
-        case 5 InpType = App_IOType5
-        case 6 InpType = App_IOType6
-        case 7 InpType = App_IOType7
-        case 8 InpType = App_IOType8
-    endselect
-    
+
+    InpType = GetIOType(InpID)  ; get the input type defined for this input
     if InpType == 4 then    ;Motion Sensor
         MotionSensorHandler(InpID, Clicks)
     else
@@ -498,7 +496,7 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
             case 7 IDstring = App_IOSet7
             case 8 IDstring = App_IOSet8
          endselect
-         StringInputHandler(IDstring, InpType, Clicks)
+         StringInputHandler(IDstring, InpType, Clicks, InpID)
          endif
     endif          
     return
@@ -513,14 +511,14 @@ function AutoInputHandler(int32 InpID, int32 Clicks)                        ; ha
     select InpType
         case 0  OtherClicksHandler(EntityID, Clicks)
         case 1  LightClicksHandler(EntityID, Clicks)
-        case 2  ShutterClicksHandler(EntityID,Clicks)
+        case 2  ShutterClicksHandler(EntityID, Clicks, InpID)
         case 3  SocketClicksHandler(EntityID, Clicks)
         case 4  MotionSensorHandler(EntityID, Clicks)
         else App_Message="Invalid input type: " ~ InpType
     endselect   
     return
 endfunction  
-function StringInputHandler(string IDstring, int8 InpType, int32 Clicks)    ; handles action based on given IDString (CSV string of IDs), input type and number of clicks (InpType: 1=Light, 2=Shutter, 3=Socket)
+function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 InpID)    ; handles action based on given IDString (CSV string of IDs), input type and number of clicks (InpType: 1=Light, 2=Shutter, 3=Socket)
     App_Message="StringInputHandler"
     int32 idx
     int32 EntityID
@@ -531,13 +529,16 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks)    ; ha
         EntityID = IDstring.GetNumAscii(idx)
         if EntityID > 0 then                    ; if next characters are a number process this number
             if InpType == 1 then LightClicksHandler(EntityID, Clicks)
-            elseif InpType == 2 then ShutterClicksHandler(EntityID, Clicks)
+            elseif InpType == 2 then 
+                if ShutterClicksHandler(EntityID, Clicks, InpID) == 1 then
+                    idx = IDstring.Length + 1 endif ; ShutterClicksHandler returns 1 in case it is a raffstore which changes it's angle                                          ; this works only for the first inputID
             elseif InpType == 3 then SocketClicksHandler(EntityID, Clicks)
             else App_Message="Unhandled InpType: " ~ InpType
             endif
         endif        
         idx = idx + 1
-    loop    
+    loop
+    return
 endfunction
 
 function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all multiclicks related to lights
@@ -560,19 +561,28 @@ function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all mu
     endselect
     return
 endfunction
-function ShutterClicksHandler(int32 ShutterID, int32 Clicks)    ; handles all multiclicks related to shutters
+function int8 ShutterClicksHandler(int32 ShutterID, int32 Clicks, int32 InpID)    ; handles all multiclicks related to shutters
     App_InpType="Shutter"   
+    
     select Clicks
         case 1  App_Message="open shutter"
             if App_ShutterStates[ShutterID-1] == 0 then App_ShutterTLevels[ShutterID-1] = 100  ; if shutter does not move currently, open it ;100 = fully open
             else                                        ; if shutter moves (independently of open/close) stop it
                 App_ShutterTLevels[ShutterID-1] = App_ShutterCLevels[ShutterID-1] endif ; set the target level to current level for stopping by thread
-            ShutterStartThread(ShutterID)           ; start shutter thread only if needed        
+            if App_IOActive[InpID-1] == 1 and GetShutterType(ShutterID) == 2 then       ; change the angle of a raffstore (while I/O is still pressed)
+                App_RaffstoreIOs[ShutterID-1] = InpID
+                RaffstoreStartThread(ShutterID)
+                return 1
+            else ShutterStartThread(ShutterID) endif                                    ; start shutter thread for any shutter type        
         case 2  App_Message="close shutter"
             if App_ShutterStates[ShutterID-1] == 0 then App_ShutterTLevels[ShutterID-1] = 0  ; if shutter does not move currently close it ; 0 = fully closed                
             else                                        ; if shutter moves (independently of open/close) stop it
                 App_ShutterTLevels[ShutterID-1] = App_ShutterCLevels[ShutterID-1] endif ; set the target level to current level for stopping by thread
-            ShutterStartThread(ShutterID)           ; start shutter thread only if needed
+            if App_IOActive[InpID-1] == 1 and GetShutterType(ShutterID) == 2 then       ; change the angle of a raffstore (while I/O is still pressed)
+                App_RaffstoreIOs[ShutterID-1] = InpID
+                RaffstoreStartThread(ShutterID)
+                return 1
+            else ShutterStartThread(ShutterID) endif                                    ; start shutter thread for any shutter type   
         case 3 App_Message="open ALL shutters" ; on this controller
             for ShutterID = 1 to App_Shutters
                 App_ShutterTLevels[ShutterID-1] = 100
@@ -581,11 +591,11 @@ function ShutterClicksHandler(int32 ShutterID, int32 Clicks)    ; handles all mu
         case 4 App_Message="close ALL shutters" ; on this controller
             for ShutterID = 1 to App_Shutters
                 App_ShutterTLevels[ShutterID-1] = 0
-                ShutterStartThread(ShutterID)
+                ShutterStartThread(ShutterID)       ; start shutter thread only if needed
             next
         else App_Message="Unhandled click count"
     endselect
-    return
+    return 0
 endfunction
 function SocketClicksHandler(int32 SocketID, int32 Clicks)      ; handles all multiclicks related to sockets
     App_InpType="Socket"   
@@ -673,8 +683,15 @@ function ShutterOpen(int32 ShutterID)           ; open the shutter
      SetRelay((ShutterID - 1), on)
      return       
 endfunction
-function ShutterClose(int32 ShutterID)          ; close the shutter (assumes one is for open; one relay for closing)
-     App_Message="ShutterClose: " ~ ShutterID
+function ShutterClose(int32 ShutterID)          ; close the shutter - select which connection type is used
+    if App_ShutterRelayCT == 2 then
+        ShutterCloseParallel(ShutterID)
+    else
+        ShutterCloseRow(ShutterID)
+    endif
+endfunction
+function ShutterCloseParallel(int32 ShutterID)  ; close the shutter (assumes one is for open; one relay for closing)
+     App_Message="ShutterCloseParallel: " ~ ShutterID
      if ShutterID > App_Shutters then
         App_Message="Unhandled ShutterID: " ~ ShutterID
         return
@@ -685,16 +702,16 @@ function ShutterClose(int32 ShutterID)          ; close the shutter (assumes one
      SetRelay(ShutterID, on)
      return
 endfunction
-function ShutterClose2(int32 ShutterID)         ; close the shutter (assumes one relay defines move/not move; the other one the drection - open or close)
-     App_Message="ShutterClose2: " ~ ShutterID
+function ShutterCloseRow(int32 ShutterID)       ; close the shutter (assumes one relay defines move/not move; the other one the drection - open or close)
+     App_Message="ShutterCloseRow: " ~ ShutterID
      if ShutterID > App_Shutters then
         App_Message="Unhandled ShutterID: " ~ ShutterID
         return
      endif
      App_ShutterStates[ShutterID-1] = 2
-     ShutterID = ShutterID*2 ; replace ShutterID with ID of second realy of shutter
-     SetRelay((ShutterID - 1), on)
-     SetRelay(ShutterID, on)
+     ShutterID = ShutterID*2 ; replace ShutterID with ID of second realy of shutter 
+     SetRelay(ShutterID, on)        ;this relay defines direction
+     SetRelay((ShutterID - 1), on)  ;this defines that shutter should move
      return
 endfunction
 function ShutterStop(int32 ShutterID)           ; stop the shutter   
@@ -722,6 +739,26 @@ function ShutterMoveDirection(int32 ShutterID)  ; set the shutter moevement stat
     return
 endfunction
 
+function int8 GetShutterType(int32 ShutterID)               ; returns the currently defined type of a shutter ( 0 = auto; 1 = roller; 2 = raffstore; 3 = jealousy )
+    select ShutterID
+        case 1 return App_ShutterType1                  
+        case 2 return App_ShutterType2                  
+        case 3 return App_ShutterType3                  
+        case 4 return App_ShutterType4                  
+        case 5 return App_ShutterType5                  
+        case 6 return App_ShutterType6                  
+        case 7 return App_ShutterType7                  
+        case 8 return App_ShutterType8                  
+        case 9 return App_ShutterType9                  
+        case 10 return App_ShutterType10                 
+        case 11 return App_ShutterType11                 
+        case 12 return App_ShutterType12                 
+        case 13 return App_ShutterType13                 
+        case 14 return App_ShutterType14                 
+        case 15 return App_ShutterType15                 
+        case 16 return App_ShutterType16
+    endselect
+endfunction
 function ShutterStartThread(int32 ShutterID)                ; starts shutter thread, but only if not already running
     App_Message="ShutterStartThread"
     if App_ShutterStates[ShutterID-1] == 0 then
@@ -793,7 +830,58 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
     dScriptServerTrigger(82, ShutterID)              ; trigger refresh on the dScriptServer
     return
 endfunction
+function RaffstoreStartThread(int32 ShutterID)              ; starts shutter thread, but only if not already running
+    App_Message="RaffstoreStartThread"
+    if App_ShutterStates[ShutterID-1] == 0 then
+        select ShutterID
+            case 1  threadstart MoveRaffstore1
+            case 2  threadstart MoveRaffstore2
+            case 3  threadstart MoveRaffstore3
+            case 4  threadstart MoveRaffstore4
+            case 5  threadstart MoveRaffstore5
+            case 6  threadstart MoveRaffstore6
+            case 7  threadstart MoveRaffstore7
+            case 8  threadstart MoveRaffstore8
+            case 9  threadstart MoveRaffstore9
+            case 10 threadstart MoveRaffstore10
+            case 11 threadstart MoveRaffstore11
+            case 12 threadstart MoveRaffstore12
+            case 13 threadstart MoveRaffstore13
+            case 14 threadstart MoveRaffstore14
+            case 15 threadstart MoveRaffstore15
+            case 16 threadstart MoveRaffstore16
+        endselect
+    endif
+    return
+endfunction
+function RaffstoreMoveThreadX(int32 ShutterID)              ; function used by every MoveRaffstoreX thread
+    int8 InpID
+    InpID = App_RaffstoreIOs[ShutterID-1]
+    if InpID == 0 then 
+        App_Message="Zero InputID"
+        return
+    endif
+    ShutterStartThread(ShutterID)
+    do while App_IOActive[InpID-1] == 1                     ; loop while input is active
+        threadsleep 50
+    loop
+    App_ShutterTLevels[ShutterID-1] = App_ShutterCLevels[ShutterID-1]   ; set shutter target level to current one
+    App_RaffstoreIOs[ShutterID-1] = 0
+    return
+endfunction
 
+function int8 GetIOType(int32 InpID)                        ; return the currently defined IO type of a specific input (0 = Auto Type / UNKNOWN; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
+    select InpID
+        case 1 return App_IOType1
+        case 2 return App_IOType2
+        case 3 return App_IOType3
+        case 4 return App_IOType4
+        case 5 return App_IOType5
+        case 6 return App_IOType6
+        case 7 return App_IOType7
+        case 8 return App_IOType8
+    endselect
+endfunction
 function int8 GetAutoInputType(int32 InpID)                 ; return the type a specific input is configured for via AutoInputType (0 = Auto Type / UNKNOWN; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
     if InpID <= App_Lights then ; process lights
         return 1 ; = Light
@@ -891,7 +979,7 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
     endselect
 
     App_Message="Enable Motion Lights: " ~ MotionID
-    StringInputHandler(IDstring, 1, 101)    ; 1 = Light as we want to control lights | 101 = dummy click count to turn on light
+    StringInputHandler(IDstring, 1, 101, 0)    ; 1 = Light as we want to control lights | 101 = dummy click count to turn on light | 0 = dummy value for internal input
     dScriptServerTrigger(84, MotionID)      ; trigger refresh on the dScriptServer
     
     do while App_IOActive[InpID-1]          ; wait for input to be inactive
@@ -899,7 +987,7 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
     loop
 
     App_Message="Disable Motion Lights: " ~ MotionID
-    StringInputHandler(IDstring, 1, 102)    ; 1 = Light as we want to control lights | 102 = dummy click count to turn off light
+    StringInputHandler(IDstring, 1, 102, 0)    ; 1 = Light as we want to control lights | 102 = dummy click count to turn off light | 0 = dummy value for internal input
     dScriptServerTrigger(84, MotionID)      ; trigger refresh on the dScriptServer
     return
 endfunction
@@ -1671,6 +1759,71 @@ thread MoveShutter15(const)  ; handles the shutter movement and state
 endthread
 thread MoveShutter16(const)  ; handles the shutter movement and state
     ShutterMoveThreadX(16)
+    threadsuspend
+endthread
+
+thread MoveRaffstore1(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(1)
+    threadsuspend
+endthread
+thread MoveRaffstore2(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(2)
+    threadsuspend
+endthread
+thread MoveRaffstore3(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(3)
+    threadsuspend
+endthread
+thread MoveRaffstore4(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(4)
+    threadsuspend
+endthread
+thread MoveRaffstore5(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(5)
+    threadsuspend
+endthread
+thread MoveRaffstore6(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(6)
+    threadsuspend
+endthread
+thread MoveRaffstore7(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(7)
+    threadsuspend
+endthread
+thread MoveRaffstore8(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(8)
+    threadsuspend
+endthread
+thread MoveRaffstore9(const)   ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(9)
+    threadsuspend
+endthread
+thread MoveRaffstore10(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(10)
+    threadsuspend
+endthread
+thread MoveRaffstore11(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(11)
+    threadsuspend
+endthread
+thread MoveRaffstore12(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(12)
+    threadsuspend
+endthread
+thread MoveRaffstore13(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(13)
+    threadsuspend
+endthread
+thread MoveRaffstore14(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(14)
+    threadsuspend
+endthread
+thread MoveRaffstore15(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(15)
+    threadsuspend
+endthread
+thread MoveRaffstore16(const)  ; handles the Raffstore movement and state
+    RaffstoreMoveThreadX(16)
     threadsuspend
 endthread
 

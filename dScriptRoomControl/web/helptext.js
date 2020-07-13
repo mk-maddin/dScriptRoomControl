@@ -131,6 +131,9 @@ function SecurityText(x) {
 function ShuttersConfigText(x) {
     document.getElementById('help').innerHTML = "<br>Shutter Configuration<br><br>Defines the shutter type for correct functions and maximum closing time (fully open to fully closed) per shutter.";
 }
+function ShuttersConnectText(x) {
+    document.getElementById('help').innerHTML = "<br>Shutter Relay Connection<br><br>Defines how shutters are connected to the relays.<br> Recommended is a connection in row (which means one shutter defines if the shutter is moving or not, while the other one defines if it is moving up or down).This way of connecting shutters is fail save.<br><br>Alternatively shutters can be connected in parallel - one relay moves the shutter up, the other one moves the shutter down. While this is more eays there is a risk of both relays on at the same time and due to this cause damage to the shutter.";
+}
 function ShuttersText(x) {
     document.getElementById('help').innerHTML = "<br>Count of Shutters<br><br>Number of shutters managed via the DSBoard. Shutter connections start at relay 0 of board and count upwards +2.";
 }

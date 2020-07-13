@@ -13,7 +13,7 @@
         <tr><td>Module:</td><td>~Module~</td></tr>
         <tr><td>App version:</td><td>~AppVerMajor~.~AppVerMinor~ (<a href="_config.htm">configure</a>)</td></tr>
         <tr><td>App message:</td><td><input id='Message' type="text" readonly="true" size="64"></td></tr>  
-        <tr><td>App debug:</td><td><input id='Debug' type="text" readonly="true" size="64"></td></tr>
+ <!--       <tr><td>App debug:</td><td><input id='Debug' type="text" readonly="true" size="64"></td></tr> -->
         <tr><td><button id='Srv' type="button" onmousedown="newAJAXCommand('dscript.cgi?App_WebInput=99');">contact Server</button></td><td>~App_dScriptServer~</td></tr> 
     </table>
     
@@ -28,7 +28,7 @@
         <button id='Inp7' type="button" onmousedown="newAJAXCommand('dscript.cgi?App_WebInput=7');">7</button>
         <button id='Inp8' type="button" onmousedown="newAJAXCommand('dscript.cgi?App_WebInput=8');">8</button>
     </p>
-    <p align="center"> Input type:<input id='InpType' type="text" readonly="true" size="64"></p>
+<!--     <p align="center"> Input type:<input id='InpType' type="text" readonly="true" size="64"></p> -->
     <p align="center"> Click Counts:<br>
         IC1 <input id='IC1' type="text" readonly="true" size="1">
         IC2 <input id='IC2' type="text" readonly="true" size="1">
@@ -129,10 +129,9 @@ function ajaxUpdate()
     if (msg != document.getElementById('Message').value){
         console.log("App_Message: " + getValue('App_Message'));}
     document.getElementById('Message').value = getValue('App_Message');
-    document.getElementById('Debug').value = getValue('App_Debug');
+    //document.getElementById('Debug').value = getValue('App_Debug');
+    //document.getElementById('InpType').value = getValue('App_InpType');
     
-
-    document.getElementById('InpType').value = getValue('App_InpType');
     document.getElementById('IC1').value = getValue('App_IOCtr1');
     document.getElementById('IC2').value = getValue('App_IOCtr2');
     document.getElementById('IC3').value = getValue('App_IOCtr3');
@@ -225,7 +224,6 @@ function ShutterViews() {
         }
     }
 }
-
 </script>
 
 </body>

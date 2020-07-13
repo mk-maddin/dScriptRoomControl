@@ -28,6 +28,14 @@
                     <div class="item-line"> Count Shutters </div>
                     <input type="text" value = "~App_Shutters~" onkeyup="UpdateEntities(this)" id="AppShutters">
                 </div>
+                <div onmouseover="ShuttersConnectText(this)" onmouseout="PageText(this)">
+                    <div class="item-line"> Shutter connect </div>
+                    <select id='AppShutterRelayCT' value = "~App_ShutterRelayCT~" onchange="newAJAXCommand('dscript.cgi?App_ShutterRelayCT='+this.value);">
+                        <option value="0" hidden >Auto</option>
+                        <option value="1">in Row</option>
+                        <option value="2">Parallel</option>
+                    </select>
+                </div>
                 <br>
                 <div onmouseover="SocketsText(this)" onmouseout="PageText(this)">
                     <div class="item-line"> Count Sockets</div>
@@ -60,10 +68,8 @@ function PageText(x) {
 
 // setup the dynamic page content
 includeHTML();
+document.getElementById('AppShutterRelayCT').value = ~App_ShutterRelayCT~;
 PageText(0);
-
-// document.getElementById('AppLights').value = ~App_Lights~;
-// document.getElementById('AppShutters').value = ~App_Shutters~;
 
 function UpdateEntities(obj) {
     console.log('UpdateEntities...');

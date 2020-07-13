@@ -133,8 +133,11 @@ digitalport  LedRed     35
 
 #ifdef DS2824 || TCP184                 ; Only on the dS2824 and tcp184
     const Inp8 8
-    
     flexport    IO8 Inp8    digitalpullup
-
     flexport    IO8_s   16  
+#endif
+
+#ifdef DS378
+    const Inp8 163                      ; use the last virtual IOPort to have 8 IOvalues available 
+    digitalport IO8 Inp8                ; set IO8 to last viartual IOPort
 #endif
