@@ -215,6 +215,7 @@ function InitRestore()  ; restore temporary from volatile variables_
         App_ShutterCLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1]    ; set current shutter level to last one saved
         App_ShutterTLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1]    ; set target shutter level to last one saved (to prevent moving at startup)
     next
+    App_ShutterCalibration = 0
     threadstart CalcVoltsTemp        ; keep config page volt & temp updated
     threadstart UpdateShutterStates  ; keep shutter values on index page updated
     return
@@ -483,6 +484,14 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
     endif
 
     InpType = GetIOType(InpID)  ; get the input type defined for this input
+        
+    if App_ShutterCalibration == 1 then ; while in ShutterCalibration mode do not process any other input
+        if InpType != 2 then
+            App_Message="Shutter calibration only!"
+            return
+        endif
+    endif 
+    
     if InpType == 4 then    ;Motion Sensor
         MotionSensorHandler(InpID, Clicks)
     else
@@ -507,6 +516,13 @@ function AutoInputHandler(int32 InpID, int32 Clicks)                        ; ha
     int32 EntityID
     InpType = GetAutoInputType(InpID)
     EntityID = GetAutoEntityID(InpID, InpType)
+
+    if App_ShutterCalibration == 1 then ; while in ShutterCalibration mode do not process any other input
+        if InpType != 2 then
+            App_Message="Shutter calibration only!"
+            return
+        endif
+    endif 
 
     select InpType
         case 0  OtherClicksHandler(EntityID, Clicks)
@@ -563,6 +579,11 @@ function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all mu
 endfunction
 function int8 ShutterClicksHandler(int32 ShutterID, int32 Clicks, int32 InpID)    ; handles all multiclicks related to shutters
     App_InpType="Shutter"   
+
+    if App_ShutterCalibration == 1 then ; handle clicks differnetly if shutter calibration mode is active
+        ShutterClickCalibration(ShutterID, Clicks, InpID)
+        return 1
+    endif
     
     select Clicks
         case 1  App_Message="open shutter"
@@ -593,9 +614,94 @@ function int8 ShutterClicksHandler(int32 ShutterID, int32 Clicks, int32 InpID)  
                 App_ShutterTLevels[ShutterID-1] = 0
                 ShutterStartThread(ShutterID)       ; start shutter thread only if needed
             next
+        case 5 App_Message="Shutter calibration on"
+            App_ShutterCalibration = 1
+            LedBlue = on
+            for x = 1 to 16
+                App_ShutterCTCalibration[x-1] = 0
+            next
+            return 1
         else App_Message="Unhandled click count"
     endselect
     return 0
+endfunction
+function ShutterClickCalibration(int32 ShutterID, int32 Clicks, int32 InpID) ; handles multiclicks related to shutters during calibration mode
+    select Clicks
+        case 1 App_Message="open shutter"
+            if App_IOActive[InpID-1] == 1 then ShutterOpen(ShutterID) endif  ; only on press and hold
+            do while App_IOActive[InpID-1] == 1
+                threadsleep 100
+                App_ShutterCTCalibration[ShutterID-1] = App_ShutterCTCalibration[ShutterID-1] - 100
+            loop
+            ShutterStop(ShutterID)
+            App_Message="CT" ~ShutterID ~ "=" ~ App_ShutterCTCalibration[ShutterID-1]
+        case 2 App_Message="close shutter"
+            if App_IOActive[InpID-1] == 1 then ShutterClose(ShutterID) endif ; only on press and hold
+            do while App_IOActive[InpID-1] == 1
+                threadsleep 100
+                App_ShutterCTCalibration[ShutterID-1] = App_ShutterCTCalibration[ShutterID-1] + 100
+            loop
+            ShutterStop(ShutterID)
+            App_Message="CT" ~ShutterID ~ "=" ~ App_ShutterCTCalibration[ShutterID-1]
+        case 3 App_Message="CT reset to 0 for " ~ ShutterID
+            App_ShutterCTCalibration[ShutterID-1] = 0
+            for x = 1 to 3    ; flash red led to indicate erasure
+                threadsleep 300 LedRed = on
+                threadsleep 300 LedRed = off
+            next
+        case 4 
+            if App_ShutterCTCalibration[ShutterID-1] < 1000 then
+                App_Message="CT " ~ App_ShutterCTCalibration[ShutterID-1] ~ " invalid"
+                return
+            endif 
+
+            select ShutterID
+                case 1 App_ShutterCT1 = App_ShutterCTCalibration[ShutterID-1]
+                    App_ShutterLevel1 = 0
+                case 2 App_ShutterCT2 = App_ShutterCTCalibration[ShutterID-1]
+                    App_ShutterLevel2 = 0                 
+                case 3 App_ShutterCT3 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel3 = 0
+                case 4 App_ShutterCT4 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel4 = 0
+                case 5 App_ShutterCT5 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel5 = 0
+                case 6 App_ShutterCT6 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel6 = 0
+                case 7 App_ShutterCT7 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel7 = 0
+                case 8 App_ShutterCT8 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel8 = 0
+                case 9 App_ShutterCT9 = App_ShutterCTCalibration[ShutterID-1]                  
+                    App_ShutterLevel9 = 0
+                case 10 App_ShutterCT10 = App_ShutterCTCalibration[ShutterID-1]                 
+                    App_ShutterLevel10 = 0
+                case 11 App_ShutterCT11 = App_ShutterCTCalibration[ShutterID-1]                 
+                    App_ShutterLevel11 = 0
+                case 12 App_ShutterCT12 = App_ShutterCTCalibration[ShutterID-1]                 
+                    App_ShutterLevel12 = 0
+                case 13 App_ShutterCT13 = App_ShutterCTCalibration[ShutterID-1]                 
+                    App_ShutterLevel13 = 0
+                case 14 App_ShutterCT14 = App_ShutterCTCalibration[ShutterID-1]                 
+                    App_ShutterLevel14 = 0
+                case 15 App_ShutterCT15 = App_ShutterCTCalibration[ShutterID-1]                 
+                    App_ShutterLevel15 = 0
+                case 16 App_ShutterCT16 = App_ShutterCTCalibration[ShutterID-1]
+                    App_ShutterLevel16 = 0
+            endselect
+            
+            App_Message="CT " ~ App_ShutterCTCalibration[ShutterID-1] ~ " saved for " ~ ShutterID
+            
+            for x = 1 to 4    ; flash red led to indicate saving
+                threadsleep 300 LedRed = on
+                threadsleep 300 LedRed = off
+            next
+        case 5 App_Message="Shutter calibration off"
+            App_ShutterCalibration = 0
+            LedBlue = off
+        else App_Message="Unhandled click count"
+    endselect
+    return
 endfunction
 function SocketClicksHandler(int32 SocketID, int32 Clicks)      ; handles all multiclicks related to sockets
     App_InpType="Socket"   
@@ -1016,6 +1122,11 @@ function BinaryAES()                            ; processes incoming / outgpoing
 endfunction
 function BinaryDo()                             ; function interpreting the binary TCP/IP query and returning corresponding values / actions
     tcpLength = 0
+
+    if App_ShutterCalibration == 1 then         ; do not process command if we are in shutter calibration mode
+        return
+    endif
+        
     select tcpInBuf[0]
         case 0x30   BinaryGetStatus()           ; decimal 48
         case 0x31   BinarySetRelay()            ; decimal 49
@@ -1226,18 +1337,18 @@ function BinarySetLight()                       ; SL, Set Light - light id, stat
     tcpLength = 1
     return
 endfunction
-function BinarySetShutter()                     ; SH, Set Shutter - shutter id, state, total 3 byte command
+function BinarySetShutter()                     ; SH, Set Shutter - shutter id, state, total 3 byte command 
     select tcpInBuf[1]
         case 1 to App_Shutters          
             if Nonce == NonceIn then    ; process command only Nonce counting is correct   
                 if tcpInBuf[2] == 255 then
-                     App_ShutterTLevels[tcpInBuf[1]-1] = App_ShutterCLevels[tcpInBuf[1]-1]  ; set shutter target state to current state (and cause a stop with this)
+                    App_ShutterTLevels[tcpInBuf[1]-1] = App_ShutterCLevels[tcpInBuf[1]-1]  ; set shutter target state to current state (and cause a stop with this)
                 elseif tcpInBuf[2] > 100 then App_ShutterTLevels[tcpInBuf[1]-1] = 100       ; set the shutter target state to fully open (100)
                 elseif tcpInBuf[2] < 0 then App_ShutterTLevels[tcpInBuf[1]-1] = 0           ; set the shutter target state to fully closed (0)
                 else App_ShutterTLevels[tcpInBuf[1]-1] = tcpInBuf[2] endif                  ; take the shutter target state from given value
                 ShutterStartThread(tcpInBuf[1])                                             ; start shutter thread only if needed
-                tcpOutBuf[0] = 0 endif      ; ACK
-            else tcpOutBuf[0] = tcpInBuf[1] ; NACK, unknown I/O number, send number as NACK                
+            tcpOutBuf[0] = 0 endif      ; ACK
+        else tcpOutBuf[0] = tcpInBuf[1] ; NACK, unknown I/O number, send number as NACK                
     endselect
     Nonce = system.Random
     tcpOutBuf[12] = Nonce >> 24

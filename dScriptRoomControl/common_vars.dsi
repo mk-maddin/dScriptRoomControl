@@ -277,8 +277,8 @@ int32   NonceIn
 
 string  System_MAC[6]           ; MAC address of the devices ehternet port
 string  System_MACString[17]    ; MAC address in common string format 00:00:00:00:00:00
-string  App_Message[32]         ; status message output
-int32   App_Debug                 ; variable to temporary store values and show them on app page (for Debug help)
+string  App_Message[50]         ; status message output
+int32   App_Debug               ; variable to temporary store values and show them on app page (for Debug help)
 
 int8 App_ShutterLevel1
 int8 App_ShutterLevel2
@@ -299,6 +299,9 @@ int8 App_ShutterLevel16
 
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage information input
+
+int8  App_ShutterCalibration            ; indicates the calibration mode is on/off (0 = off; 1 = on)
+int32 App_ShutterCTCalibration[IDSIZE]  ; stores the calibration values of shutters
 
 int8  App_RaffstoreIOs[IDSIZE]      ; stores the IO which is machted to a specific raffstore on demand
 int8  App_ShutterStates[IDSIZE]     ; stores the current status of shutters (0 = stopped; 1 = opening; 2 = closing)
