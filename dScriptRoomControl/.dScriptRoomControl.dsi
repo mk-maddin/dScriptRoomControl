@@ -493,9 +493,7 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
     endif 
     
     if InpType == 4 then    ;Motion Sensor
-        int32 MotionID
-        MotionID = GetIOMotionID(InpID)
-        MotionSensorHandler(MotionID, Clicks)
+        MotionSensorHandler(InpID, Clicks)
     else
         select InpID
             case 1 IDstring = App_IOSet1

@@ -1,0 +1,281 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebugView</title>
+    <link rel="stylesheet" type="text/css" href="dscript.css">
+</head>
+
+<body onload="startAJAX()">
+    <h2 style="text-align:center" >Debug Page<h3>
+    <br>
+    <table>
+     <tr><td>AESChecked</td><td><input type="text" disabled size="50" value="~AESChecked~" id="InpAESChecked" onkeyup="newAJAXCommand('dscript.cgi?AESChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ClickSleep</td><td><input type="text" disabled size="50" value="~App_ClickSleep~" id="InpApp_ClickSleep" onkeyup="newAJAXCommand('dscript.cgi?App_ClickSleep='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Debug</td><td><input type="text" disabled size="50" value="~App_Debug~" id="InpApp_Debug" onkeyup="newAJAXCommand('dscript.cgi?App_Debug='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_dScriptServer</td><td><input type="text" disabled size="50" value="~App_dScriptServer~" id="InpApp_dScriptServer" onkeyup="newAJAXCommand('dscript.cgi?App_dScriptServer='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_EnableAutoIO</td><td><input type="text" disabled size="50" value="~App_EnableAutoIO~" id="InpApp_EnableAutoIO" onkeyup="newAJAXCommand('dscript.cgi?App_EnableAutoIO='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_EntityCountsUpdated</td><td><input type="text" disabled size="50" value="~App_EntityCountsUpdated~" id="InpApp_EntityCountsUpdated" onkeyup="newAJAXCommand('dscript.cgi?App_EntityCountsUpdated='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_InpType</td><td><input type="text" disabled size="50" value="~App_InpType~" id="InpApp_InpType" onkeyup="newAJAXCommand('dscript.cgi?App_InpType='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr1</td><td><input type="text" disabled size="50" value="~App_IOCtr1~" id="InpApp_IOCtr1" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr2</td><td><input type="text" disabled size="50" value="~App_IOCtr2~" id="InpApp_IOCtr2" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr3</td><td><input type="text" disabled size="50" value="~App_IOCtr3~" id="InpApp_IOCtr3" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr3='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr4</td><td><input type="text" disabled size="50" value="~App_IOCtr4~" id="InpApp_IOCtr4" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr4='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr5</td><td><input type="text" disabled size="50" value="~App_IOCtr5~" id="InpApp_IOCtr5" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr5='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr6</td><td><input type="text" disabled size="50" value="~App_IOCtr6~" id="InpApp_IOCtr6" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr6='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr7</td><td><input type="text" disabled size="50" value="~App_IOCtr7~" id="InpApp_IOCtr7" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr7='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOCtr8</td><td><input type="text" disabled size="50" value="~App_IOCtr8~" id="InpApp_IOCtr8" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr8='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet1</td><td><input type="text" disabled size="50" value="~App_IOSet1~" id="InpApp_IOSet1" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet2</td><td><input type="text" disabled size="50" value="~App_IOSet2~" id="InpApp_IOSet2" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet3</td><td><input type="text" disabled size="50" value="~App_IOSet3~" id="InpApp_IOSet3" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet3='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet4</td><td><input type="text" disabled size="50" value="~App_IOSet4~" id="InpApp_IOSet4" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet4='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet5</td><td><input type="text" disabled size="50" value="~App_IOSet5~" id="InpApp_IOSet5" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet5='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet6</td><td><input type="text" disabled size="50" value="~App_IOSet6~" id="InpApp_IOSet6" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet6='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet7</td><td><input type="text" disabled size="50" value="~App_IOSet7~" id="InpApp_IOSet7" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet7='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOSet8</td><td><input type="text" disabled size="50" value="~App_IOSet8~" id="InpApp_IOSet8" onkeyup="newAJAXCommand('dscript.cgi?App_IOSet8='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType1</td><td><input type="text" disabled size="50" value="~App_IOType1~" id="InpApp_IOType1" onkeyup="newAJAXCommand('dscript.cgi?App_IOType1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType2</td><td><input type="text" disabled size="50" value="~App_IOType2~" id="InpApp_IOType2" onkeyup="newAJAXCommand('dscript.cgi?App_IOType2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType3</td><td><input type="text" disabled size="50" value="~App_IOType3~" id="InpApp_IOType3" onkeyup="newAJAXCommand('dscript.cgi?App_IOType3='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType4</td><td><input type="text" disabled size="50" value="~App_IOType4~" id="InpApp_IOType4" onkeyup="newAJAXCommand('dscript.cgi?App_IOType4='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType5</td><td><input type="text" disabled size="50" value="~App_IOType5~" id="InpApp_IOType5" onkeyup="newAJAXCommand('dscript.cgi?App_IOType5='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType6</td><td><input type="text" disabled size="50" value="~App_IOType6~" id="InpApp_IOType6" onkeyup="newAJAXCommand('dscript.cgi?App_IOType6='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType7</td><td><input type="text" disabled size="50" value="~App_IOType7~" id="InpApp_IOType7" onkeyup="newAJAXCommand('dscript.cgi?App_IOType7='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_IOType8</td><td><input type="text" disabled size="50" value="~App_IOType8~" id="InpApp_IOType8" onkeyup="newAJAXCommand('dscript.cgi?App_IOType8='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Lights</td><td><input type="text" disabled size="50" value="~App_Lights~" id="InpApp_Lights" onkeyup="newAJAXCommand('dscript.cgi?App_Lights='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_LightsOffset</td><td><input type="text" disabled size="50" value="~App_LightsOffset~" id="InpApp_LightsOffset" onkeyup="newAJAXCommand('dscript.cgi?App_LightsOffset='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Message</td><td><input type="text" disabled size="50" value="~App_Message~" id="InpApp_Message" onkeyup="newAJAXCommand('dscript.cgi?App_Message='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Motions</td><td><input type="text" disabled size="50" value="~App_Motions~" id="InpApp_Motions" onkeyup="newAJAXCommand('dscript.cgi?App_Motions='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCalibration</td><td><input type="text" disabled size="50" value="~App_ShutterCalibration~" id="InpApp_ShutterCalibration" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCalibration='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT1</td><td><input type="text" disabled size="50" value="~App_ShutterCT1~" id="InpApp_ShutterCT1" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT10</td><td><input type="text" disabled size="50" value="~App_ShutterCT10~" id="InpApp_ShutterCT10" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT10='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT11</td><td><input type="text" disabled size="50" value="~App_ShutterCT11~" id="InpApp_ShutterCT11" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT11='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT12</td><td><input type="text" disabled size="50" value="~App_ShutterCT12~" id="InpApp_ShutterCT12" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT12='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT13</td><td><input type="text" disabled size="50" value="~App_ShutterCT13~" id="InpApp_ShutterCT13" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT13='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT14</td><td><input type="text" disabled size="50" value="~App_ShutterCT14~" id="InpApp_ShutterCT14" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT14='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT15</td><td><input type="text" disabled size="50" value="~App_ShutterCT15~" id="InpApp_ShutterCT15" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT15='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT16</td><td><input type="text" disabled size="50" value="~App_ShutterCT16~" id="InpApp_ShutterCT16" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT16='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT2</td><td><input type="text" disabled size="50" value="~App_ShutterCT2~" id="InpApp_ShutterCT2" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT3</td><td><input type="text" disabled size="50" value="~App_ShutterCT3~" id="InpApp_ShutterCT3" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT3='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT4</td><td><input type="text" disabled size="50" value="~App_ShutterCT4~" id="InpApp_ShutterCT4" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT4='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT5</td><td><input type="text" disabled size="50" value="~App_ShutterCT5~" id="InpApp_ShutterCT5" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT5='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT6</td><td><input type="text" disabled size="50" value="~App_ShutterCT6~" id="InpApp_ShutterCT6" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT6='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT7</td><td><input type="text" disabled size="50" value="~App_ShutterCT7~" id="InpApp_ShutterCT7" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT7='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT8</td><td><input type="text" disabled size="50" value="~App_ShutterCT8~" id="InpApp_ShutterCT8" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT8='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterCT9</td><td><input type="text" disabled size="50" value="~App_ShutterCT9~" id="InpApp_ShutterCT9" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterCT9='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel1</td><td><input type="text" disabled size="50" value="~App_ShutterLevel1~" id="InpApp_ShutterLevel1" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel10</td><td><input type="text" disabled size="50" value="~App_ShutterLevel10~" id="InpApp_ShutterLevel10" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel10='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel11</td><td><input type="text" disabled size="50" value="~App_ShutterLevel11~" id="InpApp_ShutterLevel11" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel11='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel12</td><td><input type="text" disabled size="50" value="~App_ShutterLevel12~" id="InpApp_ShutterLevel12" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel12='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel13</td><td><input type="text" disabled size="50" value="~App_ShutterLevel13~" id="InpApp_ShutterLevel13" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel13='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel14</td><td><input type="text" disabled size="50" value="~App_ShutterLevel14~" id="InpApp_ShutterLevel14" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel14='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel15</td><td><input type="text" disabled size="50" value="~App_ShutterLevel15~" id="InpApp_ShutterLevel15" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel15='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel16</td><td><input type="text" disabled size="50" value="~App_ShutterLevel16~" id="InpApp_ShutterLevel16" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel16='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel2</td><td><input type="text" disabled size="50" value="~App_ShutterLevel2~" id="InpApp_ShutterLevel2" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel3</td><td><input type="text" disabled size="50" value="~App_ShutterLevel3~" id="InpApp_ShutterLevel3" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel3='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel4</td><td><input type="text" disabled size="50" value="~App_ShutterLevel4~" id="InpApp_ShutterLevel4" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel4='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel5</td><td><input type="text" disabled size="50" value="~App_ShutterLevel5~" id="InpApp_ShutterLevel5" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel5='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel6</td><td><input type="text" disabled size="50" value="~App_ShutterLevel6~" id="InpApp_ShutterLevel6" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel6='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel7</td><td><input type="text" disabled size="50" value="~App_ShutterLevel7~" id="InpApp_ShutterLevel7" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel7='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel8</td><td><input type="text" disabled size="50" value="~App_ShutterLevel8~" id="InpApp_ShutterLevel8" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel8='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterLevel9</td><td><input type="text" disabled size="50" value="~App_ShutterLevel9~" id="InpApp_ShutterLevel9" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel9='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterRelayCT</td><td><input type="text" disabled size="50" value="~App_ShutterRelayCT~" id="InpApp_ShutterRelayCT" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterRelayCT='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Shutters</td><td><input type="text" disabled size="50" value="~App_Shutters~" id="InpApp_Shutters" onkeyup="newAJAXCommand('dscript.cgi?App_Shutters='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType1</td><td><input type="text" disabled size="50" value="~App_ShutterType1~" id="InpApp_ShutterType1" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType10</td><td><input type="text" disabled size="50" value="~App_ShutterType10~" id="InpApp_ShutterType10" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType10='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType11</td><td><input type="text" disabled size="50" value="~App_ShutterType11~" id="InpApp_ShutterType11" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType11='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType12</td><td><input type="text" disabled size="50" value="~App_ShutterType12~" id="InpApp_ShutterType12" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType12='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType13</td><td><input type="text" disabled size="50" value="~App_ShutterType13~" id="InpApp_ShutterType13" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType13='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType14</td><td><input type="text" disabled size="50" value="~App_ShutterType14~" id="InpApp_ShutterType14" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType14='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType15</td><td><input type="text" disabled size="50" value="~App_ShutterType15~" id="InpApp_ShutterType15" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType15='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType16</td><td><input type="text" disabled size="50" value="~App_ShutterType16~" id="InpApp_ShutterType16" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType16='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType2</td><td><input type="text" disabled size="50" value="~App_ShutterType2~" id="InpApp_ShutterType2" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType3</td><td><input type="text" disabled size="50" value="~App_ShutterType3~" id="InpApp_ShutterType3" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType3='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType4</td><td><input type="text" disabled size="50" value="~App_ShutterType4~" id="InpApp_ShutterType4" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType4='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType5</td><td><input type="text" disabled size="50" value="~App_ShutterType5~" id="InpApp_ShutterType5" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType5='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType6</td><td><input type="text" disabled size="50" value="~App_ShutterType6~" id="InpApp_ShutterType6" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType6='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType7</td><td><input type="text" disabled size="50" value="~App_ShutterType7~" id="InpApp_ShutterType7" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType7='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType8</td><td><input type="text" disabled size="50" value="~App_ShutterType8~" id="InpApp_ShutterType8" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType8='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShutterType9</td><td><input type="text" disabled size="50" value="~App_ShutterType9~" id="InpApp_ShutterType9" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType9='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Sockets</td><td><input type="text" disabled size="50" value="~App_Sockets~" id="InpApp_Sockets" onkeyup="newAJAXCommand('dscript.cgi?App_Sockets='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>AppVerMajor</td><td><input type="text" disabled size="50" value="~AppVerMajor~" id="InpAppVerMajor" onkeyup="newAJAXCommand('dscript.cgi?AppVerMajor='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>AppVerMinor</td><td><input type="text" disabled size="50" value="~AppVerMinor~" id="InpAppVerMinor" onkeyup="newAJAXCommand('dscript.cgi?AppVerMinor='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_WebInput</td><td><input type="text" disabled size="50" value="~App_WebInput~" id="InpApp_WebInput" onkeyup="newAJAXCommand('dscript.cgi?App_WebInput='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>AsciiChecked</td><td><input type="text" disabled size="50" value="~AsciiChecked~" id="InpAsciiChecked" onkeyup="newAJAXCommand('dscript.cgi?AsciiChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>AutoIOChecked</td><td><input type="text" disabled size="50" value="~AutoIOChecked~" id="InpAutoIOChecked" onkeyup="newAJAXCommand('dscript.cgi?AutoIOChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>BinaryChecked</td><td><input type="text" disabled size="50" value="~BinaryChecked~" id="InpBinaryChecked" onkeyup="newAJAXCommand('dscript.cgi?BinaryChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>BrdTemp</td><td><input type="text" disabled size="50" value="~BrdTemp~" id="InpBrdTemp" onkeyup="newAJAXCommand('dscript.cgi?BrdTemp='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>DHCPChecked</td><td><input type="text" disabled size="50" value="~DHCPChecked~" id="InpDHCPChecked" onkeyup="newAJAXCommand('dscript.cgi?DHCPChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>FlashWritePending</td><td><input type="text" disabled size="50" value="~FlashWritePending~" id="InpFlashWritePending" onkeyup="newAJAXCommand('dscript.cgi?FlashWritePending='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>initControl</td><td><input type="text" disabled size="50" value="~initControl~" id="InpinitControl" onkeyup="newAJAXCommand('dscript.cgi?initControl='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>ModBusChecked</td><td><input type="text" disabled size="50" value="~ModBusChecked~" id="InpModBusChecked" onkeyup="newAJAXCommand('dscript.cgi?ModBusChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>Module</td><td><input type="text" disabled size="50" value="~Module~" id="InpModule" onkeyup="newAJAXCommand('dscript.cgi?Module='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>Nonce</td><td><input type="text" disabled size="50" value="~Nonce~" id="InpNonce" onkeyup="newAJAXCommand('dscript.cgi?Nonce='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>NonceIn</td><td><input type="text" disabled size="50" value="~NonceIn~" id="InpNonceIn" onkeyup="newAJAXCommand('dscript.cgi?NonceIn='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>PWChecked</td><td><input type="text" disabled size="50" value="~PWChecked~" id="InpPWChecked" onkeyup="newAJAXCommand('dscript.cgi?PWChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_AES_key</td><td><input type="text" disabled size="50" value="~System_AES_key~" id="InpSystem_AES_key" onkeyup="newAJAXCommand('dscript.cgi?System_AES_key='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_Cmd</td><td><input type="text" disabled size="50" value="~System_Cmd~" id="InpSystem_Cmd" onkeyup="newAJAXCommand('dscript.cgi?System_Cmd='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>SystemCmdUpdated</td><td><input type="text" disabled size="50" value="~SystemCmdUpdated~" id="InpSystemCmdUpdated" onkeyup="newAJAXCommand('dscript.cgi?SystemCmdUpdated='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_DNS1</td><td><input type="text" disabled size="50" value="~System_DNS1~" id="InpSystem_DNS1" onkeyup="newAJAXCommand('dscript.cgi?System_DNS1='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_DNS2</td><td><input type="text" disabled size="50" value="~System_DNS2~" id="InpSystem_DNS2" onkeyup="newAJAXCommand('dscript.cgi?System_DNS2='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_EnableDHCP</td><td><input type="text" disabled size="50" value="~System_EnableDHCP~" id="InpSystem_EnableDHCP" onkeyup="newAJAXCommand('dscript.cgi?System_EnableDHCP='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_EnablePW</td><td><input type="text" disabled size="50" value="~System_EnablePW~" id="InpSystem_EnablePW" onkeyup="newAJAXCommand('dscript.cgi?System_EnablePW='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_Gateway</td><td><input type="text" disabled size="50" value="~System_Gateway~" id="InpSystem_Gateway" onkeyup="newAJAXCommand('dscript.cgi?System_Gateway='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_HostName</td><td><input type="text" disabled size="50" value="~System_HostName~" id="InpSystem_HostName" onkeyup="newAJAXCommand('dscript.cgi?System_HostName='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_HttpPort</td><td><input type="text" disabled size="50" value="~System_HttpPort~" id="InpSystem_HttpPort" onkeyup="newAJAXCommand('dscript.cgi?System_HttpPort='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_IP</td><td><input type="text" disabled size="50" value="~System_IP~" id="InpSystem_IP" onkeyup="newAJAXCommand('dscript.cgi?System_IP='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_MAC</td><td><input type="text" disabled size="50" value="~System_MAC~" id="InpSystem_MAC" onkeyup="newAJAXCommand('dscript.cgi?System_MAC='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_MACString</td><td><input type="text" disabled size="50" value="~System_MACString~" id="InpSystem_MACString" onkeyup="newAJAXCommand('dscript.cgi?System_MACString='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_ModbusBaud</td><td><input type="text" disabled size="50" value="~System_ModbusBaud~" id="InpSystem_ModbusBaud" onkeyup="newAJAXCommand('dscript.cgi?System_ModbusBaud='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_ModbusParity</td><td><input type="text" disabled size="50" value="~System_ModbusParity~" id="InpSystem_ModbusParity" onkeyup="newAJAXCommand('dscript.cgi?System_ModbusParity='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_ModbusUID</td><td><input type="text" disabled size="50" value="~System_ModbusUID~" id="InpSystem_ModbusUID" onkeyup="newAJAXCommand('dscript.cgi?System_ModbusUID='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_Password</td><td><input type="text" disabled size="50" value="~System_Password~" id="InpSystem_Password" onkeyup="newAJAXCommand('dscript.cgi?System_Password='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>SystemReboot</td><td><input type="text" disabled size="50" value="~SystemReboot~" id="InpSystemReboot" onkeyup="newAJAXCommand('dscript.cgi?SystemReboot='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_SubNet</td><td><input type="text" disabled size="50" value="~System_SubNet~" id="InpSystem_SubNet" onkeyup="newAJAXCommand('dscript.cgi?System_SubNet='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>System_TcpPort</td><td><input type="text" disabled size="50" value="~System_TcpPort~" id="InpSystem_TcpPort" onkeyup="newAJAXCommand('dscript.cgi?System_TcpPort='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>tcpInBuf</td><td><input type="text" disabled size="50" value="~tcpInBuf~" id="InptcpInBuf" onkeyup="newAJAXCommand('dscript.cgi?tcpInBuf='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>tcpLength</td><td><input type="text" disabled size="50" value="~tcpLength~" id="InptcpLength" onkeyup="newAJAXCommand('dscript.cgi?tcpLength='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>tcpOutBuf</td><td><input type="text" disabled size="50" value="~tcpOutBuf~" id="InptcpOutBuf" onkeyup="newAJAXCommand('dscript.cgi?tcpOutBuf='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>VerMajor</td><td><input type="text" disabled size="50" value="~VerMajor~" id="InpVerMajor" onkeyup="newAJAXCommand('dscript.cgi?VerMajor='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>VerMinor</td><td><input type="text" disabled size="50" value="~VerMinor~" id="InpVerMinor" onkeyup="newAJAXCommand('dscript.cgi?VerMinor='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>Volts</td><td><input type="text" disabled size="50" value="~Volts~" id="InpVolts" onkeyup="newAJAXCommand('dscript.cgi?Volts='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>x</td><td><input type="text" disabled size="50" value="~x~" id="Inpx" onkeyup="newAJAXCommand('dscript.cgi?x='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>Zero</td><td><input type="text" disabled size="50" value="~Zero~" id="InpZero" onkeyup="newAJAXCommand('dscript.cgi?Zero='+encodeURIComponent(this.value));"></td></tr>
+    </table>
+
+<script type="text/javascript">
+
+function ajaxUpdate() {
+    document.getElementById('InpAESChecked').value = getValue('AESChecked');
+    document.getElementById('InpApp_ClickSleep').value = getValue('App_ClickSleep');
+    document.getElementById('InpApp_Debug').value = getValue('App_Debug');
+    document.getElementById('InpApp_dScriptServer').value = getValue('App_dScriptServer');
+    document.getElementById('InpApp_EnableAutoIO').value = getValue('App_EnableAutoIO');
+    document.getElementById('InpApp_EntityCountsUpdated').value = getValue('App_EntityCountsUpdated');
+    document.getElementById('InpApp_InpType').value = getValue('App_InpType');
+    document.getElementById('InpApp_IOCtr1').value = getValue('App_IOCtr1');
+    document.getElementById('InpApp_IOCtr2').value = getValue('App_IOCtr2');
+    document.getElementById('InpApp_IOCtr3').value = getValue('App_IOCtr3');
+    document.getElementById('InpApp_IOCtr4').value = getValue('App_IOCtr4');
+    document.getElementById('InpApp_IOCtr5').value = getValue('App_IOCtr5');
+    document.getElementById('InpApp_IOCtr6').value = getValue('App_IOCtr6');
+    document.getElementById('InpApp_IOCtr7').value = getValue('App_IOCtr7');
+    document.getElementById('InpApp_IOCtr8').value = getValue('App_IOCtr8');
+    document.getElementById('InpApp_IOSet1').value = getValue('App_IOSet1');
+    document.getElementById('InpApp_IOSet2').value = getValue('App_IOSet2');
+    document.getElementById('InpApp_IOSet3').value = getValue('App_IOSet3');
+    document.getElementById('InpApp_IOSet4').value = getValue('App_IOSet4');
+    document.getElementById('InpApp_IOSet5').value = getValue('App_IOSet5');
+    document.getElementById('InpApp_IOSet6').value = getValue('App_IOSet6');
+    document.getElementById('InpApp_IOSet7').value = getValue('App_IOSet7');
+    document.getElementById('InpApp_IOSet8').value = getValue('App_IOSet8');
+    document.getElementById('InpApp_IOType1').value = getValue('App_IOType1');
+    document.getElementById('InpApp_IOType2').value = getValue('App_IOType2');
+    document.getElementById('InpApp_IOType3').value = getValue('App_IOType3');
+    document.getElementById('InpApp_IOType4').value = getValue('App_IOType4');
+    document.getElementById('InpApp_IOType5').value = getValue('App_IOType5');
+    document.getElementById('InpApp_IOType6').value = getValue('App_IOType6');
+    document.getElementById('InpApp_IOType7').value = getValue('App_IOType7');
+    document.getElementById('InpApp_IOType8').value = getValue('App_IOType8');
+    document.getElementById('InpApp_Lights').value = getValue('App_Lights');
+    document.getElementById('InpApp_LightsOffset').value = getValue('App_LightsOffset');
+    document.getElementById('InpApp_Message').value = getValue('App_Message');
+    document.getElementById('InpApp_Motions').value = getValue('App_Motions');
+    document.getElementById('InpApp_ShutterCalibration').value = getValue('App_ShutterCalibration');
+    document.getElementById('InpApp_ShutterCT1').value = getValue('App_ShutterCT1');
+    document.getElementById('InpApp_ShutterCT10').value = getValue('App_ShutterCT10');
+    document.getElementById('InpApp_ShutterCT11').value = getValue('App_ShutterCT11');
+    document.getElementById('InpApp_ShutterCT12').value = getValue('App_ShutterCT12');
+    document.getElementById('InpApp_ShutterCT13').value = getValue('App_ShutterCT13');
+    document.getElementById('InpApp_ShutterCT14').value = getValue('App_ShutterCT14');
+    document.getElementById('InpApp_ShutterCT15').value = getValue('App_ShutterCT15');
+    document.getElementById('InpApp_ShutterCT16').value = getValue('App_ShutterCT16');
+    document.getElementById('InpApp_ShutterCT2').value = getValue('App_ShutterCT2');
+    document.getElementById('InpApp_ShutterCT3').value = getValue('App_ShutterCT3');
+    document.getElementById('InpApp_ShutterCT4').value = getValue('App_ShutterCT4');
+    document.getElementById('InpApp_ShutterCT5').value = getValue('App_ShutterCT5');
+    document.getElementById('InpApp_ShutterCT6').value = getValue('App_ShutterCT6');
+    document.getElementById('InpApp_ShutterCT7').value = getValue('App_ShutterCT7');
+    document.getElementById('InpApp_ShutterCT8').value = getValue('App_ShutterCT8');
+    document.getElementById('InpApp_ShutterCT9').value = getValue('App_ShutterCT9');
+    document.getElementById('InpApp_ShutterLevel1').value = getValue('App_ShutterLevel1');
+    document.getElementById('InpApp_ShutterLevel10').value = getValue('App_ShutterLevel10');
+    document.getElementById('InpApp_ShutterLevel11').value = getValue('App_ShutterLevel11');
+    document.getElementById('InpApp_ShutterLevel12').value = getValue('App_ShutterLevel12');
+    document.getElementById('InpApp_ShutterLevel13').value = getValue('App_ShutterLevel13');
+    document.getElementById('InpApp_ShutterLevel14').value = getValue('App_ShutterLevel14');
+    document.getElementById('InpApp_ShutterLevel15').value = getValue('App_ShutterLevel15');
+    document.getElementById('InpApp_ShutterLevel16').value = getValue('App_ShutterLevel16');
+    document.getElementById('InpApp_ShutterLevel2').value = getValue('App_ShutterLevel2');
+    document.getElementById('InpApp_ShutterLevel3').value = getValue('App_ShutterLevel3');
+    document.getElementById('InpApp_ShutterLevel4').value = getValue('App_ShutterLevel4');
+    document.getElementById('InpApp_ShutterLevel5').value = getValue('App_ShutterLevel5');
+    document.getElementById('InpApp_ShutterLevel6').value = getValue('App_ShutterLevel6');
+    document.getElementById('InpApp_ShutterLevel7').value = getValue('App_ShutterLevel7');
+    document.getElementById('InpApp_ShutterLevel8').value = getValue('App_ShutterLevel8');
+    document.getElementById('InpApp_ShutterLevel9').value = getValue('App_ShutterLevel9');
+    document.getElementById('InpApp_ShutterRelayCT').value = getValue('App_ShutterRelayCT');
+    document.getElementById('InpApp_Shutters').value = getValue('App_Shutters');
+    document.getElementById('InpApp_ShutterType1').value = getValue('App_ShutterType1');
+    document.getElementById('InpApp_ShutterType10').value = getValue('App_ShutterType10');
+    document.getElementById('InpApp_ShutterType11').value = getValue('App_ShutterType11');
+    document.getElementById('InpApp_ShutterType12').value = getValue('App_ShutterType12');
+    document.getElementById('InpApp_ShutterType13').value = getValue('App_ShutterType13');
+    document.getElementById('InpApp_ShutterType14').value = getValue('App_ShutterType14');
+    document.getElementById('InpApp_ShutterType15').value = getValue('App_ShutterType15');
+    document.getElementById('InpApp_ShutterType16').value = getValue('App_ShutterType16');
+    document.getElementById('InpApp_ShutterType2').value = getValue('App_ShutterType2');
+    document.getElementById('InpApp_ShutterType3').value = getValue('App_ShutterType3');
+    document.getElementById('InpApp_ShutterType4').value = getValue('App_ShutterType4');
+    document.getElementById('InpApp_ShutterType5').value = getValue('App_ShutterType5');
+    document.getElementById('InpApp_ShutterType6').value = getValue('App_ShutterType6');
+    document.getElementById('InpApp_ShutterType7').value = getValue('App_ShutterType7');
+    document.getElementById('InpApp_ShutterType8').value = getValue('App_ShutterType8');
+    document.getElementById('InpApp_ShutterType9').value = getValue('App_ShutterType9');
+    document.getElementById('InpApp_Sockets').value = getValue('App_Sockets');
+    document.getElementById('InpAppVerMajor').value = getValue('AppVerMajor');
+    document.getElementById('InpAppVerMinor').value = getValue('AppVerMinor');
+    document.getElementById('InpApp_WebInput').value = getValue('App_WebInput');
+    document.getElementById('InpAsciiChecked').value = getValue('AsciiChecked');
+    document.getElementById('InpAutoIOChecked').value = getValue('AutoIOChecked');
+    document.getElementById('InpBinaryChecked').value = getValue('BinaryChecked');
+    document.getElementById('InpBrdTemp').value = getValue('BrdTemp');
+    document.getElementById('InpDHCPChecked').value = getValue('DHCPChecked');
+    document.getElementById('InpFlashWritePending').value = getValue('FlashWritePending');
+    document.getElementById('InpinitControl').value = getValue('initControl');
+    document.getElementById('InpModBusChecked').value = getValue('ModBusChecked');
+    document.getElementById('InpModule').value = getValue('Module');
+    document.getElementById('InpNonce').value = getValue('Nonce');
+    document.getElementById('InpNonceIn').value = getValue('NonceIn');
+    document.getElementById('InpPWChecked').value = getValue('PWChecked');
+    document.getElementById('InpSystem_AES_key').value = getValue('System_AES_key');
+    document.getElementById('InpSystem_Cmd').value = getValue('System_Cmd');
+    document.getElementById('InpSystemCmdUpdated').value = getValue('SystemCmdUpdated');
+    document.getElementById('InpSystem_DNS1').value = getValue('System_DNS1');
+    document.getElementById('InpSystem_DNS2').value = getValue('System_DNS2');
+    document.getElementById('InpSystem_EnableDHCP').value = getValue('System_EnableDHCP');
+    document.getElementById('InpSystem_EnablePW').value = getValue('System_EnablePW');
+    document.getElementById('InpSystem_Gateway').value = getValue('System_Gateway');
+    document.getElementById('InpSystem_HostName').value = getValue('System_HostName');
+    document.getElementById('InpSystem_HttpPort').value = getValue('System_HttpPort');
+    document.getElementById('InpSystem_IP').value = getValue('System_IP');
+    document.getElementById('InpSystem_MAC').value = getValue('System_MAC');
+    document.getElementById('InpSystem_MACString').value = getValue('System_MACString');
+    document.getElementById('InpSystem_ModbusBaud').value = getValue('System_ModbusBaud');
+    document.getElementById('InpSystem_ModbusParity').value = getValue('System_ModbusParity');
+    document.getElementById('InpSystem_ModbusUID').value = getValue('System_ModbusUID');
+    document.getElementById('InpSystem_Password').value = getValue('System_Password');
+    document.getElementById('InpSystemReboot').value = getValue('SystemReboot');
+    document.getElementById('InpSystem_SubNet').value = getValue('System_SubNet');
+    document.getElementById('InpSystem_TcpPort').value = getValue('System_TcpPort');
+    document.getElementById('InptcpInBuf').value = getValue('tcpInBuf');
+    document.getElementById('InptcpLength').value = getValue('tcpLength');
+    document.getElementById('InptcpOutBuf').value = getValue('tcpOutBuf');
+    document.getElementById('InpVerMajor').value = getValue('VerMajor');
+    document.getElementById('InpVerMinor').value = getValue('VerMinor');
+    document.getElementById('InpVolts').value = getValue('Volts');
+    document.getElementById('Inpx').value = getValue('x');
+    document.getElementById('InpZero').value = getValue('Zero');
+}
+</script>
+</body>
+</html>

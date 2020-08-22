@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    2                       ; version of this application.
-const       AppMinor    2                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    1                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
