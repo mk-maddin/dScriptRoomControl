@@ -159,7 +159,7 @@ case $i in
 	shift;;
 	-sc=*|--closingtime=*)
 	shutterct="${i#*=}"
-	if [[ ! "${shutterct}" =~ ^[1-9]+[0-9]*000$ ]];then
+	if [[ ! "${shutterct}" =~ ^[1-9]+[0-9]+[0-9]*00$ ]];then
 		>&2 echo "$scriptName: error: invalid value: $i"
 		>&2 echo "Try '$scriptName --help' for more information."
 		exit 22;fi
@@ -196,6 +196,7 @@ case $i in
 	shift;;
 	-ie=*|--ioentity=*)
 	IOentity="${i#*=}"
+	#if [ -z "${IOentity}" ];then IOentity="${empty}";fi
 	shift;;
 	-v=*|--variable=*)
 	dev_variable="${i#*=}"
@@ -395,7 +396,7 @@ if [ "$mode" == "io" ];then
 #			setvariable "AutoIOChecked" ' ' "$url" "$pass";fi			
 		setvariable "App_IOType${IOid}" "${IOtype}" "$url" "$pass";fi
 
-	[ ! "${IOentity}" == "${empty}" ] && setvariable "App_IOSet${IOid}" "${IOentity}" "$url" "$pass"
+	if [ ! "${IOentity}" == "${empty}" ];then setvariable "App_IOSet${IOid}" "${IOentity}" "$url" "$pass";fi
 fi
 
 if [ "$mode" == "dev" ];then

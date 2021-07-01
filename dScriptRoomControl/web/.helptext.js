@@ -28,6 +28,9 @@ function AttachedTypeText(x) {
 function BinaryText(x) {
     document.getElementById('help').innerHTML = "<br>Enable Binary command set.<br><br>The Binary command set is the simplest if you are programming an application to control the module.<br><br>The commands are a subset of those used on our ETHxxx series.";
 }
+function ButtonText(x) {
+    document.getElementById('help').innerHTML = "<br>Count of click / touch Buttons<br><br>Number of general buttons managed via the DSBoard. Buttons are connected to I/O ports and can be configured there.<br>(This value is ready only.)";
+}
 function ClickSleepText(x) {
     document.getElementById('help').innerHTML = "<br>Time for clicking / delay<br><br>Time (in milliseconds) to provide for multi click/IO-input commands.Be careful with high numbers here - this will increase the time until command is executed.";
 }
@@ -132,7 +135,7 @@ function ShuttersConfigText(x) {
     document.getElementById('help').innerHTML = "<br>Shutter Configuration<br><br>Defines the shutter type for correct functions and maximum closing time (fully open to fully closed) per shutter.";
 }
 function ShuttersConnectText(x) {
-    document.getElementById('help').innerHTML = "<br>Shutter Relay Connection<br><br>Defines how shutters are connected to the relays.<br> Recommended is a connection in row (which means one shutter defines if the shutter is moving or not, while the other one defines if it is moving up or down).This way of connecting shutters is fail save.<br>Alternatively shutters can be connected in parallel - one relay moves the shutter up, the other one moves the shutter down. While this is more eays there is a risk of both relays on at the same time and due to this cause damage to the shutter.";
+    document.getElementById('help').innerHTML = "<br>Shutter Relay Connection<br><br>Defines how shutters are connected to the relays.<br> Recommended is a connection in row (which means one shutter defines if the shutter is moving or not, while the other one defines if it is moving up or down).This way of connecting shutters is fail save.<br><br>Alternatively shutters can be connected in parallel - one relay moves the shutter up, the other one moves the shutter down. While this is more eays there is a risk of both relays on at the same time and due to this cause damage to the shutter.";
 }
 function ShuttersText(x) {
     document.getElementById('help').innerHTML = "<br>Count of Shutters<br><br>Number of shutters managed via the DSBoard. Shutter connections start at relay 0 of board and count upwards +2.";

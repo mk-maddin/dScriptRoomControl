@@ -93,7 +93,7 @@ function Init()         ; initializes volatile/permantent variables with program
     ; config page 7 - Input / Output
     App_EnableAutoIO = 1            ; enable auto IO matching by default
     
-    App_IOType1 = 0                 ; set the IO input type by default to auto (0 = Auto Type; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
+    App_IOType1 = 0                 ; set the IO input type by default to auto (0 = Auto Type; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion; 5 = Button)
     App_IOType2 = App_IOType1
     App_IOType3 = App_IOType1
     App_IOType4 = App_IOType1
@@ -151,10 +151,10 @@ function Init()         ; initializes volatile/permantent variables with program
     for ShutterID = 1 to 16             ; set current % closed of all shutters
         App_ShutterLevels[ShutterID-1] = 100  ; 100 = fully open; 0 = fully closed
     next
-
+    
     ; config page 99 - Entities
     App_ShutterRelayCT = 1      ; recommended way to connect shutters to relays is in row
-    App_ClickSleep = 800        ; we have 0.8 seconds time to press button multiple times
+    App_ClickSleep = 350        ; wait 0.35 seconds between each button press for the next one
            
     select system.ModuleID                          ; Releay ID where the lights begin/end (counted downwards)
         case 30 App_LightsOffset = 3                ;"dS3484" - 4 physical relays
@@ -199,14 +199,20 @@ function InitRestore()  ; restore temporary from volatile variables_
     App_IOCtr7 = App_IOCtr1
     App_IOCtr8 = App_IOCtr1
 
-    App_IOActive[0] = 0         ; reset states for tracking active input buttons pressed
-    App_IOActive[1] = App_IOActive[0]
-    App_IOActive[2] = App_IOActive[0]
-    App_IOActive[3] = App_IOActive[0]
-    App_IOActive[4] = App_IOActive[0]
-    App_IOActive[5] = App_IOActive[0]
-    App_IOActive[6] = App_IOActive[0]
-    App_IOActive[7] = App_IOActive[0]
+    int32 IOActive
+    for IOActive = 1 to 8            ; reset states for tracking active input buttons pressed
+        App_IOActive[IOActive-1] = 0
+    next
+
+    int32 ButtonID
+    for ButtonID = 1 to 8            ; initial set the number of clicks for every button to 0
+        App_ButtonClicks[ButtonID-1] = 0
+    next
+
+    int32 LightID
+    for LightID = 1 to App_PhysRelays ; initial set the marker for every motion activated light to 0
+        App_LightMotionON[LightID-1] = 0
+    next
     
     int32 ShutterID
     for ShutterID = 1 to 16
@@ -493,7 +499,13 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
     endif 
     
     if InpType == 4 then    ;Motion Sensor
-        MotionSensorHandler(InpID, Clicks)
+        int32 MotionID
+        MotionID = GetIOMotionID(InpID)
+        MotionSensorHandler(MotionID, Clicks)
+    elseif InpType == 5 then    ;button
+        int32 ButtonID
+        ButtonID = GetIOButtonID(InpID)
+        ButtonClicksHandler(ButtonID, Clicks)
     else
         select InpID
             case 1 IDstring = App_IOSet1
@@ -526,10 +538,12 @@ function AutoInputHandler(int32 InpID, int32 Clicks)                        ; ha
 
     select InpType
         case 0  OtherClicksHandler(EntityID, Clicks)
-        case 1  LightClicksHandler(EntityID, Clicks)
+        case 1 
+            if LightStatusHandler(EntityID, Clicks, InpType) == 0 then LightClicksHandler(EntityID, Clicks) endif    
         case 2  ShutterClicksHandler(EntityID, Clicks, InpID)
         case 3  SocketClicksHandler(EntityID, Clicks)
         case 4  MotionSensorHandler(EntityID, Clicks)
+        case 5  ButtonClicksHandler(EntityID, Clicks)
         else App_Message="Invalid input type: " ~ InpType
     endselect   
     return
@@ -543,8 +557,10 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 I
     EntityID = 0
     do while idx <= IDstring.Length             ; while idx is lower then the string length check if next characters are a number
         EntityID = IDstring.GetNumAscii(idx)
+        App_Message="Entity ID: " ~ EntityID
         if EntityID > 0 then                    ; if next characters are a number process this number
-            if InpType == 1 then LightClicksHandler(EntityID, Clicks)
+            if InpType == 1 or InpType == 4 then
+                if LightStatusHandler(EntityID, Clicks, InpType) == 0 then LightClicksHandler(EntityID, Clicks) endif
             elseif InpType == 2 then 
                 if ShutterClicksHandler(EntityID, Clicks, InpID) == 1 then
                     idx = IDstring.Length + 1 endif ; ShutterClicksHandler returns 1 in case it is a raffstore which changes it's angle                                          ; this works only for the first inputID
@@ -555,6 +571,30 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 I
         idx = idx + 1
     loop
     return
+endfunction
+
+function int8 LightStatusHandler(int32 LightID, int32 Clicks, int8 InpType)       ; notes down the triggering of a light to ensure motion are not overwriting inputs
+    int8 RelayID
+    select InpType
+        case 1
+            select Clicks
+                case 1
+                    RelayID=App_LightsOffset-(LightID-1)    ; replace light id with rleay id
+                    if GetRelay(RelayID) == 0 then App_LightMotionON[LightID-1] = 1 ; if light is currently off (later on); set status to blocked
+                    else App_LightMotionON[LightID-1] = 0 endif                     ; if light is currently on (later off); set status to unblocked
+                case 102 App_LightMotionON[LightID-1] = 1
+                case 103 App_LightMotionON[LightID-1] = 0
+                else App_Message="Unhandled click count - Status"              
+            endselect
+        case 4  ; Motion sensor action
+            if App_LightMotionON[LightID-1] > 0 then 
+                App_Message="Light controlled by button: " ~ LightID
+                return 1 ;return 1 to initiate we should not continue with motion processing
+            else return 0 ;return 0 to initiate we can contiue with motion processing
+            endif
+        else App_Message="Unhandled InpType: " ~ InpType
+    endselect
+    return 0
 endfunction
 
 function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all multiclicks related to lights
@@ -743,6 +783,14 @@ function MotionSensorHandler(int32 InpID, int32 Clicks)         ; handles all cl
         case 8 threadstart MotionHandler8
     endselect
 endfunction
+function ButtonClicksHandler(int32 InpID, int8 Clicks)         ; handles all clicks related to virtual ButtonIO
+    App_InpType="Button"
+    if Clicks > 0 then
+        App_ButtonClicks[InpID-1] = Clicks
+        App_Message="Button " ~ InpID ~ " " ~ Clicks ~ " clicks"
+        dScriptServerTrigger(85, InpID)               ; trigger refresh on the dScriptServer
+    endif    
+endfunction
 
 function SetLight(int32 LightID, int32 Action)      ; Sets the state of a light (Action: 0=OFF; 1=ON; 2 or any other=Toggle)
     App_Message="SetLight: " ~ LightID
@@ -836,7 +884,7 @@ function ShutterMoveDirection(int32 ShutterID)  ; set the shutter moevement stat
     App_Message="ShutterMoveDirection: " ~ ShutterID
     ; it is very important to READ App_ShutterLevels[ShutterID-1] in the following statements only
     if App_ShutterTLevels[ShutterID-1] == App_ShutterCLevels[ShutterID-1] then ShutterStop(ShutterID) 
-    elseif App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ShutterOpen(ShutterID)    ;100 = fully open;
+    elseif App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ShutterOpen(ShutterID)    ;100 = fully open
     elseif App_ShutterTLevels[ShutterID-1] < App_ShutterCLevels[ShutterID-1] then ShutterClose(ShutterID)   ;0 = fully closed
     else 
         App_Message="Invalid shutter levels"
@@ -911,22 +959,28 @@ function int32 ShutterGetClosingTime(int32 ShutterID)       ; returns the closin
     return 0  
 endfunction
 function ShutterMoveThreadX(int32 ShutterID)                ; function used by every MoveShutterX thread
-    int32 ShutterCT   
+    int32 ShutterCT  
+    int32 ShutterOpenAdd 
     App_ShutterCLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1] ; temporary working variable to prevent a lot of writes to eeprom
     ShutterCT = ShutterGetClosingTime(ShutterID)                     ; define closing time for door or window
 
+    if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ; opening takes ususally longer than closing the shutter - in this case add up to 10% time
+        ShutterOpenAdd = (App_ShutterCLevels[ShutterID-1] - App_ShutterTLevels[ShutterID-1]) / 10
+        ShutterCT = ShutterCT + ShutterOpenAdd
+    endif
+    
     do while App_ShutterTLevels[ShutterID-1] != App_ShutterCLevels[ShutterID-1]
         if App_ShutterStates[ShutterID-1] == 0 then           ; currently stopped
             if App_ShutterTLevels[ShutterID-1] != App_ShutterCLevels[ShutterID-1] then
-                ShutterMoveDirection(ShutterID) endif       ; if status is not correct and we are not moving we have to            
+                ShutterMoveDirection(ShutterID) endif         ; if status is not correct and we are not moving we have to start moving            
         elseif App_ShutterStates[ShutterID-1] == 1  then      ; currently opening
             if App_ShutterTLevels[ShutterID-1] < App_ShutterCLevels[ShutterID-1] then 
-                ShutterMoveDirection(ShutterID)             ; if we are opening and the target is smaller than the current level we move into wrong direction
-            else App_ShutterCLevels[ShutterID-1]+=1 endif     ; 100 = fully open
+                ShutterMoveDirection(ShutterID)               ; if we are opening and the target is smaller than the current level we move into wrong direction
+            else App_ShutterCLevels[ShutterID-1]+=1 endif     ; add +1 until we have reached the target shutter level; 100 = fully open
         elseif App_ShutterStates[ShutterID-1] == 2            ; currently closing
             if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then 
-                ShutterMoveDirection(ShutterID)             ; if we are closing and the target is bigger than the current level we move into wrong direction
-            else App_ShutterCLevels[ShutterID-1]-=1 endif     ; 0 = fully closed             
+                ShutterMoveDirection(ShutterID)               ; if we are closing and the target is bigger than the current level we move into wrong direction
+            else App_ShutterCLevels[ShutterID-1]-=1 endif     ; remove -1 until we have reached the target shutter level; 0 = fully closed             
         endif       
         threadsleep (ShutterCT/100) ; sleep 1 percentage of closing
     loop
@@ -976,7 +1030,7 @@ function RaffstoreMoveThreadX(int32 ShutterID)              ; function used by e
     return
 endfunction
 
-function int8 GetIOType(int32 InpID)                        ; return the currently defined IO type of a specific input (0 = Auto Type / UNKNOWN; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
+function int8 GetIOType(int32 InpID)                        ; return the currently defined IO type of a specific input (0 = Auto Type / UNKNOWN; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion; 5 = Button)
     select InpID
         case 1 return App_IOType1
         case 2 return App_IOType2
@@ -988,17 +1042,21 @@ function int8 GetIOType(int32 InpID)                        ; return the current
         case 8 return App_IOType8
     endselect
 endfunction
-function int8 GetAutoInputType(int32 InpID)                 ; return the type a specific input is configured for via AutoInputType (0 = Auto Type / UNKNOWN; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
+function int8 GetAutoInputType(int32 InpID)                 ; return the type a specific input is configured for via AutoInputType (0 = Auto Type / UNKNOWN; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion; 5 = Button)
     if InpID <= App_Lights then ; process lights
         return 1 ; = Light
     else
         int32 ShuttersOffset
         ShuttersOffset = 0
         if ( App_Lights // 2 ) == 1 and ( App_Shutters // 2 ) == 0 ShuttersOffset = 1  ; other button between light & shutter buttons exists
-        if InpID == ( App_Lights + ShuttersOffset ) then ; other button between light & shutter buttons was pressed
-            return 4 ; = Motion
-        elseif InpID > ( App_Lights + App_Shutters + ShuttersOffset ) then ; other button after all light & shutter buttons was pressed
-            return 4 ; = Motion
+        if InpID == ( App_Lights + ShuttersOffset ) then ; other button between light & shutter buttons
+            return 5 ; = Button
+        elseif InpID > ( App_Lights + App_Shutters + ShuttersOffset ) then ; other button after all light & shutter buttons
+            if InpID > 6 then ;only for input 7 & 8 automatically set them to motion sensor - others are configured as "button"
+                return 4 ; = Motion
+            else
+                return 5 ; = Button
+            endif  
         endif
         return 2 ; = Shutter
     endif        
@@ -1015,6 +1073,7 @@ function int32 GetAutoEntityID(int32 InpID, int8 InpType)   ; return the entity 
                 return (InpID - App_Lights - ShuttersOffset)
         case 3  return InpID                        ; 3 = Socket
         case 4  return GetIOMotionID(InpID)         ; 4 = Motion
+        case 5  return GetIOButtonID(InpID)         ; 4 = Button
         else    return 1                            ; UNKNOWN
     endselect 
 endfunction
@@ -1072,7 +1131,7 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
     string IDstring[NAMESIZE]
     int32 InpID
 
-    InpID = GetMotionIDIO(MotionID)         ; ghet the inputID for motion sensor   
+    InpID = GetMotionIDIO(MotionID)         ; get the inputID for motion sensor   
     select InpID                            ; get input string for InputID
         case 1 IDstring = App_IOSet1
         case 2 IDstring = App_IOSet2
@@ -1085,7 +1144,7 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
     endselect
 
     App_Message="Enable Motion Lights: " ~ MotionID
-    StringInputHandler(IDstring, 1, 101, 0)    ; 1 = Light as we want to control lights | 101 = dummy click count to turn on light | 0 = dummy value for internal input
+    StringInputHandler(IDstring, 4, 101, 0)    ; 4 = Motion Sensor type (1 = Light as we want to control lights) | 101 = dummy click count to turn on light | 0 = dummy value for internal input
     dScriptServerTrigger(84, MotionID)      ; trigger refresh on the dScriptServer
     
     do while App_IOActive[InpID-1]          ; wait for input to be inactive
@@ -1093,9 +1152,59 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
     loop
 
     App_Message="Disable Motion Lights: " ~ MotionID
-    StringInputHandler(IDstring, 1, 102, 0)    ; 1 = Light as we want to control lights | 102 = dummy click count to turn off light | 0 = dummy value for internal input
+    StringInputHandler(IDstring, 4, 102, 0)    ; 4 = Motion Sensor type (1 = Light as we want to control lights) | 102 = dummy click count to turn off light | 0 = dummy value for internal input
     dScriptServerTrigger(84, MotionID)      ; trigger refresh on the dScriptServer
     return
+endfunction
+
+function int32 GetButtonIDIO(int32 ButtonID)                ; return the I/O id for a specific motion sensor ID
+    if ButtonID > App_Buttons then 
+        App_Message="Unhandled ButtonID: " ~ ButtonID
+        return 0
+    endif
+
+    int32 ButtonsCount
+    int32 IOid
+    
+    ButtonsCount = 0  
+    IOid = 0   
+    for IOid = 1 to 8          
+        select IOid                                       ; count +1 if input type == 5 (button)
+            case 1 if App_IOType1 == 5 ButtonsCount+=1
+            case 2 if App_IOType2 == 5 ButtonsCount+=1
+            case 3 if App_IOType3 == 5 ButtonsCount+=1
+            case 4 if App_IOType4 == 5 ButtonsCount+=1
+            case 5 if App_IOType5 == 5 ButtonsCount+=1
+            case 6 if App_IOType6 == 5 ButtonsCount+=1
+            case 7 if App_IOType7 == 5 ButtonsCount+=1
+            case 8 if App_IOType8 == 5 ButtonsCount+=1
+        endselect
+
+        if ButtonsCount == ButtonID then
+            return IOid
+        endif
+    next
+    return 0
+endfunction
+function int32 GetIOButtonID(int32 InpID)                   ; return the Button ID for a specific I/O id
+    int32 ButtonID
+    int32 IOid
+    
+    ButtonID = 0
+    IOid = 0
+    for IOid = 1 to InpID           
+        select IOid                                        ; count +1 if input type == 5 (button)
+            case 1 if App_IOType1 == 5 ButtonID+=1
+            case 2 if App_IOType2 == 5 ButtonID+=1
+            case 3 if App_IOType3 == 5 ButtonID+=1
+            case 4 if App_IOType4 == 5 ButtonID+=1
+            case 5 if App_IOType5 == 5 ButtonID+=1
+            case 6 if App_IOType6 == 5 ButtonID+=1
+            case 7 if App_IOType7 == 5 ButtonID+=1
+            case 8 if App_IOType8 == 5 ButtonID+=1
+        endselect
+    next
+    return ButtonID
 endfunction
 
 function Binary()                               ; processes incoming / outgpoing binary tcp/ip traffic
@@ -1128,21 +1237,22 @@ function BinaryDo()                             ; function interpreting the bina
     endif
         
     select tcpInBuf[0]
-        case 0x30   BinaryGetStatus()           ; decimal 48
-        case 0x31   BinarySetRelay()            ; decimal 49
-        case 0x32   BinarySetOutput()           ; decimal 50
+        case 0x30   BinaryGetStatus()           ; decimal 48 - provides Nounce
+        case 0x31   BinarySetRelay()            ; decimal 49 - requires & provides Nonce
+        case 0x32   BinarySetOutput()           ; decimal 50 - requires & provides Nonce 
         case 0x33   BinaryGetRelay()            ; decimal 51
         case 0x34   BinaryGetInput()            ; decimal 52
         case 0x35   BinaryGetAnalogue()         ; decimal 53
         case 0x36   BinaryGetCounter()          ; decimal 54
-        case 0x40   BinarySetLight()            ; decimal 64
-        case 0x41   BinarySetShutter()          ; decimal 65
-        case 0x42   BinarySetSocket()           ; decimal 66
+        case 0x40   BinarySetLight()            ; decimal 64 - requires & provides Nonce
+        case 0x41   BinarySetShutter()          ; decimal 65 - requires & provides Nonce
+        case 0x42   BinarySetSocket()           ; decimal 66 - requires & provides Nonce
         case 0x50   BinaryGetConfig()           ; decimal 80
         case 0x51   BinaryGetLight()            ; decimal 81
         case 0x52   BinaryGetShutter()          ; decimal 82
         case 0x53   BinaryGetSocket()           ; decimal 83
         case 0x54   BinaryGetMotion()           ; decimal 84
+        case 0x55   BinaryGetButton()           ; decimal 85
         else App_Message="Invalid binary cmd: " ~ tcpInBuf[0]
     endselect
     return
@@ -1382,7 +1492,7 @@ function BinarySetSocket()                      ; SC, Set Socket - socket id, st
     tcpLength = 1
     return
 endfunction
-function BinaryGetConfig()                      ; GO, Get Config - returns 11 bytes
+function BinaryGetConfig()                      ; GO, Get Config - returns 12 bytes --> 12 bytes is the maximum for BinaryAES!!
     tcpOutBuf[0] = System_MAC[0]        ; MAC address of the system - byte 1
     tcpOutBuf[1] = System_MAC[1]        ; MAC address of the system - byte 2
     tcpOutBuf[2] = System_MAC[2]        ; MAC address of the system - byte 3
@@ -1394,7 +1504,8 @@ function BinaryGetConfig()                      ; GO, Get Config - returns 11 by
     tcpOutBuf[8] = App_Shutters         ; number of shutters connected to relays
     tcpOutBuf[9] = App_Sockets          ; number of sockets connected to relays
     tcpOutBuf[10] = App_Motions          ; number of motion sensors connected to relays
-    tcpLength = 11
+    tcpOutBuf[11] = App_Buttons          ; number of motion sensors connected to relays
+    tcpLength = 12
     return
 endfunction
 function BinaryGetLight()                       ; GL, Get Light - returns 1 byte
@@ -1427,6 +1538,13 @@ function BinaryGetMotion()                      ; GM, Get Motion - returns 1 byt
     InpID = GetMotionIDIO(tcpInBuf[1])
     tcpOutBuf[0] = App_IOActive[InpID-1]
     tcpLength = 1
+    return
+endfunction
+function BinaryGetButton()                      ; GB, Get Button - returns 1 byte
+    tcpOutBuf[0] = App_ButtonClicks[tcpInBuf[1]-1]
+    tcpLength = 1
+    App_Message="BTN " ~ tcpInBuf[1] ~ " | " ~ App_ButtonClicks[tcpInBuf[1]-1] ~ " CLKS"
+    App_ButtonClicks[tcpInBuf[1]-1] = 0
     return
 endfunction
 
@@ -1468,6 +1586,7 @@ function UpdateAutoIO()                              ; update the IOTypes based 
             endselect
         next
         UpdateMotions()
+        UpdateButtons()
     endif
 endfunction
 function UpdateMotions()                             ; update the number of motion sensors connected
@@ -1486,6 +1605,23 @@ function UpdateMotions()                             ; update the number of moti
         endselect
     next
     App_Motions = MotionsCount
+endfunction
+function UpdateButtons()                             ; update the number of buttons connected
+    int8 ButtonsCount
+    ButtonsCount = 0    
+    for x = 1 to 8           
+        select x                                        ; count +1 if input type == 5 (button)
+            case 1 if App_IOType1 == 5 ButtonsCount+=1
+            case 2 if App_IOType2 == 5 ButtonsCount+=1
+            case 3 if App_IOType3 == 5 ButtonsCount+=1
+            case 4 if App_IOType4 == 5 ButtonsCount+=1
+            case 5 if App_IOType5 == 5 ButtonsCount+=1
+            case 6 if App_IOType6 == 5 ButtonsCount+=1
+            case 7 if App_IOType7 == 5 ButtonsCount+=1
+            case 8 if App_IOType8 == 5 ButtonsCount+=1
+        endselect
+    next
+    App_Buttons = ButtonsCount
 endfunction
 
 function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on status updates to dScriptServer
@@ -1521,6 +1657,8 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on st
         case 83 ; decimal value for: GC, Get Socket
             clientBuf[0] = cmdID clientBuf[1] = objID
         case 84 ; decimal value for: GM, Get Motion
+            clientBuf[0] = cmdID clientBuf[1] = objID
+        case 85 ; decimal value for: GB, Get Button
             clientBuf[0] = cmdID clientBuf[1] = objID
         else App_Message="Invalid dScriptServer cmdID"
             return
@@ -1603,6 +1741,7 @@ thread UpdateEntityCounts(App_EntityCountsUpdated)      ; update the number of l
     
     UpdateAutoIO()                                      ;update the auto inputs based on number of lights & shutters
     UpdateMotions()                                     ;update the number of motions connected to system
+    UpdateButtons()                                     ;update the number of buttons connected to system
     threadsuspend        
 endthread
 thread UpdateShutterStates(1000)                        ; update webpage variables for shutter states (every 1 second)
@@ -1728,81 +1867,97 @@ thread InputWeb(App_WebInput)   ; triggered as soon as a web button was pressed
 endthread
 
 thread Input1IOCtr(App_IOCtr1)  ; triggered as soon as multi press counter is changed
-    if App_IOType1 != 4 then
-        threadsleep App_ClickSleep
-    endif
     int32 Clicks
-    Clicks=App_IOCtr1
+    if App_IOType1 != 4 then
+        do
+            Clicks=App_IOCtr1
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr1
+    endif
     App_IOCtr1 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(1,Clicks)
     threadsuspend        
 endthread
 thread Input2IOCtr(App_IOCtr2)  ; triggered as soon as multi press counter is changed
-    if App_IOType2 != 4 then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr2
+    if App_IOType2 != 4 then
+        do
+            Clicks=App_IOCtr2
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr2
+    endif
     App_IOCtr2 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(2,Clicks)
     threadsuspend        
 endthread
 thread Input3IOCtr(App_IOCtr3)  ; triggered as soon as multi press counter is changed
-    if App_IOType3 != 4  then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr3
+    if App_IOType3 != 4 then
+        do
+            Clicks=App_IOCtr3
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr3
+    endif
     App_IOCtr3 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(3,Clicks)
     threadsuspend        
 endthread
 thread Input4IOCtr(App_IOCtr4)  ; triggered as soon as multi press counter is changed
-    if App_IOType4 != 4  then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr4
+    if App_IOType4 != 4 then
+        do
+            Clicks=App_IOCtr4
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr4
+    endif
     App_IOCtr4 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(4,Clicks)
     threadsuspend        
 endthread
 thread Input5IOCtr(App_IOCtr5)  ; triggered as soon as multi press counter is changed
-    if App_IOType5 != 4  then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr5
+    if App_IOType5 != 4 then
+        do
+            Clicks=App_IOCtr5
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr5
+    endif
     App_IOCtr5 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(5,Clicks)
     threadsuspend        
 endthread
 thread Input6IOCtr(App_IOCtr6)  ; triggered as soon as multi press counter is changed
-    if App_IOType6 != 4  then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr6
+    if App_IOType6 != 4 then
+        do
+            Clicks=App_IOCtr6
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr6
+    endif
     App_IOCtr6 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(6,Clicks)
     threadsuspend        
 endthread
 thread Input7IOCtr(App_IOCtr7)  ; triggered as soon as multi press counter is changed
-    if App_IOType7 != 4  then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr7
+    if App_IOType7 != 4 then
+        do
+            Clicks=App_IOCtr7
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr7
+    endif
     App_IOCtr7 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(7,Clicks)
     threadsuspend        
 endthread
 thread Input8IOCtr(App_IOCtr8)  ; triggered as soon as multi press counter is changed
-    if App_IOType8 != 4  then         
-        threadsleep App_ClickSleep     
-    endif
     int32 Clicks
-    Clicks=App_IOCtr8
+    if App_IOType8 != 4 then
+        do
+            Clicks=App_IOCtr8
+            threadsleep App_ClickSleep
+        loop while Clicks != App_IOCtr8
+    endif
     App_IOCtr8 = 0  ; ensure the CtrVal is reset for sure
     InputHandler(8,Clicks)
     threadsuspend        

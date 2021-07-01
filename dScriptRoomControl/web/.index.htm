@@ -39,7 +39,18 @@
         IC7 <input id='IC7' type="text" readonly="true" size="1">
         IC8 <input id='IC8' type="text" readonly="true" size="1">
     </p>
-
+ <!--   
+    <p align="center"> Virtual Buttons:<br>
+        BTN1 <input id='BTN1' type="text" readonly="true" size="1">
+        BTN2 <input id='BTN2' type="text" readonly="true" size="1">
+        BTN3 <input id='BTN3' type="text" readonly="true" size="1">
+        BTN4 <input id='BTN4' type="text" readonly="true" size="1"><br>
+        BTN5 <input id='BTN5' type="text" readonly="true" size="1">
+        BTN6 <input id='BTN6' type="text" readonly="true" size="1">
+        BTN7 <input id='BTN7' type="text" readonly="true" size="1">
+        BTN8 <input id='BTN8' type="text" readonly="true" size="1">
+    </p>
+-->    
     <hr>
     <p  align="center"> Shutters (calibration=~App_ShutterCalibration~):
         <table align="center">
@@ -140,6 +151,16 @@ function ajaxUpdate()
     document.getElementById('IC6').value = getValue('App_IOCtr6');
     document.getElementById('IC7').value = getValue('App_IOCtr7');
     document.getElementById('IC8').value = getValue('App_IOCtr8');
+
+    document.getElementById('BTN1').value = getValue('App_ButtonClicks[0]');
+    document.getElementById('BTN2').value = getValue('App_ButtonClicks[1]');
+    document.getElementById('BTN3').value = getValue('App_ButtonClicks[2]');
+    document.getElementById('BTN4').value = getValue('App_ButtonClicks[3]'); 
+    document.getElementById('BTN5').value = getValue('App_ButtonClicks[4]');
+    document.getElementById('BTN6').value = getValue('App_ButtonClicks[5]');
+    document.getElementById('BTN7').value = getValue('App_ButtonClicks[6]');
+    document.getElementById('BTN8').value = getValue('App_ButtonClicks[7]');
+
 
     document.getElementById('SH1').value = 100 - getValue('App_ShutterLevel1');
     document.getElementById('SH2').value = 100 - getValue('App_ShutterLevel2');

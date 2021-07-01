@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    2                       ; version of this application.
-const       AppMinor    2                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    4                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -127,7 +127,7 @@ html.setup      System_EnablePW
 ;#ifdef NORMAL
     eeint8 App_EnableAutoIO             ; is IO input type defined automatically ( 0 = false; 1 = true)
     
-    eeint8        App_IOType1           ; sets the IO input type (0 = Auto Type; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion)
+    eeint8        App_IOType1           ; sets the IO input type (0 = Auto Type; 1 = Light; 2 = Shutter; 3 = Socket; 4 = Motion; 5 = Button)
     eeint8        App_IOType2
     eeint8        App_IOType3
     eeint8        App_IOType4
@@ -136,7 +136,7 @@ html.setup      System_EnablePW
     eeint8        App_IOType7
     eeint8        App_IOType8                
 
-    eestring  App_IOSet1[NAMESIZE]     ; variables to hold csv list of light / shutter / switch / motion IDs to turn on in case of IO input
+    eestring  App_IOSet1[NAMESIZE]     ; variables to hold csv list of light / shutter / switch / motion / button IDs to turn on in case of IO input
     eestring  App_IOSet2[NAMESIZE]
     eestring  App_IOSet3[NAMESIZE]
     eestring  App_IOSet4[NAMESIZE]
@@ -247,6 +247,7 @@ int32   App_IOCtr8
     eeint8    App_ShutterRelayCT            ; define how relays for shutter are connected - parallel (one for up / one for down) or in row (one for moving / one for direction - up/down)
 #endif
 
+int8    App_Buttons               ; number of touch buttons connected to I/O
 int8    App_Motions               ; number of motion sensors connected to I/O
 int8    App_Sockets               ; number of sockets connected to relays ( =physical_relays-(light_relays+shutter_relays)) )
 
@@ -307,3 +308,6 @@ int8  App_RaffstoreIOs[IDSIZE]      ; stores the IO which is machted to a specif
 int8  App_ShutterStates[IDSIZE]     ; stores the current status of shutters (0 = stopped; 1 = opening; 2 = closing)
 int8  App_ShutterTLevels[IDSIZE]    ; stores the "to be" level of a shutter ( 100 = fully open; 0 = fully closed)
 int8  App_ShutterCLevels[IDSIZE]    ; stores the current level of a shutter to prevent a lot of eeprom writings while moving ( 100 = fully open; 0 = fully closed)
+int8  App_LightMotionON[App_PhysRelays] ; stores if a light was activated by Motion Sensor
+
+int8  App_ButtonClicks[CFGSIZE]    ; stores the number of clicks for a specific button

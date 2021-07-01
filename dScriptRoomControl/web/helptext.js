@@ -28,6 +28,9 @@ function AttachedTypeText(x) {
 function BinaryText(x) {
     document.getElementById('help').innerHTML = "<br>Enable Binary command set.<br><br>The Binary command set is the simplest if you are programming an application to control the module.<br><br>The commands are a subset of those used on our ETHxxx series.";
 }
+function ButtonText(x) {
+    document.getElementById('help').innerHTML = "<br>Count of click / touch Buttons<br><br>Number of general buttons managed via the DSBoard. Buttons are connected to I/O ports and always report their click value to dScriptServer only.<br>(This value is ready only.)";
+}
 function ClickSleepText(x) {
     document.getElementById('help').innerHTML = "<br>Time for clicking / delay<br><br>Time (in milliseconds) to provide for multi click/IO-input commands.Be careful with high numbers here - this will increase the time until command is executed.";
 }

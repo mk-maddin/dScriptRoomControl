@@ -11,6 +11,7 @@
     <br>
     <table>
      <tr><td>AESChecked</td><td><input type="text" disabled size="50" value="~AESChecked~" id="InpAESChecked" onkeyup="newAJAXCommand('dscript.cgi?AESChecked='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Buttons</td><td><input type="text" disabled size="50" value="~App_Buttons~" id="InpApp_Buttons" onkeyup="newAJAXCommand('dscript.cgi?App_Buttons='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ClickSleep</td><td><input type="text" disabled size="50" value="~App_ClickSleep~" id="InpApp_ClickSleep" onkeyup="newAJAXCommand('dscript.cgi?App_ClickSleep='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_Debug</td><td><input type="text" disabled size="50" value="~App_Debug~" id="InpApp_Debug" onkeyup="newAJAXCommand('dscript.cgi?App_Debug='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_dScriptServer</td><td><input type="text" disabled size="50" value="~App_dScriptServer~" id="InpApp_dScriptServer" onkeyup="newAJAXCommand('dscript.cgi?App_dScriptServer='+encodeURIComponent(this.value));"></td></tr>
@@ -146,6 +147,7 @@
 
 function ajaxUpdate() {
     document.getElementById('InpAESChecked').value = getValue('AESChecked');
+    document.getElementById('InpApp_Buttons').value = getValue('App_Buttons');
     document.getElementById('InpApp_ClickSleep').value = getValue('App_ClickSleep');
     document.getElementById('InpApp_Debug').value = getValue('App_Debug');
     document.getElementById('InpApp_dScriptServer').value = getValue('App_dScriptServer');
