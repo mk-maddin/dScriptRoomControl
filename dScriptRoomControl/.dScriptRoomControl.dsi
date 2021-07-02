@@ -1543,7 +1543,6 @@ endfunction
 function BinaryGetButton()                      ; GB, Get Button - returns 1 byte
     tcpOutBuf[0] = App_ButtonClicks[tcpInBuf[1]-1]
     tcpLength = 1
-    App_Message="BTN " ~ tcpInBuf[1] ~ " | " ~ App_ButtonClicks[tcpInBuf[1]-1] ~ " CLKS"
     App_ButtonClicks[tcpInBuf[1]-1] = 0
     return
 endfunction
@@ -1667,7 +1666,7 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on st
     return
 endfunction
 
-thread dScriptServerContacter(120000)                   ; try to contact the dScriptServer at least every 10 minutes
+thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 10 minutes
     dScriptServerTrigger(0,0)       ; send heartbeat trigger to server   
 endthread
 
@@ -1690,6 +1689,7 @@ thread ShowAppVersion(const)                            ; blink LEDs in app vers
         threadsleep 200 LedGreen = on
         threadsleep 200 LedGreen = off
     next
+    threadsleep 100
     threadsuspend
 endthread
 

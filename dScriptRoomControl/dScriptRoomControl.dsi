@@ -1666,7 +1666,7 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on st
     return
 endfunction
 
-thread dScriptServerContacter(120000)                   ; try to contact the dScriptServer at least every 10 minutes
+thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 5 minutes
     dScriptServerTrigger(0,0)       ; send heartbeat trigger to server   
 endthread
 
@@ -1689,6 +1689,7 @@ thread ShowAppVersion(const)                            ; blink LEDs in app vers
         threadsleep 200 LedGreen = on
         threadsleep 200 LedGreen = off
     next
+    threadsleep 100
     threadsuspend
 endthread
 
