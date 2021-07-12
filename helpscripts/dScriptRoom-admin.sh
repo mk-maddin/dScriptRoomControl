@@ -51,7 +51,7 @@ case $i in
 	echo -e "\t -h \t| --help \t\t-> shows this help information"
 	echo -e "\t -v \t| --verbose \t\t-> enable verbose ouput"
 	echo ""
-	echo -e "\t -m= \t| --mode= \t\t-> configures action mode (valid are \"test\", \"config\", \"shutter\", \"IO\" & \"dev\" - default is \"$mode\")"
+	echo -e "\t -m= \t| --mode= \t\t-> configures action mode (valid are \"test\", \"config\", \"shutter\", \"IO\", \"reboot\" & \"dev\" - default is \"$mode\")"
 	echo -e "\t -b= \t| --board= \t-> define a specific dScriptBoard hostname or IP for connecting to (if not defined we will search for boards with ${cfghtml} page enabled!)"
 	#echo -e "\t -p= \t| --pass= \t-> new/old board password for accessing the board" #unfortunately not woking yet as CURL does not support "local storage" feature of browsers
 		#have to rewrite this is python to fix the "issue" with no password support
@@ -72,7 +72,7 @@ case $i in
 	echo ""	
 	echo -e "\t############# parameters special for mode \"IO\" ########################"
 	echo -e "\t -ii= \t| --ioid= \t-> IO to modify (required - valid values are 1-8)"
-	echo -e "\t -it= \t| --iotype= \t-> type of the IO (valid values are: \"light\", \"shutter\", \"socket\", \"motion\")"
+	echo -e "\t -it= \t| --iotype= \t-> type of the IO (valid values are: \"light\", \"shutter\", \"socket\", \"motion\", \"button\")"
 	echo -e "\t -ie= \t| --ioentity= \t-> entity (list of csv possible) to affect with the IO port (only entities of the iotype can be used - motion=light)"
 	echo ""
 	echo -e "\t############# parameters special for mode \"dev\" ########################"
@@ -90,6 +90,7 @@ case $i in
 	echo -e "\t config \t\t= configures general application / system behaviour"
 	echo -e "\t shutter \t\t= configures a specific shutter"
 	echo -e "\t IO \t\t= configures a specific IO"
+	echo -e "\t reboot \t\t= restarts the module - no other action is performed"
 	echo -e "\t dev \t\t= freely configures variables (use only when you exactly know what you are doing!)"
 	echo ""
 	exit 0;;
@@ -98,7 +99,7 @@ case $i in
 	shift;;
 	-m=*|--mode=*)
 	mode=$(echo "${i#*=}" | tr [:upper:] [:lower:])
-	if [[ ! "$mode" =~ ^test$|^config$|^shutter$|^io$|^dev$ ]];then
+	if [[ ! "$mode" =~ ^test$|^config$|^shutter$|^io$|^dev$|^reboot$ ]];then
 		>&2 echo "$scriptName: error: invalid option: $i" 
 		>&2 echo "Try '$scriptName --help' for more information."
 		exit 22;fi
@@ -188,7 +189,7 @@ case $i in
 	shift;;
 	-it=*|--iotype=*)
 	IOtype=$(echo "${i#*=}" | tr [:upper:] [:lower:])
-	if [[ ! "$IOtype" =~ ^light$|^shutter$|^socket$|^motion$ ]];then
+	if [[ ! "$IOtype" =~ ^light$|^shutter$|^socket$|^motion$|^button$ ]];then
 		>&2 echo "$scriptName: error: invalid value: $i"
 		>&2 echo "Try '$scriptName --help' for more information."
 		exit 22;fi
@@ -331,6 +332,12 @@ if [ "${r}" -ne 0 ] || [ -z "${DSCRIPTVARDATA}" ];then
 	>&2 echo "$0: error: unable to get variable matching table: ${url}"
 	exit 22;fi
 
+if [ "$mode" == "reboot" ];then
+	echo "I: initiate a system reboot"
+	setvariable "SystemReset" "1" "$url" "$pass"
+	exit "${error}"
+fi
+
 if [ "$mode" == "test" ];then
 	[ -n "${verbose}" ] && echo "D: set App_Debug variable for testing"
 	setvariable "App_Debug" "11" "$url" "$pass"
@@ -390,6 +397,7 @@ if [ "$mode" == "io" ];then
 		elif [ "${IOtype}" == 'shutter' ];then IOtype='2'
 		elif [ "${IOtype}" == 'socket' ];then IOtype='3'
 		elif [ "${IOtype}" == 'motion' ];then IOtype='4'
+		elif [ "${IOtype}" == 'button' ];then IOtype='5'
 		else IOtype='0';fi
 #		if [ "${IOtype}" -ne 0 ];then # disable AutoIO
 #			setvariable "App_EnableAutoIO" "0" "$url" "$pass"

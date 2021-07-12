@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    2                       ; version of this application.
-const       AppMinor    4                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    5                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -28,7 +28,7 @@ int32 AppVerMinor
 int32 BrdTemp
 int32 Volts
 
-int32   SystemReboot                 ; set by webpage to request a reboot
+int32   SystemReset                 ; set by webpage to request a reboot
 
 ; config page 2 - Network #################################
 

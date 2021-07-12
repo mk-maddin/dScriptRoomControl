@@ -8,7 +8,8 @@
 
 thread main(const)
     App_Message="main"
-
+    SystemReset=0   ; ensure Reset value is 0
+    
     ; get the devices mac address
     tcpip.ReadMacAddr(System_MAC)   ; read the systems MAC Address
     System_MACString={h02} System_MAC[0] ~ ":" ~ {h02} System_MAC[1] ~ ":" ~ {h02} System_MAC[2] ~ ":" ~ {h02} System_MAC[3] ~ ":" ~ {h02} System_MAC[4] ~ ":" ~ {h02} System_MAC[5]
@@ -394,6 +395,7 @@ function InputsStart()                                                      ; st
     threadstart Input8IOCtr
 
     threadstart InputWeb
+    threadstart Reboot
 
     select system.ModuleID                          ; start only needed physical input threads
         case 30 ;"dS3484"
@@ -1666,7 +1668,7 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on st
     return
 endfunction
 
-thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 10 minutes
+thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 5 minutes
     dScriptServerTrigger(0,0)       ; send heartbeat trigger to server   
 endthread
 
@@ -1674,10 +1676,6 @@ thread CalcVoltsTemp(1000)                              ; update the systems vol
     BrdTemp = ((TS1*3223)-500000)/1000              ; thread runs once per second to keep
     Volts = PSU*18369/100000                        ; board temperature and volts updated
     threadsuspend
-endthread
-
-thread Reboot(SystemReboot)                             ; thread is triggered when webpage sets "SystemReboot" to non-zero.
-    x = system.Restart          ; no further processing after this  (CPU is reset)
 endthread
 
 thread ShowAppVersion(const)                            ; blink LEDs in app version used  (on demand)
@@ -2124,6 +2122,10 @@ endthread
 thread MotionHandler8(const)   ; handles the motion detection and state
     MotionThreadX(8)
     threadsuspend
+endthread
+
+thread Reboot(SystemReset)                             ; thread is triggered when webpage sets "SystemReset" to non-zero.
+    x = system.Restart          ; no further processing after this  (CPU is reset)
 endthread
 
 thread TcpipCmd(tcpip)         ; starts the actual tcp/ip server with defined protocol

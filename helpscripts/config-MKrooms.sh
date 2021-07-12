@@ -105,7 +105,7 @@ case $room in
 	kueche)
 		lights=4
 		lightsmax=12
-		shutters=3 #shutter 1 relay is defect on board - ignore shutter 1
+		shutters=2 
 		autoio='false'
 		shift;;
 	speis)
@@ -177,10 +177,10 @@ case $room in
 		shift;;
 #### DG ####
 	dachboden)
-		lights=2
-		lightsmax=4
+		lights=3
+		lightsmax=3
 		shutters=0
-		autoio='true'
+		autoio='false'
 		shift;;
 	*)  # unknown option
 	>&2 echo "$scriptName: error: invalid room: $room" 
@@ -225,10 +225,10 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="1"
 		shift;;
 	windfang)
@@ -238,15 +238,14 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="1,2"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="4"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1,2"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="3"
 		shift;;
 	kueche)
 		# shutter / raffstore configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime" #dummy
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 
 		#IO configuration
@@ -254,21 +253,21 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="2"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="3"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="3"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	speis)
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "  #does not exist on ds378
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='button' --ioentity=" "  #does not exist on ds378
 		shift;;
 	wohnzimmer)
 		# shutter / raffstore configuration
@@ -295,11 +294,11 @@ case $room in
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="1"
 		shift;;
 	garderobe)
@@ -308,13 +307,13 @@ case $room in
 	
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" " #does not exist on ds378
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='button' --ioentity=" " #does not exist on ds378
 		shift;;
 #### OG ####
 	hauptbad)
@@ -339,24 +338,24 @@ case $room in
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	ankleide)
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" " #does not exist on ds378
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='button' --ioentity=" " #does not exist on ds378
 		shift;;
 	gaeste)
 		# shutter / raffstore configuration		
@@ -365,12 +364,12 @@ case $room in
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	gang)
@@ -381,9 +380,9 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="2"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="1,2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
@@ -394,12 +393,12 @@ case $room in
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	schlafen)
@@ -408,16 +407,25 @@ case $room in
 		
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 #### DG ####
 	dachboden)
+		#IO configuration
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1,2,3"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity="1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='button' --ioentity=" " #does not exist on ds378
 		shift;;
 	
 	*)  # unknown option

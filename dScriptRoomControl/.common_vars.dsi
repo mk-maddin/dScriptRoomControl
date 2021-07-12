@@ -28,7 +28,7 @@ int32 AppVerMinor
 int32 BrdTemp
 int32 Volts
 
-int32   SystemReboot                 ; set by webpage to request a reboot
+int32   SystemReset                 ; set by webpage to request a reboot
 
 ; config page 2 - Network #################################
 
@@ -310,4 +310,4 @@ int8  App_ShutterTLevels[IDSIZE]    ; stores the "to be" level of a shutter ( 10
 int8  App_ShutterCLevels[IDSIZE]    ; stores the current level of a shutter to prevent a lot of eeprom writings while moving ( 100 = fully open; 0 = fully closed)
 int8  App_LightMotionON[App_PhysRelays] ; stores if a light was activated by Motion Sensor
 
-int32  App_ButtonClicks[CFGSIZE]    ; stores the number of clicks for a specific button
+int8  App_ButtonClicks[CFGSIZE]    ; stores the number of clicks for a specific button
