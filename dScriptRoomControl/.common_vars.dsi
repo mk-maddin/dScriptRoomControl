@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    2                       ; version of this application.
-const       AppMinor    4                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    7                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -16,6 +16,7 @@ const        IDSIZE    16       ; typical size for IP values
 const        CFGSIZE    8       ; typical configuration value size
 
 flint32     initControl         ; rerun init on every AppMajor / AppMinor update
+flint32     AppCustom
 int32       FlashWritePending   ; indicate to config pages that a flash write is pending
 int32       SystemCmdUpdated    ; used to tell when webpage updates "System_Cmd"
 
@@ -247,6 +248,7 @@ int32   App_IOCtr8
     eeint8    App_ShutterRelayCT            ; define how relays for shutter are connected - parallel (one for up / one for down) or in row (one for moving / one for direction - up/down)
 #endif
 
+int8    App_Directs               ; number of direct realys connected to I/O
 int8    App_Buttons               ; number of touch buttons connected to I/O
 int8    App_Motions               ; number of motion sensors connected to I/O
 int8    App_Sockets               ; number of sockets connected to relays ( =physical_relays-(light_relays+shutter_relays)) )
@@ -274,6 +276,7 @@ int32   NonceIn
 #else
 ;#ifdef NORMAL
     eeint8    App_ShutterLevels[IDSIZE] ; to restore shutter closed/open level after power outage  ( 100 = fully open; 0 = fully closed)
+    eeint8    App_DSST_activeMAX        ; maximum value of queued dscriptserver triggers to be waiting for processing
 #endif
 
 string  System_MAC[6]           ; MAC address of the devices ehternet port
@@ -300,6 +303,10 @@ int8 App_ShutterLevel16
 
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage information input
+
+int8 App_DSST_cmdID               ; variable to temporary hold parameter for dScriptServerTrigger
+int8 App_DSST_objID               ; variable to temporary hold parameter for dScriptServerTrigger
+int8 App_DSST_active             ; variable to hold the number of still active jobs for dScriptServerTrigger       
 
 int8  App_ShutterCalibration            ; indicates the calibration mode is on/off (0 = off; 1 = on)
 int32 App_ShutterCTCalibration[IDSIZE]  ; stores the calibration values of shutters

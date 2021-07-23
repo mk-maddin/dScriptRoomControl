@@ -72,7 +72,7 @@ case $i in
 	echo ""	
 	echo -e "\t############# parameters special for mode \"IO\" ########################"
 	echo -e "\t -ii= \t| --ioid= \t-> IO to modify (required - valid values are 1-8)"
-	echo -e "\t -it= \t| --iotype= \t-> type of the IO (valid values are: \"light\", \"shutter\", \"socket\", \"motion\", \"button\")"
+	echo -e "\t -it= \t| --iotype= \t-> type of the IO (valid values are: \"light\", \"shutter\", \"socket\", \"motion\", \"button\" , \"direct\")"
 	echo -e "\t -ie= \t| --ioentity= \t-> entity (list of csv possible) to affect with the IO port (only entities of the iotype can be used - motion=light)"
 	echo ""
 	echo -e "\t############# parameters special for mode \"dev\" ########################"
@@ -189,7 +189,7 @@ case $i in
 	shift;;
 	-it=*|--iotype=*)
 	IOtype=$(echo "${i#*=}" | tr [:upper:] [:lower:])
-	if [[ ! "$IOtype" =~ ^light$|^shutter$|^socket$|^motion$|^button$ ]];then
+	if [[ ! "$IOtype" =~ ^light$|^shutter$|^socket$|^motion$|^button$|^direct$ ]];then
 		>&2 echo "$scriptName: error: invalid value: $i"
 		>&2 echo "Try '$scriptName --help' for more information."
 		exit 22;fi
@@ -398,6 +398,7 @@ if [ "$mode" == "io" ];then
 		elif [ "${IOtype}" == 'socket' ];then IOtype='3'
 		elif [ "${IOtype}" == 'motion' ];then IOtype='4'
 		elif [ "${IOtype}" == 'button' ];then IOtype='5'
+		elif [ "${IOtype}" == 'direct' ];then IOtype='6'
 		else IOtype='0';fi
 #		if [ "${IOtype}" -ne 0 ];then # disable AutoIO
 #			setvariable "App_EnableAutoIO" "0" "$url" "$pass"

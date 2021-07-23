@@ -13,8 +13,14 @@
      <tr><td>AESChecked</td><td><input type="text" disabled size="50" value="~AESChecked~" id="InpAESChecked" onkeyup="newAJAXCommand('dscript.cgi?AESChecked='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_Buttons</td><td><input type="text" disabled size="50" value="~App_Buttons~" id="InpApp_Buttons" onkeyup="newAJAXCommand('dscript.cgi?App_Buttons='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ClickSleep</td><td><input type="text" disabled size="50" value="~App_ClickSleep~" id="InpApp_ClickSleep" onkeyup="newAJAXCommand('dscript.cgi?App_ClickSleep='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>AppCustom</td><td><input type="text" disabled size="50" value="~AppCustom~" id="InpAppCustom" onkeyup="newAJAXCommand('dscript.cgi?AppCustom='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_Debug</td><td><input type="text" disabled size="50" value="~App_Debug~" id="InpApp_Debug" onkeyup="newAJAXCommand('dscript.cgi?App_Debug='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_Directs</td><td><input type="text" disabled size="50" value="~App_Directs~" id="InpApp_Directs" onkeyup="newAJAXCommand('dscript.cgi?App_Directs='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_dScriptServer</td><td><input type="text" disabled size="50" value="~App_dScriptServer~" id="InpApp_dScriptServer" onkeyup="newAJAXCommand('dscript.cgi?App_dScriptServer='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_active</td><td><input type="text" disabled size="50" value="~App_DSST_active~" id="InpApp_DSST_active" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_active='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_activeMAX</td><td><input type="text" disabled size="50" value="~App_DSST_activeMAX~" id="InpApp_DSST_activeMAX" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_activeMAX='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_cmdID</td><td><input type="text" disabled size="50" value="~App_DSST_cmdID~" id="InpApp_DSST_cmdID" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_cmdID='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_objID</td><td><input type="text" disabled size="50" value="~App_DSST_objID~" id="InpApp_DSST_objID" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_objID='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EnableAutoIO</td><td><input type="text" disabled size="50" value="~App_EnableAutoIO~" id="InpApp_EnableAutoIO" onkeyup="newAJAXCommand('dscript.cgi?App_EnableAutoIO='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EntityCountsUpdated</td><td><input type="text" disabled size="50" value="~App_EntityCountsUpdated~" id="InpApp_EntityCountsUpdated" onkeyup="newAJAXCommand('dscript.cgi?App_EntityCountsUpdated='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_InpType</td><td><input type="text" disabled size="50" value="~App_InpType~" id="InpApp_InpType" onkeyup="newAJAXCommand('dscript.cgi?App_InpType='+encodeURIComponent(this.value));"></td></tr>
@@ -149,8 +155,14 @@ function ajaxUpdate() {
     document.getElementById('InpAESChecked').value = getValue('AESChecked');
     document.getElementById('InpApp_Buttons').value = getValue('App_Buttons');
     document.getElementById('InpApp_ClickSleep').value = getValue('App_ClickSleep');
+    document.getElementById('InpAppCustom').value = getValue('AppCustom');
     document.getElementById('InpApp_Debug').value = getValue('App_Debug');
+    document.getElementById('InpApp_Directs').value = getValue('App_Directs');
     document.getElementById('InpApp_dScriptServer').value = getValue('App_dScriptServer');
+    document.getElementById('InpApp_DSST_active').value = getValue('App_DSST_active');
+    document.getElementById('InpApp_DSST_activeMAX').value = getValue('App_DSST_activeMAX');
+    document.getElementById('InpApp_DSST_cmdID').value = getValue('App_DSST_cmdID');
+    document.getElementById('InpApp_DSST_objID').value = getValue('App_DSST_objID');
     document.getElementById('InpApp_EnableAutoIO').value = getValue('App_EnableAutoIO');
     document.getElementById('InpApp_EntityCountsUpdated').value = getValue('App_EntityCountsUpdated');
     document.getElementById('InpApp_InpType').value = getValue('App_InpType');
