@@ -16,6 +16,9 @@ function AppCfgText(x) {
 function AppdScriptServerText(x){
     document.getElementById('help').innerHTML = "<br>dScriptServer hostname/ip<br><br>The dScriptServer is a server provided via python modul. This server can receive consolidated information about multiple dScirpt modules to allow integration e.g. into home automation systems.<br>If this input is set to '' there are no status updates sent to the server.";
 }
+function AppdScriptConText(x){
+    document.getElementById('help').innerHTML = "<br>Maximum queued connections<br><br>The number of maximum queued/waiting connections to dScriptServer<br>This is to prevent stuck network connections - If this number is exceeded the board is soft rebooted.";
+}
 function AppText(x) {
     document.getElementById('help').innerHTML = "<br>Application<br><br>Jumps to the application webpage.";
 }
@@ -29,7 +32,7 @@ function BinaryText(x) {
     document.getElementById('help').innerHTML = "<br>Enable Binary command set.<br><br>The Binary command set is the simplest if you are programming an application to control the module.<br><br>The commands are a subset of those used on our ETHxxx series.";
 }
 function ButtonText(x) {
-    document.getElementById('help').innerHTML = "<br>Count of click / touch Buttons<br><br>Number of general buttons managed via the DSBoard. Buttons are connected to I/O ports and can be configured there.<br>(This value is ready only.)";
+    document.getElementById('help').innerHTML = "<br>Count of click / touch Buttons<br><br>Number of general buttons managed via the DSBoard. Buttons are connected to I/O ports and always report their click value to dScriptServer only.<br>(This value is ready only.)";
 }
 function ClickSleepText(x) {
     document.getElementById('help').innerHTML = "<br>Time for clicking / delay<br><br>Time (in milliseconds) to provide for multi click/IO-input commands.Be careful with high numbers here - this will increase the time until command is executed.";

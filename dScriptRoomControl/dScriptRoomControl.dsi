@@ -24,11 +24,7 @@ thread main(const)
         case 42 Module = "dS2832"
     endselect
 
-    if initControl != AppVersion then
-        if AppCustom == AppMajor then           ; only minor chagnes - init module only partly
-            InitCustom()
-        else Init() endif                       ; init module if different from app version
-    endif 
+    if initControl != AppVersion Init()         ; init module if different from app version
     ;Init()                                     ; uncomment this line to force init
     LedRed = on                                 ; indicate that system is still busy booting - physical
     FlashWritePending = 1                       ; indicate that system is still busy booting - config page
@@ -76,7 +72,7 @@ function Init()         ; initializes volatile/permantent variables with program
     App_Message="Init"
 
     ; config page 2 - Network (keep hostname)
-    ; System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
+    System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
     System_IP = "192.168.0.124"
     System_SubNet = "255.255.255.0"
     System_Gateway = "192.168.0.1"
@@ -88,7 +84,7 @@ function Init()         ; initializes volatile/permantent variables with program
     System_Cmd = 3              ; set tcp/ip communication protocol ( 1=Modbus; 2=ASCII; 3=Binary ; 4=BinaryAES ) currently supported only 2 & 3
     System_TcpPort = 17123      ; port used for tcp/ip communication (default=17123; default modbus=502) - used as dScriptServer listening port,too
     App_dScriptServer = ""      ; default should be '' - dScriptServer to send TCP/IP status update messages to
-    App_DSST_activeMAX = 5
+    App_DSST_activeMAX = 5      ; maximum number of queued, but not executed connections to dScriptServer - reboot on overload
     
     System_ModbusUID = 1
     System_ModbusBaud = 1               ; 9600
@@ -98,7 +94,7 @@ function Init()         ; initializes volatile/permantent variables with program
                    ; "12345678901234567890123456789012"
                    
     ; config page 4 - Webpage Security
-    System_EnablePW = 1
+    System_EnablePW = 0         ; no password by default
     System_Password = ""    
     System_HttpPort = 80
 
@@ -191,23 +187,6 @@ function Init()         ; initializes volatile/permantent variables with program
                ;App_Sockets = 1                     ; number of sockets is calculated automatically (PhysRelays - Shutters*2 - lights)
     endselect
 
-    AppCustom = AppMajor
-    initControl = AppVersion
-    return
-endfunction
-function InitCustom()   ;initializes volatile/permanten variables for minor upgrades only
-    for x = 1 to 6 ; flash blue led to indicate init will run (3 seconds)                
-        threadsleep 250
-        LedBlue = on
-        threadsleep 250
-        LedBlue = off
-    next
-    App_Message="InitCustom"
-
-    ; special init values for this minor version upgrade
-    App_DSST_activeMAX = 5
-
-    AppCustom = AppMajor
     initControl = AppVersion
     return
 endfunction
@@ -1712,26 +1691,22 @@ endfunction
 
 function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on status updates to dScriptServer
     if App_dScriptServer[0] == 0 then           ; skip if no dScriptServer is defined
-        App_Message="No dScriptServer - 0"
+        App_Message="No dScriptServer"
         return
     endif
     
-    int8 i
+    int32 i
     i=0
     do while App_DSST_objID != 0 then
         threadsleep 100
         i+=1
         if i > 10 then ;something seems to be stuck - reboot board
-            App_Message="Reboot - 1"
-            threadsleep 10000
             SystemReset = 1
             return
         endif
     loop
 
     if App_DSST_active > App_DSST_activeMAX then ;if more than App_DSST_activeMAX open communications exist, cancel these and reboot the board
-        App_Message="Reboot - 2"
-        threadsleep 10000
         SystemReset = 1
         return
     endif
@@ -1789,7 +1764,6 @@ thread dScriptServerTriggerDo(const)
     App_DSST_active-=1
     threadsuspend
 endthread
-
 thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 5 minutes
     dScriptServerTrigger(0,99)       ; send heartbeat trigger to server   
 endthread

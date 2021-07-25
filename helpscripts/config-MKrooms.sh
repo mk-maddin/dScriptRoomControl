@@ -18,10 +18,10 @@ dScriptSH='dScriptRoom-admin.sh'
 #dScriptServer=""
 dScriptServer='192.168.32.14'
 raffstoreWindowTime=38000
-raffstoreDoorTime=58000
-raffstoreDoorHebeSchiebeTime=61500
-rollerWindowTime=20000
-rollerDoorTime=25000
+raffstoreDoorTime=57600
+raffstoreDoorHebeSchiebeTime=61100
+rollerWindowTime=22500
+rollerDoorTime=30500
 rollerRoofWindowTime=25000
 
 
@@ -270,10 +270,10 @@ case $room in
 		shift;;
 	wohnzimmer)
 		# shutter / raffstore configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="38200"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="57600"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=3 --shuttertype="raffstore" --closingtime="61100"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=4 --shuttertype="raffstore" --closingtime="61100"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=3 --shuttertype="raffstore" --closingtime="$raffstoreDoorHebeSchiebeTime"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=4 --shuttertype="raffstore" --closingtime="$raffstoreDoorHebeSchiebeTime"
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='direct' --ioentity="10" #Shelly Dimmer 2 (Spots)
@@ -287,8 +287,8 @@ case $room in
 		shift;;
 	technik)
 		# shutter / raffstore configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="22500"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="30500"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="$rollerDoorTime"
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"

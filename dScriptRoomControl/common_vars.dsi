@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    2                       ; version of this application.
-const       AppMinor    7                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    9                      ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -16,7 +16,6 @@ const        IDSIZE    16       ; typical size for IP values
 const        CFGSIZE    8       ; typical configuration value size
 
 flint32     initControl         ; rerun init on every AppMajor / AppMinor update
-flint32     AppCustom           ; flag that customize init was running and not everything needs to be reset
 int32       FlashWritePending   ; indicate to config pages that a flash write is pending
 int32       SystemCmdUpdated    ; used to tell when webpage updates "System_Cmd"
 

@@ -16,6 +16,9 @@ function AppCfgText(x) {
 function AppdScriptServerText(x){
     document.getElementById('help').innerHTML = "<br>dScriptServer hostname/ip<br><br>The dScriptServer is a server provided via python modul. This server can receive consolidated information about multiple dScirpt modules to allow integration e.g. into home automation systems.<br>If this input is set to '' there are no status updates sent to the server.";
 }
+function AppdScriptQueText(x){
+    document.getElementById('help').innerHTML = "<br>Maximum queued connections<br><br>The number of maximum queued/waiting connections to dScriptServer<br>This is to prevent stuck network connections - If this number is exceeded the board is soft rebooted.";
+}
 function AppText(x) {
     document.getElementById('help').innerHTML = "<br>Application<br><br>Jumps to the application webpage.";
 }
