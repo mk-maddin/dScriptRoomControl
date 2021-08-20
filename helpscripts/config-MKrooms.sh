@@ -15,15 +15,15 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ##--define internal fixed variables
 dScriptSH='dScriptRoom-admin.sh'
-#dScriptServer=""
-dScriptServer='192.168.32.14'
+dScriptServer="EMPTY"
+#dScriptServer='192.168.32.14'
 raffstoreWindowTime=38000
 raffstoreDoorTime=57600
 raffstoreDoorHebeSchiebeTime=61100
 rollerWindowTime=22500
 rollerDoorTime=30500
 rollerRoofWindowTime=25000
-
+GatewayIP='192.168.28.1'
 
 ##--help text and script parameter processing
 for i in "$@";do
@@ -43,6 +43,7 @@ case $i in
 	#echo -e "\t -p= \t| --pass= \t-> new/old board password for accessing the board" #unfortunately not woking yet as CURL does not support "local storage" feature of browsers
 		#have to rewrite this is python to fix the "issue" with no password support
 	echo -e "\t -r= \t| --room= \t-> room to configure on board"
+	echo -e "\t --ip \t-> configured fixed ip as backup, but enable dhcp"
 	echo ""
 	echo "Description:"
 	echo "Configure a board for a specific room of Martin Kraemers home using dScriptRoom-admin.sh wrapper"
@@ -59,6 +60,9 @@ case $i in
 	shift;;
 	-r=*|--room=*)
 	room=$(echo "${i#*=}" | tr [:upper:] [:lower:])
+	shift;;
+	--ip)
+	ConfigIP="true"
 	shift;;
 	*)  # unknown option
 	>&2 echo "$scriptName: error: invalid option: $i" 
@@ -134,7 +138,7 @@ case $room in
 		shift;;
 #### OG ####
 	hauptbad)
-		lights=5
+		lights=2
 		lightsmax=12
 		shutters=2
 		autoio='false'
@@ -164,7 +168,7 @@ case $room in
 		autoio='false'
 		shift;;
 	buero)
-		lights=4
+		lights=1
 		lightsmax=12
 		shutters=2
 		autoio='false'
@@ -198,6 +202,13 @@ echo "I: configure room: ${room}"
 "${dScriptRoom}" ${verbose} --board="${board}" --mode='config' --hostname="dS-${room}" --dscriptserver="${dScriptServer}" \
 	--lights="${lights}" --lightrelaymax="${lightsmax}" --shutters="${shutters}" --autoio="${autoio}"
 
+[ -n "${verbose}" ] && echo "D: check if we can use --board=\"${board}\" as IP"
+ip='';if [[ "${board}" =~ ^192\.168\. ]];then 
+	if [[ "${board}" =~ ^192\.168\.0\. ]];then ip=''
+	elif [ "${board}" == "192.168.28.5" ];then ip=''	
+	else ip="${board}";fi
+fi
+
 case $room in
 	dev)
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="1" #motion sensor on IO8
@@ -219,12 +230,13 @@ case $room in
 
 #### EG ####
 	gaestebad)
+		[ -z "${ip}" ] && ip='192.168.28.50'
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"		
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" " #light without id triggers nothing
@@ -232,6 +244,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	windfang)
+		[ -z "${ip}" ] && ip='192.168.28.46'
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity=" " #Backup for outside light
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="1,2"
@@ -239,10 +252,11 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="4"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" " #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" " #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1,2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="3"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1,2" # motion sensor windfang
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "   # motion sensor gang
 		shift;;
 	kueche)
+		[ -z "${ip}" ] && ip='192.168.28.52'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
@@ -258,6 +272,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	speis)
+		[ -z "${ip}" ] && ip='192.168.28.47'
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
@@ -269,6 +284,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" "  #does not exist on ds378
 		shift;;
 	wohnzimmer)
+		[ -z "${ip}" ] && ip='192.168.28.45'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
@@ -286,6 +302,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='shutter' --ioentity="2"
 		shift;;
 	technik)
+		[ -z "${ip}" ] && ip='192.168.28.59'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="$rollerDoorTime"
@@ -301,6 +318,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="1"
 		shift;;
 	garderobe)
+		[ -z "${ip}" ] && ip='192.168.28.48'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 	
@@ -316,21 +334,23 @@ case $room in
 		shift;;
 #### OG ####
 	hauptbad)
+		[ -z "${ip}" ] && ip='192.168.28.53'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="$rollerRoofWindowTime"
 
 		#IO configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='button' --ioentity=" " #send to phillips hue
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1" 
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="3"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="4"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='direct' --ioentity="8" #Shelly Dimmer 2
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='button' --ioentity=" "  #Send to Shelly Spiegellicht
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "  #Send to Shelly Spiegellicht seitlich
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='direct' --ioentity="8"  #Shelly Dimmer 2
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='shutter' --ioentity="2"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	kind)
+		[ -z "${ip}" ] && ip='192.168.28.28'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="$rollerRoofWindowTime"
@@ -346,6 +366,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	ankleide)
+		[ -z "${ip}" ] && ip='192.168.28.55'
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity=" "  #light without id triggers nothing
@@ -354,9 +375,10 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='button' --ioentity=" " #does not exist on ds378
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" " #does not exist on ds378
 		shift;;
 	gaeste)
+		[ -z "${ip}" ] && ip='192.168.28.51'
 		# shutter / raffstore configuration		
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="$rollerRoofWindowTime"
@@ -372,6 +394,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	gang)
+		[ -z "${ip}" ] && ip='192.168.28.29'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
 
@@ -386,6 +409,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	buero)
+		[ -z "${ip}" ] && ip='192.168.28.49'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
@@ -401,6 +425,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	schlafen)
+		[ -z "${ip}" ] && ip='192.168.28.56'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		
@@ -416,14 +441,15 @@ case $room in
 		shift;;
 #### DG ####
 	dachboden)
+		[ -z "${ip}" ] && ip='192.168.28.54'
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1,2,3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity="2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" " #does not exist on ds378
 		shift;;
 	
@@ -433,6 +459,15 @@ case $room in
 		echo "I: no special options for room: $room"
 		shift;;
 esac
+
+
+if [ -n "${ConfigIP}" ];then
+	echo "I: create a fixed IP configuration as backup: IP=${ip}"
+	"${dScriptRoom}" ${verbose} --board="${board}" --mode='dev' --variable='System_IP' --data="${ip}"
+	"${dScriptRoom}" ${verbose} --board="${board}" --mode='dev' --variable='System_Gateway' --data="${GatewayIP}"
+	"${dScriptRoom}" ${verbose} --board="${board}" --mode='dev' --variable='System_DNS1' --data="${GatewayIP}"
+	"${dScriptRoom}" ${verbose} --board="${board}" --mode='dev' --variable='System_EnableDHCP' --data=1 #1=enabled | 0=disabled
+fi
 
 #sleep 3
 #"${dScriptRoom}" ${verbose} --board="${board}" --mode='reboot'

@@ -14,7 +14,7 @@ scriptName=$( basename "$0" )
 cfghtml='_config.htm'
 apihtml='debugapi.htm'
 vnic_filter="${vnic_filter}|virbr|docker|hassio"
-emtpy='NONE'
+empty='NONE'
 
 ##--default values for parameters
 mode="test"
@@ -200,7 +200,7 @@ case $i in
 	#if [ -z "${IOentity}" ];then IOentity="${empty}";fi
 	shift;;
 	-v=*|--variable=*)
-	dev_variable="${i#*=}"
+	dev_var="${i#*=}"
 	shift;;
 	-d=*|--data=*)
 	dev_data="${i#*=}"
@@ -242,6 +242,7 @@ function setvariable (){
 		>&2 echo "$0: error: missing required parameter: "'$3 | url'
 		return 22;fi
 
+	if [ "${value}" == 'EMPTY' ];then value='';fi
 	if [ -z "${DSCRIPTVARDATA}" ];then 
 		[ -n "${verbose}" ] && echo "D: connecting to given url: $url"
 		DSCRIPTVARDATA=$(curl --silent "${url}" --fail);r="$?"

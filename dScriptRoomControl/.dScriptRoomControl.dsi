@@ -72,11 +72,11 @@ function Init()         ; initializes volatile/permantent variables with program
     App_Message="Init"
 
     ; config page 2 - Network (keep hostname)
-    ; System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
-    System_IP = "192.168.0.124"
+    System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
+    System_IP = "192.168.28.5"
     System_SubNet = "255.255.255.0"
-    System_Gateway = "192.168.0.1"
-    System_DNS1 = "192.168.0.1"
+    System_Gateway = "192.168.28.1"
+    System_DNS1 = "192.168.28.1"
     System_DNS2 = "8.8.8.8"
     System_EnableDHCP = on
 
@@ -232,6 +232,7 @@ function InitRestore()  ; restore temporary from volatile variables_
         App_ShutterTLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1]    ; set target shutter level to last one saved (to prevent moving at startup)
     next
     App_ShutterCalibration = 0
+    App_ShuttersMoving = 0
     threadstart CalcVoltsTemp        ; keep config page volt & temp updated
     threadstart UpdateShutterStates  ; keep shutter values on index page updated
 
@@ -1000,7 +1001,8 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
         ShutterOpenAdd = (App_ShutterCLevels[ShutterID-1] - App_ShutterTLevels[ShutterID-1]) / 10
         ShutterCT = ShutterCT + ShutterOpenAdd
     endif
-    
+
+    App_ShuttersMoving+=1
     do while App_ShutterTLevels[ShutterID-1] != App_ShutterCLevels[ShutterID-1]
         if App_ShutterStates[ShutterID-1] == 0 then           ; currently stopped
             if App_ShutterTLevels[ShutterID-1] != App_ShutterCLevels[ShutterID-1] then
@@ -1019,6 +1021,7 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
     
     ShutterStop(ShutterID)
     App_ShutterLevels[ShutterID-1] = App_ShutterCLevels[ShutterID-1] ; write the finished status back into eeprom
+    App_ShuttersMoving-=1
     dScriptServerTrigger(82, ShutterID)              ; trigger refresh on the dScriptServer
     return
 endfunction
@@ -1289,6 +1292,7 @@ function BinaryDo()                             ; function interpreting the bina
         case 0x54   BinaryGetMotion()           ; decimal 84
         case 0x55   BinaryGetButton()           ; decimal 85
         case 0x63   BinaryGetButton()           ; decimal 99  - requires (& provides) Nonce
+        case 0xfd   BinarySetRestart()          ; decimal 253  - requires (& provides) Nonce
         else App_Message="Invalid binary cmd: " ~ tcpInBuf[0]
     endselect
     return
@@ -1698,18 +1702,21 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on st
     int32 i
     i=0
     do while App_DSST_objID != 0 then
-        threadsleep 100
-        i+=1
-        if i > 10 then ;something seems to be stuck - reboot board
+        if i > 10 and App_ShuttersMoving == 0 then ;something seems to be stuck - reboot board if no shutter is moving
             SystemReset = 1
             return
         endif
+        i+=1
+        threadsleep 100
     loop
 
-    if App_DSST_active > App_DSST_activeMAX then ;if more than App_DSST_activeMAX open communications exist, cancel these and reboot the board
-        SystemReset = 1
-        return
-    endif
+    do while App_DSST_active > App_DSST_activeMAX   ;while more than App_DSST_activeMAX open communications exist
+        if App_ShuttersMoving == 0 then             ;and no shutter is moving, cancel the requests by performing a board reboot
+            SystemReset = 1
+            return
+        endif
+        threadsleep 200
+    loop
 
     App_DSST_active+=1
     App_DSST_cmdID = cmdID
@@ -1724,9 +1731,6 @@ thread dScriptServerTriggerDo(const)
     cmdID = App_DSST_cmdID
     objID = App_DSST_objID
 
-    App_DSST_cmdID = 0
-    App_DSST_objID = 0   
-    
     string  clientBuf[2]                               ; all Get XXXXX commands in binary are two byte commands
     int32   clientLength                               ;   based on this we are able to trigger an update on any specific object that changed
         
@@ -1760,7 +1764,13 @@ thread dScriptServerTriggerDo(const)
             App_DSST_active-=1
             threadsuspend
     endselect
-    dScriptServer.Write(clientBuf,3, clientBuf, clientLength)
+    
+    clientport dScriptClient App_dScriptServer System_TcpPort 1000
+    dScriptClient.Write(clientBuf,3, clientBuf, clientLength) 
+
+    App_DSST_cmdID = 0
+    App_DSST_objID = 0   
+    
     App_DSST_active-=1
     threadsuspend
 endthread
