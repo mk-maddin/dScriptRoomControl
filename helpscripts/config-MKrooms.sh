@@ -15,8 +15,8 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ##--define internal fixed variables
 dScriptSH='dScriptRoom-admin.sh'
-dScriptServer="EMPTY"
-#dScriptServer='192.168.32.14'
+#dScriptServer="EMPTY"
+dScriptServer='192.168.32.14'
 raffstoreWindowTime=38000
 raffstoreDoorTime=57600
 raffstoreDoorHebeSchiebeTime=61100

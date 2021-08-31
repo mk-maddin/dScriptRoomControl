@@ -86,6 +86,7 @@
      <tr><td>App_ShutterLevel9</td><td><input type="text" disabled size="50" value="~App_ShutterLevel9~" id="InpApp_ShutterLevel9" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel9='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterRelayCT</td><td><input type="text" disabled size="50" value="~App_ShutterRelayCT~" id="InpApp_ShutterRelayCT" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterRelayCT='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_Shutters</td><td><input type="text" disabled size="50" value="~App_Shutters~" id="InpApp_Shutters" onkeyup="newAJAXCommand('dscript.cgi?App_Shutters='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_ShuttersMoving</td><td><input type="text" disabled size="50" value="~App_ShuttersMoving~" id="InpApp_ShuttersMoving" onkeyup="newAJAXCommand('dscript.cgi?App_ShuttersMoving='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterType1</td><td><input type="text" disabled size="50" value="~App_ShutterType1~" id="InpApp_ShutterType1" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType1='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterType10</td><td><input type="text" disabled size="50" value="~App_ShutterType10~" id="InpApp_ShutterType10" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType10='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterType11</td><td><input type="text" disabled size="50" value="~App_ShutterType11~" id="InpApp_ShutterType11" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType11='+encodeURIComponent(this.value));"></td></tr>
@@ -227,6 +228,7 @@ function ajaxUpdate() {
     document.getElementById('InpApp_ShutterLevel9').value = getValue('App_ShutterLevel9');
     document.getElementById('InpApp_ShutterRelayCT').value = getValue('App_ShutterRelayCT');
     document.getElementById('InpApp_Shutters').value = getValue('App_Shutters');
+    document.getElementById('InpApp_ShuttersMoving').value = getValue('App_ShuttersMoving');
     document.getElementById('InpApp_ShutterType1').value = getValue('App_ShutterType1');
     document.getElementById('InpApp_ShutterType10').value = getValue('App_ShutterType10');
     document.getElementById('InpApp_ShutterType11').value = getValue('App_ShutterType11');

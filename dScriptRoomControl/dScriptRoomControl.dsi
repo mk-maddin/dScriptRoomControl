@@ -232,7 +232,7 @@ function InitRestore()  ; restore temporary from volatile variables_
         App_ShutterTLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1]    ; set target shutter level to last one saved (to prevent moving at startup)
     next
     App_ShutterCalibration = 0
-    App_ShuttersMoving = 0
+    App_EntitiesActive = 0
     threadstart CalcVoltsTemp        ; keep config page volt & temp updated
     threadstart UpdateShutterStates  ; keep shutter values on index page updated
 
@@ -835,9 +835,19 @@ function SetLight(int32 LightID, int32 Action)      ; Sets the state of a light 
     endif
     
     RelayID=App_LightsOffset-(LightID-1)            ; calculate the corresponding relay id for light id
-    if Action == 0 then SetRelay(RelayID, off)
-    elseif Action == 1 then SetRelay(RelayID, on)
-    else SetRelay(RelayID, 2) endif ; 2 or any other means toggle relay
+    if Action == 0 then 
+        SetRelay(RelayID, off)
+        App_EntitiesActive-=1
+    elseif Action == 1 then 
+        SetRelay(RelayID, on)
+        App_EntitiesActive+=1
+    else 
+        SetRelay(RelayID, 2) 
+        if GetRelay(RelayID) == 0 then
+            App_EntitiesActive+=1
+        else App_EntitiesActive-=1
+        endif    
+    endif ; 2 or any other means toggle relay
     dScriptServerTrigger(81, LightID)               ; trigger refresh on the dScriptServer
     return      
 endfunction
@@ -1002,7 +1012,7 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
         ShutterCT = ShutterCT + ShutterOpenAdd
     endif
 
-    App_ShuttersMoving+=1
+    App_EntitiesActive+=1
     do while App_ShutterTLevels[ShutterID-1] != App_ShutterCLevels[ShutterID-1]
         if App_ShutterStates[ShutterID-1] == 0 then           ; currently stopped
             if App_ShutterTLevels[ShutterID-1] != App_ShutterCLevels[ShutterID-1] then
@@ -1021,7 +1031,7 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
     
     ShutterStop(ShutterID)
     App_ShutterLevels[ShutterID-1] = App_ShutterCLevels[ShutterID-1] ; write the finished status back into eeprom
-    App_ShuttersMoving-=1
+    App_EntitiesActive-=1
     dScriptServerTrigger(82, ShutterID)              ; trigger refresh on the dScriptServer
     return
 endfunction
@@ -1698,19 +1708,20 @@ function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on st
         return
     endif
     
-    int32 i
-    i=0
-    do while App_DSST_objID != 0 then
-        if i > 10 and App_ShuttersMoving == 0 then ;something seems to be stuck - reboot board if no shutter is moving
-            SystemReset = 1
-            return
-        endif
-        i+=1
-        threadsleep 100
-    loop
+    ;int32 i
+    ;i=0
+    ;do while App_DSST_objID != 0 then
+    ;    if i > 10 and App_EntitiesActive == 0 then ;something seems to be stuck - reboot board if no shutter is moving
+    ;        SystemReset = 1
+    ;        return
+    ;    endif
+    ;    i+=1
+    ;    threadsleep 100
+    ;loop
 
     do while App_DSST_active > App_DSST_activeMAX   ;while more than App_DSST_activeMAX open communications exist
-        if App_ShuttersMoving == 0 then             ;and no shutter is moving, cancel the requests by performing a board reboot
+        if App_EntitiesActive == 0 then             ;and no shutter is moving, cancel the requests by performing a board reboot
+            threadsleep 200
             SystemReset = 1
             return
         endif
@@ -1729,6 +1740,8 @@ thread dScriptServerTriggerDo(const)
     
     cmdID = App_DSST_cmdID
     objID = App_DSST_objID
+    App_DSST_cmdID = 0
+    App_DSST_objID = 0 
 
     string  clientBuf[2]                               ; all Get XXXXX commands in binary are two byte commands
     int32   clientLength                               ;   based on this we are able to trigger an update on any specific object that changed
@@ -1764,12 +1777,8 @@ thread dScriptServerTriggerDo(const)
             threadsuspend
     endselect
     
-    clientport dScriptClient App_dScriptServer System_TcpPort 1000
-    dScriptClient.Write(clientBuf,3, clientBuf, clientLength) 
-
-    App_DSST_cmdID = 0
-    App_DSST_objID = 0   
-    
+    ;clientport dScriptClient App_dScriptServer System_TcpPort 1000 ;(bad idea to open a new client port every time)
+    dScriptClient.Write(clientBuf,3, clientBuf, clientLength)    
     App_DSST_active-=1
     threadsuspend
 endthread

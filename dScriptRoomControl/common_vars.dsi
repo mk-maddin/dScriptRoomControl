@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    3                       ; version of this application.
-const       AppMinor    0                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    1                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -80,7 +80,7 @@ string AESChecked[CFGSIZE]
 
 tcpip.port  System_TcpPort
 aes.key     System_AES_key
-;clientport  dScriptClient App_dScriptServer System_TcpPort 3000
+clientport  dScriptClient App_dScriptServer System_TcpPort 3000
 
 ; config page 4 - Webpage Security #################################
 
@@ -299,7 +299,7 @@ int8 App_ShutterLevel13
 int8 App_ShutterLevel14
 int8 App_ShutterLevel15
 int8 App_ShutterLevel16
-int32 App_ShuttersMoving
+int32 App_EntitiesActive
 
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage information input
