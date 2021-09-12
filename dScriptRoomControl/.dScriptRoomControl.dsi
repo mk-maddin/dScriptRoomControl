@@ -45,7 +45,7 @@ thread main(const)
     threadstart TcpipCmd                 ; start TCP/IP network server for communication
     threadstart dScriptServerContacter   ; start contact handling thread for dScriptServer
     threadsleep 1000
-    dScriptServerTrigger(0,0)            ; initial contact to dScriptServer (with time delay required)
+    dScriptServerTrigger(0,0,-1)            ; initial contact to dScriptServer (with time delay required)
     ;LedGreen = on
             
     App_Message="ready"
@@ -239,6 +239,7 @@ function InitRestore()  ; restore temporary from volatile variables_
     App_DSST_active=0       ; set active dscriptserver communications to 0
     App_DSST_objID=0        ; set last used dscriptserver objID to 0
     App_DSST_cmdID=0        ; set last used dscriptserver cmdID to 0
+    App_DSST_objSTATE = -1  ; set last used dscriptserver objSTATE to -1 (unused)
     return
 endfunction
 
@@ -809,7 +810,7 @@ function ButtonClicksHandler(int32 InpID, int8 Clicks)         ; handles all cli
     if Clicks > 0 then
         App_ButtonClicks[InpID-1] = Clicks
         App_Message="Button " ~ InpID ~ " " ~ Clicks ~ " clicks"
-        dScriptServerTrigger(85, InpID)               ; trigger refresh on the dScriptServer
+        dScriptServerTrigger(85, InpID, Clicks)               ; trigger refresh on the dScriptServer
     endif    
 endfunction
 function DirectRelayHandler(int32 InpID, int32 Clicks)         ; handles all clicks related to Direct Relay buttons
@@ -827,28 +828,34 @@ endfunction
 
 function SetLight(int32 LightID, int32 Action)      ; Sets the state of a light (Action: 0=OFF; 1=ON; 2 or any other=Toggle)
     App_Message="SetLight: " ~ LightID
-    int32 RelayID
-
     if LightID > App_Lights then
         App_Message="Unhandled LightID: " ~ LightID
         return
     endif
+
+    int32 RelayID
+    int8 state
     
     RelayID=App_LightsOffset-(LightID-1)            ; calculate the corresponding relay id for light id
     if Action == 0 then 
         SetRelay(RelayID, off)
+        state = off
         App_EntitiesActive-=1
     elseif Action == 1 then 
         SetRelay(RelayID, on)
+        state = on
         App_EntitiesActive+=1
     else 
         SetRelay(RelayID, 2) 
-        if GetRelay(RelayID) == 0 then
+        if GetRelay(RelayID) == 1 then              ; lights are connected to be on when relay is on - else off
             App_EntitiesActive+=1
-        else App_EntitiesActive-=1
+            state = on
+        else 
+            App_EntitiesActive-=1
+            state = off
         endif    
     endif ; 2 or any other means toggle relay
-    dScriptServerTrigger(81, LightID)               ; trigger refresh on the dScriptServer
+    dScriptServerTrigger(81, LightID, state)               ; trigger refresh on the dScriptServer
     return      
 endfunction
 function SetSocket(int32 SocketID, int32 Action)    ; Sets the state of a Socket (Action: 1=ON; 2=OFF; 0 or any other=Toggle)
@@ -860,11 +867,20 @@ function SetSocket(int32 SocketID, int32 Action)    ; Sets the state of a Socket
     endif
     
     int32 RelayID
+    int8 state
     RelayID=App_PhysRelays-(SocketID-1)             ; calculate the corresponding relay id for socket id
-    if Action == 1 then SetRelay(RelayID, on)
-    elseif Action == 2 then SetRelay(RelayID, off)
-    else SetRelay(RelayID, 3) endif ;3 means toggle relay
-    dScriptServerTrigger(83, SocketID)              ; trigger refresh on the dScriptServer 
+    if Action == 1 then 
+        SetRelay(RelayID, on)
+        state = on
+    elseif Action == 2 then 
+        SetRelay(RelayID, off)
+        state = off
+    else 
+        SetRelay(RelayID, 3) ;3 means toggle relay
+        if GetRelay(RelayID) == 0 then state = on   ; sockets are connected to be off when relay is on - else on
+        else state = off endif
+    endif 
+    dScriptServerTrigger(83, SocketID, state)              ; trigger refresh on the dScriptServer 
     return      
 endfunction
 
@@ -1032,7 +1048,7 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
     ShutterStop(ShutterID)
     App_ShutterLevels[ShutterID-1] = App_ShutterCLevels[ShutterID-1] ; write the finished status back into eeprom
     App_EntitiesActive-=1
-    dScriptServerTrigger(82, ShutterID)              ; trigger refresh on the dScriptServer
+    dScriptServerTrigger(82, ShutterID, App_ShutterLevels[ShutterID-1])              ; trigger refresh on the dScriptServer
     return
 endfunction
 function RaffstoreStartThread(int32 ShutterID)              ; starts shutter thread, but only if not already running
@@ -1143,7 +1159,7 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
 
     App_Message="Enable Motion Lights: " ~ MotionID
     StringInputHandler(IDstring, 4, 101, 0)    ; 4 = Motion Sensor type (1 = Light as we want to control lights) | 101 = dummy click count to turn on light | 0 = dummy value for internal input
-    dScriptServerTrigger(84, MotionID)      ; trigger refresh on the dScriptServer
+    dScriptServerTrigger(84, MotionID, on)     ; trigger refresh on the dScriptServer
     
     do while App_IOActive[InpID-1]          ; wait for input to be inactive
         threadsleep 100
@@ -1151,7 +1167,7 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
 
     App_Message="Disable Motion Lights: " ~ MotionID
     StringInputHandler(IDstring, 4, 102, 0)    ; 4 = Motion Sensor type (1 = Light as we want to control lights) | 102 = dummy click count to turn off light | 0 = dummy value for internal input
-    dScriptServerTrigger(84, MotionID)      ; trigger refresh on the dScriptServer
+    dScriptServerTrigger(84, MotionID, off)    ; trigger refresh on the dScriptServer
     return
 endfunction
 function InputThreadX(int32 InpID)                    ; thread to handle input
@@ -1702,75 +1718,70 @@ function UpdateDirects()                             ; update the number of butt
     App_Directs = DirectsCount
 endfunction
 
-function dScriptServerTrigger(int8 cmdID, int8 objID)   ; trigger requests on status updates to dScriptServer
+function dScriptServerTrigger(int8 cmdID, int8 objID, int8 objSTATE)   ; trigger requests on status updates to dScriptServer
     if App_dScriptServer[0] == 0 then           ; skip if no dScriptServer is defined
         App_Message="No dScriptServer"
         return
     endif
-    
-    ;int32 i
-    ;i=0
-    ;do while App_DSST_objID != 0 then
-    ;    if i > 10 and App_EntitiesActive == 0 then ;something seems to be stuck - reboot board if no shutter is moving
-    ;        SystemReset = 1
-    ;        return
-    ;    endif
-    ;    i+=1
-    ;    threadsleep 100
-    ;loop
 
+    int8 App_DSST_active_tmp                        ; temporary value to hold active dscript connection count
     do while App_DSST_active > App_DSST_activeMAX   ;while more than App_DSST_activeMAX open communications exist
-        if App_EntitiesActive == 0 then             ;and no shutter is moving, cancel the requests by performing a board reboot
+        App_DSST_active_tmp = App_DSST_active
+        threadsleep 500
+        if App_EntitiesActive == 0 and App_DSST_active_tmp <= App_DSST_active then      ;and no shutter is moving/light is on and we were not able to lower the requests, cancel the requests by performing a board reboot
             SystemReset = 1
             return
         endif
-        threadsleep 200
     loop
 
     App_DSST_active+=1
     App_DSST_cmdID = cmdID
     App_DSST_objID = objID
+    App_DSST_objSTATE = objSTATE
     threadstart dScriptServerTriggerDo
 endfunction
 thread dScriptServerTriggerDo(const)
     ;App_Message="dScriptServerTrigger"
     int8 cmdID
     int8 objID
+    int8 objSTATE
     
     cmdID = App_DSST_cmdID
     objID = App_DSST_objID
+    objSTATE = App_DSST_objSTATE
     App_DSST_cmdID = 0
-    App_DSST_objID = 0 
+    App_DSST_objID = 0
+    App_DSST_objSTATE = -1
 
-    string  clientBuf[2]                               ; all Get XXXXX commands in binary are two byte commands
+    string  clientBuf[3]                               ; all Get XXXXX commands in binary are two byte commands
     int32   clientLength                               ;   based on this we are able to trigger an update on any specific object that changed
         
     select cmdID
         case 0                      ; hearbeat trigger to server
             ;App_Message="dScriptServerHeartbeat"
-            clientBuf[0] = cmdID clientBuf[1] = 0
+            clientBuf[0] = cmdID clientBuf[1] = 0 clientBuf[2] = objSTATE
         case 48 ; decimal value for: GS, Get Status
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 51 ; decimal value for: GR, Get Relay      ;TO-DO: call this function from SetRelay
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 52 ; decimal value for: GI, Get Input      ;TO-DO: call this function from InputHandler
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 53 ; decimal value for: GA, Get Analog     ;TO-DO: call this function from ????
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 54 ; decimal value for: GC, Get Counter    ;TO-DO: call this function from ????
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 80 ; decimal value for: GO, Get Config
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 81 ; decimal value for: GL, Get Light
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 82 ; decimal value for: GH, Get Shutter
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 83 ; decimal value for: GC, Get Socket
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 84 ; decimal value for: GM, Get Motion
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         case 85 ; decimal value for: GB, Get Button
-            clientBuf[0] = cmdID clientBuf[1] = objID
+            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
         else App_Message="Invalid dScriptServer cmdID"
             App_DSST_active-=1
             threadsuspend
@@ -1782,7 +1793,7 @@ thread dScriptServerTriggerDo(const)
     threadsuspend
 endthread
 thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 5 minutes
-    dScriptServerTrigger(0,99)       ; send heartbeat trigger to server   
+    dScriptServerTrigger(0,99,-1)       ; send heartbeat trigger to server   
 endthread
 
 thread CalcVoltsTemp(1000)                              ; update the systems voltage and temperature on config page (every 1 second)
@@ -1971,7 +1982,7 @@ thread InputWeb(App_WebInput)   ; triggered as soon as a web button was pressed
         case 6 App_IOCtr6 +=1
         case 7 App_IOCtr7 +=1
         case 8 App_IOCtr8 +=1
-        case 99 dScriptServerTrigger(0,0)
+        case 99 dScriptServerTrigger(0,0,-1)
         case 100 Init()         ; reset button on config page
     endselect
     App_WebInput=0

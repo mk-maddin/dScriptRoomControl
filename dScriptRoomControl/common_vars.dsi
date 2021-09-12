@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    3                       ; version of this application.
-const       AppMinor    1                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    4                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -306,6 +306,7 @@ string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage i
 
 int8 App_DSST_cmdID               ; variable to temporary hold parameter for dScriptServerTrigger
 int8 App_DSST_objID               ; variable to temporary hold parameter for dScriptServerTrigger
+int8 App_DSST_objSTATE            ; variable to temporary hold parameter for dScriptServerTrigger
 int8 App_DSST_active             ; variable to hold the number of still active jobs for dScriptServerTrigger       
 
 int8  App_ShutterCalibration            ; indicates the calibration mode is on/off (0 = off; 1 = on)

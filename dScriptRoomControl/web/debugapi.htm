@@ -20,7 +20,9 @@
      <tr><td>App_DSST_activeMAX</td><td><input type="text" disabled size="50" value="~App_DSST_activeMAX~" id="InpApp_DSST_activeMAX" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_activeMAX='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_DSST_cmdID</td><td><input type="text" disabled size="50" value="~App_DSST_cmdID~" id="InpApp_DSST_cmdID" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_cmdID='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_DSST_objID</td><td><input type="text" disabled size="50" value="~App_DSST_objID~" id="InpApp_DSST_objID" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_objID='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_objSTATE</td><td><input type="text" disabled size="50" value="~App_DSST_objSTATE~" id="InpApp_DSST_objSTATE" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_objSTATE='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EnableAutoIO</td><td><input type="text" disabled size="50" value="~App_EnableAutoIO~" id="InpApp_EnableAutoIO" onkeyup="newAJAXCommand('dscript.cgi?App_EnableAutoIO='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_EntitiesActive</td><td><input type="text" disabled size="50" value="~App_EntitiesActive~" id="InpApp_EntitiesActive" onkeyup="newAJAXCommand('dscript.cgi?App_EntitiesActive='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EntityCountsUpdated</td><td><input type="text" disabled size="50" value="~App_EntityCountsUpdated~" id="InpApp_EntityCountsUpdated" onkeyup="newAJAXCommand('dscript.cgi?App_EntityCountsUpdated='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_InpType</td><td><input type="text" disabled size="50" value="~App_InpType~" id="InpApp_InpType" onkeyup="newAJAXCommand('dscript.cgi?App_InpType='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_IOCtr1</td><td><input type="text" disabled size="50" value="~App_IOCtr1~" id="InpApp_IOCtr1" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr1='+encodeURIComponent(this.value));"></td></tr>
@@ -86,7 +88,6 @@
      <tr><td>App_ShutterLevel9</td><td><input type="text" disabled size="50" value="~App_ShutterLevel9~" id="InpApp_ShutterLevel9" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterLevel9='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterRelayCT</td><td><input type="text" disabled size="50" value="~App_ShutterRelayCT~" id="InpApp_ShutterRelayCT" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterRelayCT='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_Shutters</td><td><input type="text" disabled size="50" value="~App_Shutters~" id="InpApp_Shutters" onkeyup="newAJAXCommand('dscript.cgi?App_Shutters='+encodeURIComponent(this.value));"></td></tr>
-     <tr><td>App_ShuttersMoving</td><td><input type="text" disabled size="50" value="~App_ShuttersMoving~" id="InpApp_ShuttersMoving" onkeyup="newAJAXCommand('dscript.cgi?App_ShuttersMoving='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterType1</td><td><input type="text" disabled size="50" value="~App_ShutterType1~" id="InpApp_ShutterType1" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType1='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterType10</td><td><input type="text" disabled size="50" value="~App_ShutterType10~" id="InpApp_ShutterType10" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType10='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_ShutterType11</td><td><input type="text" disabled size="50" value="~App_ShutterType11~" id="InpApp_ShutterType11" onkeyup="newAJAXCommand('dscript.cgi?App_ShutterType11='+encodeURIComponent(this.value));"></td></tr>
@@ -162,7 +163,9 @@ function ajaxUpdate() {
     document.getElementById('InpApp_DSST_activeMAX').value = getValue('App_DSST_activeMAX');
     document.getElementById('InpApp_DSST_cmdID').value = getValue('App_DSST_cmdID');
     document.getElementById('InpApp_DSST_objID').value = getValue('App_DSST_objID');
+    document.getElementById('InpApp_DSST_objSTATE').value = getValue('App_DSST_objSTATE');
     document.getElementById('InpApp_EnableAutoIO').value = getValue('App_EnableAutoIO');
+    document.getElementById('InpApp_EntitiesActive').value = getValue('App_EntitiesActive');
     document.getElementById('InpApp_EntityCountsUpdated').value = getValue('App_EntityCountsUpdated');
     document.getElementById('InpApp_InpType').value = getValue('App_InpType');
     document.getElementById('InpApp_IOCtr1').value = getValue('App_IOCtr1');
@@ -228,7 +231,6 @@ function ajaxUpdate() {
     document.getElementById('InpApp_ShutterLevel9').value = getValue('App_ShutterLevel9');
     document.getElementById('InpApp_ShutterRelayCT').value = getValue('App_ShutterRelayCT');
     document.getElementById('InpApp_Shutters').value = getValue('App_Shutters');
-    document.getElementById('InpApp_ShuttersMoving').value = getValue('App_ShuttersMoving');
     document.getElementById('InpApp_ShutterType1').value = getValue('App_ShutterType1');
     document.getElementById('InpApp_ShutterType10').value = getValue('App_ShutterType10');
     document.getElementById('InpApp_ShutterType11').value = getValue('App_ShutterType11');
