@@ -25,7 +25,7 @@ thread main(const)
     endselect
 
     if initControl != AppVersion Init()         ; init module if different from app version
-    ;Init()                                     ; uncomment this line to force init
+    if InitOnRestart == 1 Init()                ; init if requested from webpage
     LedRed = on                                 ; indicate that system is still busy booting - physical
     FlashWritePending = 1                       ; indicate that system is still busy booting - config page
 
@@ -70,6 +70,9 @@ function Init()         ; initializes volatile/permantent variables with program
     next
     LedRed = on
     App_Message="Init"
+
+    ; config page - Status
+    InitOnRestart = 0
 
     ; config page 2 - Network (keep hostname)
     System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
@@ -194,7 +197,8 @@ function InitRestore()  ; restore temporary from volatile variables_
     App_Message="InitRestore"
     App_Debug=-99   ; set nonse initial value to see value change in case of 0
     SystemReset=0       ; ensure Reset/Restart value is 0
-    
+    InitOnRestart=0   ; ensure no Init on next Start/Restart
+     
     threadstart UpdateCheckedStrings ; keep config page checkboxes updated
     SystemCmdUpdated=1               ; trigger UpdateCheckedStrings during startup
     threadstart UpdateEntityCounts   ; keep entity counts updated
@@ -877,7 +881,7 @@ function SetSocket(int32 SocketID, int32 Action)    ; Sets the state of a Socket
         state = off
     else 
         SetRelay(RelayID, 3) ;3 means toggle relay
-        if GetRelay(RelayID) == 0 then state = on   ; sockets are connected to be off when relay is on - else on
+        if GetRelay(RelayID) == 0 then state = on   ; sockets are connected to be on when relay is off - else off
         else state = off endif
     endif 
     dScriptServerTrigger(83, SocketID, state)              ; trigger refresh on the dScriptServer 
@@ -1983,7 +1987,13 @@ thread InputWeb(App_WebInput)   ; triggered as soon as a web button was pressed
         case 7 App_IOCtr7 +=1
         case 8 App_IOCtr8 +=1
         case 99 dScriptServerTrigger(0,0,-1)
-        case 100 Init()         ; reset button on config page
+        case 100             
+            InitOnRestart=1        ; ensure init reset on next restart
+            do                     ; sleep until value is saved
+                threadsleep 100 
+            loop while system.FlashPending != 0
+            threadsleep 100
+            SystemReset=1          ; initate reboot
     endselect
     App_WebInput=0
     threadsuspend

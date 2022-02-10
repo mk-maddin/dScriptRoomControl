@@ -119,7 +119,7 @@ case $room in
 		autoio='false'
 		shift;;
 	wohnzimmer)
-		lights=1
+		lights=0
 		lightsmax=11
 		shutters=4
 		autoio='false'
@@ -162,7 +162,7 @@ case $room in
 		autoio='false'
 		shift;;
 	gang)
-		lights=2
+		lights=1
 		lightsmax=12
 		shutters=1
 		autoio='false'
@@ -174,7 +174,7 @@ case $room in
 		autoio='false'
 		shift;;
 	schlafen)
-		lights=1
+		lights=0
 		lightsmax=12
 		shutters=1
 		autoio='false'
@@ -246,14 +246,14 @@ case $room in
 	windfang)
 		[ -z "${ip}" ] && ip='192.168.28.46'
 		#IO configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity=" " #Backup for outside light
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="1,2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1" #Backup for outside light
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="2"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="4"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" " #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" " #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1,2" # motion sensor windfang
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "   # motion sensor gang
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" " # motion sensor windfang
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" " # motion sensor gang
 		shift;;
 	kueche)
 		[ -z "${ip}" ] && ip='192.168.28.52'
@@ -293,7 +293,8 @@ case $room in
 
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='direct' --ioentity="10" #Shelly Dimmer 2 (Spots)
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="1" 
+		#"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" " #Yeelight Esstisch
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='direct' --ioentity="9" #Shelly Dimmer 2 (Wandlampen)
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='motion' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="3"
@@ -399,9 +400,9 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
 
 		#IO configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="1,2"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='shutter' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" "  #light without id triggers nothing
@@ -409,7 +410,8 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	buero)
-		[ -z "${ip}" ] && ip='192.168.28.49'
+		[ -z "${ip}" ] && ip='192.168.28.71'
+		#[ -z "${ip}" ] && ip='192.168.28.49' #old board
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
@@ -430,7 +432,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		
 		#IO configuration
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='button' --ioentity=" " #light button - Phillips Hue AmbLight fair
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='button' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
@@ -448,8 +450,8 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity="2"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="3"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" " #does not exist on ds378
 		shift;;
 	
