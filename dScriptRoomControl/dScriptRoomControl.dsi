@@ -44,9 +44,9 @@ thread main(const)
     InputsStart()                    ; start threads for physical & virtual input buttons
     threadstart TcpipCmd                 ; start TCP/IP network server for communication
     threadstart dScriptServerContacter   ; start contact handling thread for dScriptServer
-    threadsleep 1000
-    dScriptServerTrigger(0,0,-1)            ; initial contact to dScriptServer (with time delay required)
-    ;LedGreen = on
+    threadsleep 500
+    dScriptServerTrigger(0,99,-1)            ; initial contact to dScriptServer (with time delay required)
+    ;LedGreen = on  
             
     App_Message="ready"
     LedGreen = off                      
@@ -55,9 +55,11 @@ thread main(const)
     threadsleep 50                      
     FlashWritePending = 0               ; indicate that system is completed booting - config page
     LedGreen = on                       ; indicate that system is completed booting - physical
+    dScriptServerTrigger(0,99,-1)        ; redo initial contact to dScriptServer (with time delay required)
     do FlashWritePending = system.FlashPending ; keep up-to-date so webpage can access it
        threadsleep 100
     loop
+    App_Message="main suspend"    
     threadsuspend
 endthread
 
@@ -240,6 +242,8 @@ function InitRestore()  ; restore temporary from volatile variables_
     threadstart CalcVoltsTemp        ; keep config page volt & temp updated
     threadstart UpdateShutterStates  ; keep shutter values on index page updated
 
+    App_DSST_PingIP = 0     ; set DNSResolution object of dScriptServer IP/Hostname to 0 (to force a new resolution)
+    App_DSST_PingActive = -1 ; set Ping active value to false (initial state false)
     App_DSST_active=0       ; set active dscriptserver communications to 0
     App_DSST_objID=0        ; set last used dscriptserver objID to 0
     App_DSST_cmdID=0        ; set last used dscriptserver cmdID to 0
@@ -575,6 +579,7 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 I
     App_Message="StringInputHandler"
     int32 idx
     int32 EntityID
+    int8 RelayID
 
     idx = 0
     EntityID = 0
@@ -582,15 +587,23 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 I
         EntityID = IDstring.GetNumAscii(idx)
         App_Message="Entity ID: " ~ EntityID
         if EntityID > 0 then                    ; if next characters are a number process this number
-            if InpType == 1 or InpType == 4 then
-                if LightStatusHandler(EntityID, Clicks, InpType) == 0 then LightClicksHandler(EntityID, Clicks) endif
-            elseif InpType == 2 then 
-                if ShutterClicksHandler(EntityID, Clicks, InpID) == 1 then
-                    idx = IDstring.Length + 1 endif ; ShutterClicksHandler returns 1 in case it is a raffstore which changes it's angle                                          ; this works only for the first inputID
-            elseif InpType == 3 then SocketClicksHandler(EntityID, Clicks)
-            elseif InpType == 6 then SetRelay(EntityID,Clicks) ;Direct Realy input
-            else App_Message="Unhandled InpType: " ~ InpType
-            endif
+            select InpType
+                case 1
+                    if Clicks == 1 then
+                        RelayID=App_LightsOffset-(EntityID-1)        ; replace light id with rleay id
+                        if GetRelay(RelayID) == 0 then Clicks = 101  ; if light is currently off (after processing on); turn all csv on
+                        else Clicks = 102 endif                      ; if light is currently on (after processing off); turn all csv off
+                    endif 
+                    if LightStatusHandler(EntityID, Clicks, InpType) == 0 then LightClicksHandler(EntityID, Clicks) endif    
+                case 2                  
+                    if ShutterClicksHandler(EntityID, Clicks, InpID) == 1 then
+                        idx = IDstring.Length + 1 endif ; ShutterClicksHandler returns 1 in case it is a raffstore which changes it's angle 
+                case 3  SocketClicksHandler(EntityID, Clicks)
+                case 4  
+                    if LightStatusHandler(EntityID, Clicks, InpType) == 0 then LightClicksHandler(EntityID, Clicks) endif
+                case 6  SetRelay(EntityID,Clicks) ;Direct Realy input
+                else App_Message="Unhandled InpType: " ~ InpType
+            endselect
         endif        
         idx = idx + 1
     loop
@@ -604,10 +617,10 @@ function int8 LightStatusHandler(int32 LightID, int32 Clicks, int8 InpType)     
             select Clicks
                 case 1
                     RelayID=App_LightsOffset-(LightID-1)    ; replace light id with rleay id
-                    if GetRelay(RelayID) == 0 then App_LightMotionON[LightID-1] = 1 ; if light is currently off (later on); set status to blocked
-                    else App_LightMotionON[LightID-1] = 0 endif                     ; if light is currently on (later off); set status to unblocked
-                case 102 App_LightMotionON[LightID-1] = 1
-                case 103 App_LightMotionON[LightID-1] = 0
+                    if GetRelay(RelayID) == 0 then App_LightMotionON[LightID-1] = 1 ; if light is currently off (after processing on); set status to blocked
+                    else App_LightMotionON[LightID-1] = 0 endif                     ; if light is currently on (after processing off); set status to unblocked
+                case 101 App_LightMotionON[LightID-1] = 1                           ; if light is forced on; set status to blocked
+                case 102 App_LightMotionON[LightID-1] = 0                           ; if light is forced off; set status to unblocked
                 else App_Message="Unhandled click count - Status"              
             endselect
         case 4  ; Motion sensor action
@@ -618,7 +631,7 @@ function int8 LightStatusHandler(int32 LightID, int32 Clicks, int8 InpType)     
             endif
         else App_Message="Unhandled InpType: " ~ InpType
     endselect
-    return 0
+    return 0 ;return 0 to initiate we can contiue with motion processing
 endfunction
 
 function LightClicksHandler(int32 LightID, int32 Clicks)        ; handles all multiclicks related to lights
@@ -1722,11 +1735,68 @@ function UpdateDirects()                             ; update the number of butt
     App_Directs = DirectsCount
 endfunction
 
+function int32 dScriptServerPing()            ; try to ping dScriptServer and return the result 
+    int32 delay
+    if App_DSST_PingActive < 0 then
+        delay = 1000 ;wait until a very first ping after boot
+    else 
+        delay = 0
+    endif 
+        
+    int8 waiting                  ; if there is already a ping active, wait for this to complete and re-use the result
+    int8 timeout    ; timeout in seconds for the ping request
+    int8 timeout_c  ; counter for cycles until timeout
+    waiting = 0
+    timeout = 5
+    timeout_c = 0
+    do while App_DSST_PingActive > 0 and timeout >= timeout_c/4 ; wait for other active ping to complete or timeout (threadsleep 100 * 10 (timeout_c/10) = 1000ms = 1sec)
+        timeout_c+=1
+        waiting = 1
+        threadsleep 100
+    loop
+    if timeout < timeout_c/4 then ;timeout occoured
+        App_DSST_PingActive = 0
+        waiting = 0
+    endif 
+    if waiting > 0 return App_DSST_PingSuccess
+
+    App_DSST_PingActive = 1
+    if App_DSST_PingIP == 0 then ;resolve the dScriptServer IP/Hostname to pingable object(int) - if not already the case!
+        DNSResolve(App_dScriptServer, App_DSST_PingIP) 
+    endif
+    threadsleep delay
+
+    timeout = 3
+    timeout_c = 0
+    App_DSST_PingSuccess = 0
+    tcpip.Ping(App_DSST_PingIP, App_DSST_PingSuccess)
+    do while App_DSST_PingSuccess == 0 and timeout >= timeout_c/4 ; wait for ping to complete or timeout (threadsleep 250 * 4 (timeout_c/4) = 1000ms = 1sec)
+        timeout_c+=1
+        threadsleep 250 
+    loop
+
+    ;reset variables indicating in process and return the result
+    int32 result 
+    result = App_DSST_PingSuccess
+    App_DSST_PingActive = 0
+    threadsleep 150 ; after completion wait another 150ms for pending pings to access the result
+    App_DSST_PingSuccess = 0
+    return result
+endfunction
 function dScriptServerTrigger(int8 cmdID, int8 objID, int8 objSTATE)   ; trigger requests on status updates to dScriptServer
     if App_dScriptServer[0] == 0 then           ; skip if no dScriptServer is defined
-        App_Message="No dScriptServer"
+        ;App_Message="No dScriptServer"
+        App_DSST_PingIP=-1
         return
     endif
+    
+    int32 Ping
+    Ping = dScriptServerPing()    ;try to ping dScriptServer - if no success return
+    if Ping <= 0 then
+        App_Message="No dScriptServer ping"
+        return
+    endif
+    ;App_Message="dScriptServer available"
 
     int8 App_DSST_active_tmp                        ; temporary value to hold active dscript connection count
     do while App_DSST_active > App_DSST_activeMAX   ;while more than App_DSST_activeMAX open communications exist
@@ -1790,7 +1860,8 @@ thread dScriptServerTriggerDo(const)
             App_DSST_active-=1
             threadsuspend
     endselect
-    
+
+    ;App_Message="BIN: " ~ cmdID ~ "|" ~ objID ~ "|" ~ objSTATE
     ;clientport dScriptClient App_dScriptServer System_TcpPort 1000 ;(bad idea to open a new client port every time)
     dScriptClient.Write(clientBuf,3, clientBuf, clientLength)    
     App_DSST_active-=1
@@ -2001,7 +2072,7 @@ endthread
 
 thread Input1IOCtr(App_IOCtr1)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType1 != 4 then
+    if App_IOType1 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr1
             threadsleep App_ClickSleep
@@ -2013,7 +2084,7 @@ thread Input1IOCtr(App_IOCtr1)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input2IOCtr(App_IOCtr2)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType2 != 4 then
+    if App_IOType2 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr2
             threadsleep App_ClickSleep
@@ -2025,7 +2096,7 @@ thread Input2IOCtr(App_IOCtr2)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input3IOCtr(App_IOCtr3)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType3 != 4 then
+    if App_IOType3 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr3
             threadsleep App_ClickSleep
@@ -2037,7 +2108,7 @@ thread Input3IOCtr(App_IOCtr3)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input4IOCtr(App_IOCtr4)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType4 != 4 then
+    if App_IOType4 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr4
             threadsleep App_ClickSleep
@@ -2049,7 +2120,7 @@ thread Input4IOCtr(App_IOCtr4)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input5IOCtr(App_IOCtr5)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType5 != 4 then
+    if App_IOType5 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr5
             threadsleep App_ClickSleep
@@ -2061,7 +2132,7 @@ thread Input5IOCtr(App_IOCtr5)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input6IOCtr(App_IOCtr6)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType6 != 4 then
+    if App_IOType6 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr6
             threadsleep App_ClickSleep
@@ -2073,7 +2144,7 @@ thread Input6IOCtr(App_IOCtr6)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input7IOCtr(App_IOCtr7)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType7 != 4 then
+    if App_IOType7 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr7
             threadsleep App_ClickSleep
@@ -2085,7 +2156,7 @@ thread Input7IOCtr(App_IOCtr7)  ; triggered as soon as multi press counter is ch
 endthread
 thread Input8IOCtr(App_IOCtr8)  ; triggered as soon as multi press counter is changed
     int32 Clicks
-    if App_IOType8 != 4 then
+    if App_IOType8 != 4 then ; if not motion input; wait for possible multiclick
         do
             Clicks=App_IOCtr8
             threadsleep App_ClickSleep

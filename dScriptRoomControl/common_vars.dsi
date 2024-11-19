@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    3                       ; version of this application.
-const       AppMinor    4                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    6                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -305,10 +305,13 @@ int32 App_EntitiesActive
 int32   App_WebInput              ; variable to identify a web input has happened
 string  App_InpType[CFGSIZE]      ; variable writing the input type to webpage information input
 
+int32 App_DSST_PingIP             ; variable to hold tcpip.ping compatible DNSResolve of the dScriptServer hostname/ip
+int32 App_DSST_PingSuccess        ; variable to contain the response time in mS or zero if no response was received
+int8 App_DSST_PingActive          ; variable to hold state of ping function (already running or not used yet)
 int8 App_DSST_cmdID               ; variable to temporary hold parameter for dScriptServerTrigger
 int8 App_DSST_objID               ; variable to temporary hold parameter for dScriptServerTrigger
 int8 App_DSST_objSTATE            ; variable to temporary hold parameter for dScriptServerTrigger
-int8 App_DSST_active             ; variable to hold the number of still active jobs for dScriptServerTrigger       
+int8 App_DSST_active              ; variable to hold the number of still active jobs for dScriptServerTrigger       
 
 int8  App_ShutterCalibration            ; indicates the calibration mode is on/off (0 = off; 1 = on)
 int32 App_ShutterCTCalibration[IDSIZE]  ; stores the calibration values of shutters

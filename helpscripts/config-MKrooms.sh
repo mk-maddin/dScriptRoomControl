@@ -17,12 +17,12 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 dScriptSH='dScriptRoom-admin.sh'
 #dScriptServer="EMPTY"
 dScriptServer='192.168.32.14'
-raffstoreWindowTime=38000
+raffstoreWindowTime=38500
 raffstoreDoorTime=57600
 raffstoreDoorHebeSchiebeTime=61100
 rollerWindowTime=22500
-rollerDoorTime=30500
-rollerRoofWindowTime=25000
+rollerDoorTime=32000
+rollerRoofWindowTime=27000
 GatewayIP='192.168.28.1'
 
 ##--help text and script parameter processing
@@ -41,7 +41,7 @@ case $i in
 	echo ""
 	echo -e "\t -b= \t| --board= \t-> define a specific dScriptBoard hostname or IP for connecting to"
 	#echo -e "\t -p= \t| --pass= \t-> new/old board password for accessing the board" #unfortunately not woking yet as CURL does not support "local storage" feature of browsers
-		#have to rewrite this is python to fix the "issue" with no password support
+		#have to rewrite this in python to fix the "issue" with no password support
 	echo -e "\t -r= \t| --room= \t-> room to configure on board"
 	echo -e "\t --ip \t-> configured fixed ip as backup, but enable dhcp"
 	echo ""
@@ -186,6 +186,19 @@ case $room in
 		shutters=0
 		autoio='false'
 		shift;;
+#### GARAGE ####
+	garage)
+		lights=5
+		lightsmax=5
+		shutters=0
+		autoio='false'
+		shift;;
+	keller)
+		lights=4
+		lightsmax=4
+		shutters=0
+		autoio='false'
+		shift;;
 	*)  # unknown option
 	>&2 echo "$scriptName: error: invalid room: $room" 
 	exit 22;;
@@ -230,7 +243,7 @@ case $room in
 
 #### EG ####
 	gaestebad)
-		[ -z "${ip}" ] && ip='192.168.28.50'
+		[ -z "${ip}" ] && ip='192.168.28.77'
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"		
 
 		#IO configuration
@@ -351,7 +364,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	kind)
-		[ -z "${ip}" ] && ip='192.168.28.28'
+		[ -z "${ip}" ] && ip='192.168.28.81'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="roller" --closingtime="$rollerWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="roller" --closingtime="$rollerRoofWindowTime"
@@ -410,8 +423,7 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
 		shift;;
 	buero)
-		[ -z "${ip}" ] && ip='192.168.28.71'
-		#[ -z "${ip}" ] && ip='192.168.28.49' #old board
+		[ -z "${ip}" ] && ip='192.168.28.80'
 		# shutter / raffstore configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=1 --shuttertype="raffstore" --closingtime="$raffstoreWindowTime"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='shutter' --shutterid=2 --shuttertype="raffstore" --closingtime="$raffstoreDoorTime"
@@ -454,7 +466,31 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity=" "
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" " #does not exist on ds378
 		shift;;
-	
+#### GARAGE ####
+	garage)
+		[ -z "${ip}" ] && ip='192.168.28.X'
+		#IO configuration
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="2,1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="4"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="5"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" " #does not exist on ds378
+		shift;;
+	keller)
+		[ -z "${ip}" ] && ip='192.168.28.X'
+		#IO configuration
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="2,1"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="4"
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
+		shift;;
 	*)  # unknown option
 		#>&2 echo "$scriptName: error: invalid room: $room"
 		#exit 22;;

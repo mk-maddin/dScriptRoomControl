@@ -23,12 +23,12 @@ cat > "${htm_f}" <<-EOF
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DebugView</title>
+    <title>Debug ~System_HostName~</title>
     <link rel="stylesheet" type="text/css" href="dscript.css">
 </head>
 
 <body onload="startAJAX()">
-    <h2 style="text-align:center" >Debug Page<h3>
+    <h2 style="text-align:center" >Debug ~System_HostName~<h3>
     <br>
     <table>
 EOF
@@ -57,6 +57,8 @@ EOF
 ##update the input box of each variable
 for var in ${variables};do
 cat >> "${htm_f}" <<-EOF
+    var v = getValue('$var'); 
+    if (v != document.getElementById('Inp$var').value){console.log("$var: " + getValue('$var'));}
     document.getElementById('Inp$var').value = getValue('$var');
 EOF
 done
