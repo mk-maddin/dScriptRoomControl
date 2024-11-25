@@ -468,19 +468,19 @@ case $room in
 		shift;;
 #### GARAGE ####
 	garage)
-		[ -z "${ip}" ] && ip='192.168.28.X'
+		[ -z "${ip}" ] && ip='192.168.28.104'
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="2,1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="4"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity="5"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='button' --ioentity=" "  #Send to Shelly Garagentor
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "  #Send to Shelly Hoftor
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='motion' --ioentity="1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='light' --ioentity=" " #does not exist on ds378
 		shift;;
 	keller)
-		[ -z "${ip}" ] && ip='192.168.28.X'
+		[ -z "${ip}" ] && ip='192.168.28.103'
 		#IO configuration
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="2,1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
