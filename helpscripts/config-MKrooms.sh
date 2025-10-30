@@ -188,8 +188,8 @@ case $room in
 		shift;;
 #### GARAGE ####
 	garage)
-		lights=5
-		lightsmax=5
+		lights=7
+		lightsmax=8
 		shutters=0
 		autoio='false'
 		shift;;
