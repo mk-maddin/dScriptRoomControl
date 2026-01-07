@@ -12,6 +12,8 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ##--default values for parameters
 #verbose="--verbose"
+ConfigIP=''
+ConfigReboot=''
 
 ##--define internal fixed variables
 dScriptSH='dScriptRoom-admin.sh'
@@ -44,6 +46,7 @@ case $i in
 		#have to rewrite this in python to fix the "issue" with no password support
 	echo -e "\t -r= \t| --room= \t-> room to configure on board"
 	echo -e "\t --ip \t-> configured fixed ip as backup, but enable dhcp"
+	echo -e "\t --reboot \t-> reboot the board after configruation complete"	
 	echo ""
 	echo "Description:"
 	echo "Configure a board for a specific room of Martin Kraemers home using dScriptRoom-admin.sh wrapper"
@@ -63,6 +66,9 @@ case $i in
 	shift;;
 	--ip)
 	ConfigIP="true"
+	shift;;
+	--reboot)
+	ConfigReboot="true"
 	shift;;
 	*)  # unknown option
 	>&2 echo "$scriptName: error: invalid option: $i" 
@@ -199,6 +205,10 @@ case $room in
 		shutters=0
 		autoio='false'
 		shift;;
+#### TEST DUMMY ####
+	dummy)
+		room=''
+		shift;;
 	*)  # unknown option
 	>&2 echo "$scriptName: error: invalid room: $room" 
 	exit 22;;
@@ -210,10 +220,12 @@ if [ "${r}" -ne 0 ];then
 	>&2 echo "$0: error: configuration test for board failed: ${board} -> ${r}"
 	exit ${r};fi 
 
-echo "I: configure room: ${room}" 
-#add --pass="${pass}" if possible
-"${dScriptRoom}" ${verbose} --board="${board}" --mode='config' --hostname="dS-${room}" --dscriptserver="${dScriptServer}" \
-	--lights="${lights}" --lightrelaymax="${lightsmax}" --shutters="${shutters}" --autoio="${autoio}"
+if [ -n "${room}"];then
+	echo "I: configure room: ${room}" 
+	#add --pass="${pass}" if possible
+	"${dScriptRoom}" ${verbose} --board="${board}" --mode='config' --hostname="dS-${room}" --dscriptserver="${dScriptServer}" \
+		--lights="${lights}" --lightrelaymax="${lightsmax}" --shutters="${shutters}" --autoio="${autoio}"
+fi
 
 [ -n "${verbose}" ] && echo "D: check if we can use --board=\"${board}\" as IP"
 ip='';if [[ "${board}" =~ ^192\.168\. ]];then 
@@ -485,11 +497,11 @@ case $room in
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=1 --iotype='light' --ioentity="2,1"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=2 --iotype='light' --ioentity="3"
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=3 --iotype='light' --ioentity="4"
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='light' --ioentity=" "  #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='light' --ioentity=" "  #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='light' --ioentity=" "  #light without id triggers nothing
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=4 --iotype='button' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=5 --iotype='button' --ioentity=" " 
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=6 --iotype='button' --ioentity=" "  
 		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=7 --iotype='light' --ioentity=" "  #light without id triggers nothing
-		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity=" "
+		"${dScriptRoom}" ${verbose} --board="${board}" --mode='io' --ioid=8 --iotype='motion' --ioentity="1"
 		shift;;
 	*)  # unknown option
 		#>&2 echo "$scriptName: error: invalid room: $room"
@@ -507,9 +519,12 @@ if [ -n "${ConfigIP}" ];then
 	"${dScriptRoom}" ${verbose} --board="${board}" --mode='dev' --variable='System_EnableDHCP' --data=1 #1=enabled | 0=disabled
 fi
 
-#sleep 3
-#"${dScriptRoom}" ${verbose} --board="${board}" --mode='reboot'
 sleep 5
+if [ -n "${ConfigIP}" ];then
+	echo "I: reboot board after completion"
+	"${dScriptRoom}" ${verbose} --board="${board}" --mode='reboot'
+	sleep 10
+fi
 brave-browser "http://${board}/index.htm"
 
 exit "${error}"

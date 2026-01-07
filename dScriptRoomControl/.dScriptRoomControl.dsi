@@ -78,7 +78,7 @@ function Init()         ; initializes volatile/permantent variables with program
 
     ; config page 2 - Network (keep hostname)
     System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
-    System_IP = "192.168.28.103"
+    System_IP = "192.168.28.5"
     System_SubNet = "255.255.255.0"
     System_Gateway = "192.168.28.1"
     System_DNS1 = "192.168.28.1"
