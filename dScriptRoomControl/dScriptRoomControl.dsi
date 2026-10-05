@@ -549,7 +549,6 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
             case 8 IDstring = App_IOSet8
          endselect
          StringInputHandler(IDstring, InpType, Clicks, InpID)
-         endif
     endif          
     return
 endfunction
@@ -1063,7 +1062,7 @@ function ShutterMoveThreadX(int32 ShutterID)                ; function used by e
     ShutterCT = ShutterGetClosingTime(ShutterID)                     ; define closing time for door or window
 
     if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ; opening takes ususally longer than closing the shutter - in this case add up to 10% time
-        ShutterOpenAdd = (App_ShutterCLevels[ShutterID-1] - App_ShutterTLevels[ShutterID-1]) / 10
+        ShutterOpenAdd = (ShutterCT * (App_ShutterTLevels[ShutterID-1] - App_ShutterCLevels[ShutterID-1])) / 1000  ; +0.1% closing time per % to open (100% open = +10%)
         ShutterCT = ShutterCT + ShutterOpenAdd
     endif
 
