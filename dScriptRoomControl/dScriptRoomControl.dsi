@@ -220,6 +220,8 @@ function InitRestore()  ; restore temporary from volatile variables_
     int32 IOActive
     for IOActive = 1 to 8            ; reset states for tracking active input buttons pressed
         App_IOActive[IOActive-1] = 0
+        App_IORaw[IOActive-1] = 0
+        App_IODebounce[IOActive-1] = 0
     next
 
     int32 ButtonID
@@ -423,6 +425,7 @@ function InputsStart()                                                      ; st
 
     threadstart InputWeb
     threadstart Reboot
+    threadstart IODebounceTimer
 
     select system.ModuleID                          ; start only needed physical input threads
         case 30 ;"dS3484"
@@ -1057,13 +1060,11 @@ function int32 ShutterGetClosingTime(int32 ShutterID)       ; returns the closin
 endfunction
 function ShutterMoveThreadX(int32 ShutterID)                ; function used by every MoveShutterX thread
     int32 ShutterCT  
-    int32 ShutterOpenAdd 
     App_ShutterCLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1] ; temporary working variable to prevent a lot of writes to eeprom
     ShutterCT = ShutterGetClosingTime(ShutterID)                     ; define closing time for door or window
 
-    if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ; opening takes ususally longer than closing the shutter - in this case add up to 10% time
-        ShutterOpenAdd = (ShutterCT * (App_ShutterTLevels[ShutterID-1] - App_ShutterCLevels[ShutterID-1])) / 1000  ; +0.1% closing time per % to open (100% open = +10%)
-        ShutterCT = ShutterCT + ShutterOpenAdd
+    if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ; opening takes ususally longer than closing the shutter - in this case add 10% time
+        ShutterCT = (ShutterCT * 11) / 10
     endif
 
     App_EntitiesActive+=1
@@ -1993,76 +1994,153 @@ thread UpdateShutterStates(1000)                        ; update webpage variabl
 endthread
 
 thread Input1(input Inp1)   ; triggered as soon as physical IO gets active
-    App_IOCtr1 +=1
-    App_IOActive[0] = 1
+    App_IORaw[0] = 1
+    if App_IODebounce[0] == 0 then     ; ignore contact bounce edges
+        App_IOCtr1 +=1
+        App_IOActive[0] = 1
+    endif
+    App_IODebounce[0] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input2(input Inp2)   ; triggered as soon as physical IO gets active
-    App_IOCtr2 +=1
-    App_IOActive[1] = 1
+    App_IORaw[1] = 1
+    if App_IODebounce[1] == 0 then     ; ignore contact bounce edges
+        App_IOCtr2 +=1
+        App_IOActive[1] = 1
+    endif
+    App_IODebounce[1] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input3(input Inp3)   ; triggered as soon as physical IO gets active
-    App_IOCtr3 +=1
-    App_IOActive[2] = 1
+    App_IORaw[2] = 1
+    if App_IODebounce[2] == 0 then     ; ignore contact bounce edges
+        App_IOCtr3 +=1
+        App_IOActive[2] = 1
+    endif
+    App_IODebounce[2] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input4(input Inp4)   ; triggered as soon as physical IO gets active
-    App_IOCtr4 +=1
-    App_IOActive[3] = 1
+    App_IORaw[3] = 1
+    if App_IODebounce[3] == 0 then     ; ignore contact bounce edges
+        App_IOCtr4 +=1
+        App_IOActive[3] = 1
+    endif
+    App_IODebounce[3] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input5(input Inp5)   ; triggered as soon as physical IO gets active
-    App_IOCtr5 +=1
-    App_IOActive[4] = 1
+    App_IORaw[4] = 1
+    if App_IODebounce[4] == 0 then     ; ignore contact bounce edges
+        App_IOCtr5 +=1
+        App_IOActive[4] = 1
+    endif
+    App_IODebounce[4] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input6(input Inp6)   ; triggered as soon as physical IO gets active
-    App_IOCtr6 +=1
-    App_IOActive[5] = 1
+    App_IORaw[5] = 1
+    if App_IODebounce[5] == 0 then     ; ignore contact bounce edges
+        App_IOCtr6 +=1
+        App_IOActive[5] = 1
+    endif
+    App_IODebounce[5] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input7(input Inp7)   ; triggered as soon as physical IO gets active
-    App_IOCtr7 +=1
-    App_IOActive[6] = 1
+    App_IORaw[6] = 1
+    if App_IODebounce[6] == 0 then     ; ignore contact bounce edges
+        App_IOCtr7 +=1
+        App_IOActive[6] = 1
+    endif
+    App_IODebounce[6] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input8(input Inp8)   ; triggered as soon as physical IO gets active
-    App_IOCtr8 +=1
-    App_IOActive[7] = 1
+    App_IORaw[7] = 1
+    if App_IODebounce[7] == 0 then     ; ignore contact bounce edges
+        App_IOCtr8 +=1
+        App_IOActive[7] = 1
+    endif
+    App_IODebounce[7] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 
 thread Input1off(!input Inp1)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[0] = 0
+    App_IORaw[0] = 0
+    if App_IODebounce[0] == 0 then     ; ignore contact bounce edges
+        App_IOActive[0] = 0
+    endif
+    App_IODebounce[0] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input2off(!input Inp2)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[1] = 0
+    App_IORaw[1] = 0
+    if App_IODebounce[1] == 0 then     ; ignore contact bounce edges
+        App_IOActive[1] = 0
+    endif
+    App_IODebounce[1] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input3off(!input Inp3)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[2] = 0
+    App_IORaw[2] = 0
+    if App_IODebounce[2] == 0 then     ; ignore contact bounce edges
+        App_IOActive[2] = 0
+    endif
+    App_IODebounce[2] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input4off(!input Inp4)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[3] = 0
+    App_IORaw[3] = 0
+    if App_IODebounce[3] == 0 then     ; ignore contact bounce edges
+        App_IOActive[3] = 0
+    endif
+    App_IODebounce[3] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input5off(!input Inp5)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[4] = 0
+    App_IORaw[4] = 0
+    if App_IODebounce[4] == 0 then     ; ignore contact bounce edges
+        App_IOActive[4] = 0
+    endif
+    App_IODebounce[4] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input6off(!input Inp6)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[5] = 0
+    App_IORaw[5] = 0
+    if App_IODebounce[5] == 0 then     ; ignore contact bounce edges
+        App_IOActive[5] = 0
+    endif
+    App_IODebounce[5] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input7off(!input Inp7)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[6] = 0
+    App_IORaw[6] = 0
+    if App_IODebounce[6] == 0 then     ; ignore contact bounce edges
+        App_IOActive[6] = 0
+    endif
+    App_IODebounce[6] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input8off(!input Inp8)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[7] = 0
+    App_IORaw[7] = 0
+    if App_IODebounce[7] == 0 then     ; ignore contact bounce edges
+        App_IOActive[7] = 0
+    endif
+    App_IODebounce[7] = DEBOUNCE_TICKS
+    threadsuspend
+endthread
+
+thread IODebounceTimer(DEBOUNCE_MS)   ; counts down the debounce windows of the physical inputs
+    int32 i
+    for i = 0 to 7
+        if App_IODebounce[i] > 0 then
+            App_IODebounce[i] -= 1
+            if App_IODebounce[i] == 0 then
+                App_IOActive[i] = App_IORaw[i]  ; window over - take over the last real input state (e.g. very short press)
+            endif
+        endif
+    next
     threadsuspend
 endthread
 
