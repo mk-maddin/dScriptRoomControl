@@ -257,7 +257,7 @@ int32 App_EntityCountsUpdated   ; used to tell when webpage updates the number o
 int8 App_IOActive[CFGSIZE]      ;tracking values to check which pyhsical inputs are active and which are not
 
 ; general helping variables #################################
-int32   x
+int32   x                       ; only kept for debug page - do NOT use as loop/temp variable (shared by all threads), use local variables instead
 int32   Zero
 
 ; tcp/ip communication variables #################################
@@ -276,7 +276,7 @@ int32   NonceIn
 #else
 ;#ifdef NORMAL
     eeint8    App_ShutterLevels[IDSIZE] ; to restore shutter closed/open level after power outage  ( 100 = fully open; 0 = fully closed)
-    eeint8    App_DSST_activeMAX        ; maximum value of queued dscriptserver triggers to be waiting for processing
+    eeint8    App_DSST_activeMAX        ; no longer used (dScriptServer triggers are queued, no overload reboot) - kept for config page compatibility
 #endif
 
 string  System_MAC[6]           ; MAC address of the devices ehternet port
@@ -311,7 +311,14 @@ int8 App_DSST_PingActive          ; variable to hold state of ping function (alr
 int8 App_DSST_cmdID               ; variable to temporary hold parameter for dScriptServerTrigger
 int8 App_DSST_objID               ; variable to temporary hold parameter for dScriptServerTrigger
 int8 App_DSST_objSTATE            ; variable to temporary hold parameter for dScriptServerTrigger
-int8 App_DSST_active              ; variable to hold the number of still active jobs for dScriptServerTrigger       
+int8 App_DSST_active              ; variable to hold the number of still queued jobs for dScriptServerSender (debug display only)
+
+const DSST_QSIZE 16               ; size of the dScriptServer trigger queue (ring buffer)
+int8  App_DSST_QCmd[DSST_QSIZE]   ; queued dScriptServer trigger: command id
+int8  App_DSST_QObj[DSST_QSIZE]   ; queued dScriptServer trigger: object id
+int8  App_DSST_QState[DSST_QSIZE] ; queued dScriptServer trigger: object state
+int32 App_DSST_QHead              ; next queue slot to write (only advanced by dScriptServerTrigger)
+int32 App_DSST_QTail              ; next queue slot to send (only advanced by dScriptServerSender)
 
 int8  App_ShutterCalibration            ; indicates the calibration mode is on/off (0 = off; 1 = on)
 int32 App_ShutterCTCalibration[IDSIZE]  ; stores the calibration values of shutters
