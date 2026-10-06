@@ -1,0 +1,21 @@
+name: dScript checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Static checks of the firmware sources
+        run: python tools/dscript_lint.py dScriptRoomControl
+      - name: Tests of the checker
+        run: |
+          pip install pytest
+          pytest -v tests
