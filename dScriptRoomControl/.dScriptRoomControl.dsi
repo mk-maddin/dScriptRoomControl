@@ -43,6 +43,7 @@ thread main(const)
     
     InputsStart()                    ; start threads for physical & virtual input buttons
     threadstart TcpipCmd                 ; start TCP/IP network server for communication
+    threadstart dScriptServerSender      ; start the single thread sending queued triggers to dScriptServer
     threadstart dScriptServerContacter   ; start contact handling thread for dScriptServer
     threadsleep 500
     dScriptServerTrigger(0,99,-1)            ; initial contact to dScriptServer (with time delay required)
@@ -64,7 +65,8 @@ thread main(const)
 endthread
 
 function Init()         ; initializes volatile/permantent variables with program defaults   
-    for x = 1 to 6 ; flash red led to indicate init will run (3 seconds)                
+    int32 i
+    for i = 1 to 6 ; flash red led to indicate init will run (3 seconds)                
         threadsleep 250
         LedRed = on
         threadsleep 250
@@ -78,7 +80,7 @@ function Init()         ; initializes volatile/permantent variables with program
 
     ; config page 2 - Network (keep hostname)
     System_HostName = "dS-" ~ {h02} System_MAC[0] ~ {h02} System_MAC[1] ~ {h02} System_MAC[2] ~ {h02} System_MAC[3] ~ {h02} System_MAC[4] ~ {h02} System_MAC[5]
-    System_IP = "192.168.28.5"
+    System_IP = "192.168.28.103"
     System_SubNet = "255.255.255.0"
     System_Gateway = "192.168.28.1"
     System_DNS1 = "192.168.28.1"
@@ -89,7 +91,7 @@ function Init()         ; initializes volatile/permantent variables with program
     System_Cmd = 3              ; set tcp/ip communication protocol ( 1=Modbus; 2=ASCII; 3=Binary ; 4=BinaryAES ) currently supported only 2 & 3
     System_TcpPort = 17123      ; port used for tcp/ip communication (default=17123; default modbus=502) - used as dScriptServer listening port,too
     App_dScriptServer = ""      ; default should be '' - dScriptServer to send TCP/IP status update messages to
-    App_DSST_activeMAX = 5      ; maximum number of queued, but not executed connections to dScriptServer - reboot on overload
+    App_DSST_activeMAX = 5      ; no longer used (triggers are queued, no overload reboot) - kept for config page compatibility
     
     System_ModbusUID = 1
     System_ModbusBaud = 1               ; 9600
@@ -218,6 +220,8 @@ function InitRestore()  ; restore temporary from volatile variables_
     int32 IOActive
     for IOActive = 1 to 8            ; reset states for tracking active input buttons pressed
         App_IOActive[IOActive-1] = 0
+        App_IORaw[IOActive-1] = 0
+        App_IODebounce[IOActive-1] = 0
     next
 
     int32 ButtonID
@@ -245,6 +249,8 @@ function InitRestore()  ; restore temporary from volatile variables_
     App_DSST_PingIP = 0     ; set DNSResolution object of dScriptServer IP/Hostname to 0 (to force a new resolution)
     App_DSST_PingActive = -1 ; set Ping active value to false (initial state false)
     App_DSST_active=0       ; set active dscriptserver communications to 0
+    App_DSST_QHead=0        ; empty the dscriptserver trigger queue
+    App_DSST_QTail=0
     App_DSST_objID=0        ; set last used dscriptserver objID to 0
     App_DSST_cmdID=0        ; set last used dscriptserver cmdID to 0
     App_DSST_objSTATE = -1  ; set last used dscriptserver objSTATE to -1 (unused)
@@ -419,6 +425,7 @@ function InputsStart()                                                      ; st
 
     threadstart InputWeb
     threadstart Reboot
+    threadstart IODebounceTimer
 
     select system.ModuleID                          ; start only needed physical input threads
         case 30 ;"dS3484"
@@ -545,7 +552,6 @@ function InputHandler(int32 InpID, int32 Clicks)                            ; ha
             case 8 IDstring = App_IOSet8
          endselect
          StringInputHandler(IDstring, InpType, Clicks, InpID)
-         endif
     endif          
     return
 endfunction
@@ -580,11 +586,15 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 I
     int32 idx
     int32 EntityID
     int8 RelayID
+    int8 digit
 
     idx = 0
     EntityID = 0
-    do while idx <= IDstring.Length             ; while idx is lower then the string length check if next characters are a number
-        EntityID = IDstring.GetNumAscii(idx)
+    do while idx < IDstring.Length              ; while idx is lower then the string length check if next characters are a number
+        EntityID = 0
+        if IDstring[idx] >= 48 and IDstring[idx] <= 57 then ; only read a number where one starts ('0'..'9') - prevents "12" being read as 12 and 2
+            EntityID = IDstring.GetNumAscii(idx)
+        endif
         App_Message="Entity ID: " ~ EntityID
         if EntityID > 0 then                    ; if next characters are a number process this number
             select InpType
@@ -605,7 +615,17 @@ function StringInputHandler(string IDstring, int8 InpType, int32 Clicks, int32 I
                 else App_Message="Unhandled InpType: " ~ InpType
             endselect
         endif        
-        idx = idx + 1
+        digit = 1
+        do while digit == 1                     ; skip the remaining digits of the number just processed
+            digit = 0
+            if idx < IDstring.Length then
+                if IDstring[idx] >= 48 and IDstring[idx] <= 57 then
+                    digit = 1
+                    idx = idx + 1
+                endif
+            endif
+        loop
+        idx = idx + 1                           ; skip the separator
     loop
     return
 endfunction
@@ -696,8 +716,9 @@ function int8 ShutterClicksHandler(int32 ShutterID, int32 Clicks, int32 InpID)  
         case 5 App_Message="Shutter calibration on"
             App_ShutterCalibration = 1
             LedBlue = on
-            for x = 1 to 16
-                App_ShutterCTCalibration[x-1] = 0
+            int32 i
+            for i = 1 to 16
+                App_ShutterCTCalibration[i-1] = 0
             next
             return 1
         else App_Message="Unhandled click count"
@@ -705,6 +726,7 @@ function int8 ShutterClicksHandler(int32 ShutterID, int32 Clicks, int32 InpID)  
     return 0
 endfunction
 function ShutterClickCalibration(int32 ShutterID, int32 Clicks, int32 InpID) ; handles multiclicks related to shutters during calibration mode
+    int32 i
     select Clicks
         case 1 App_Message="open shutter"
             if App_IOActive[InpID-1] == 1 then ShutterOpen(ShutterID) endif  ; only on press and hold
@@ -724,7 +746,7 @@ function ShutterClickCalibration(int32 ShutterID, int32 Clicks, int32 InpID) ; h
             App_Message="CT" ~ShutterID ~ "=" ~ App_ShutterCTCalibration[ShutterID-1]
         case 3 App_Message="CT reset to 0 for " ~ ShutterID
             App_ShutterCTCalibration[ShutterID-1] = 0
-            for x = 1 to 3    ; flash red led to indicate erasure
+            for i = 1 to 3    ; flash red led to indicate erasure
                 threadsleep 300 LedRed = on
                 threadsleep 300 LedRed = off
             next
@@ -771,7 +793,7 @@ function ShutterClickCalibration(int32 ShutterID, int32 Clicks, int32 InpID) ; h
             
             App_Message="CT " ~ App_ShutterCTCalibration[ShutterID-1] ~ " saved for " ~ ShutterID
             
-            for x = 1 to 4    ; flash red led to indicate saving
+            for i = 1 to 4    ; flash red led to indicate saving
                 threadsleep 300 LedRed = on
                 threadsleep 300 LedRed = off
             next
@@ -852,26 +874,28 @@ function SetLight(int32 LightID, int32 Action)      ; Sets the state of a light 
 
     int32 RelayID
     int8 state
+    int8 before
     
     RelayID=App_LightsOffset-(LightID-1)            ; calculate the corresponding relay id for light id
+    before = GetRelay(RelayID)
     if Action == 0 then 
         SetRelay(RelayID, off)
         state = off
-        App_EntitiesActive-=1
     elseif Action == 1 then 
         SetRelay(RelayID, on)
         state = on
-        App_EntitiesActive+=1
     else 
         SetRelay(RelayID, 2) 
         if GetRelay(RelayID) == 1 then              ; lights are connected to be on when relay is on - else off
-            App_EntitiesActive+=1
             state = on
         else 
-            App_EntitiesActive-=1
             state = off
         endif    
     endif ; 2 or any other means toggle relay
+    if GetRelay(RelayID) != before then             ; only count real state changes (keeps App_EntitiesActive consistent)
+        if before == 0 then App_EntitiesActive+=1
+        else App_EntitiesActive-=1 endif
+    endif
     dScriptServerTrigger(81, LightID, state)               ; trigger refresh on the dScriptServer
     return      
 endfunction
@@ -1036,13 +1060,11 @@ function int32 ShutterGetClosingTime(int32 ShutterID)       ; returns the closin
 endfunction
 function ShutterMoveThreadX(int32 ShutterID)                ; function used by every MoveShutterX thread
     int32 ShutterCT  
-    int32 ShutterOpenAdd 
     App_ShutterCLevels[ShutterID-1] = App_ShutterLevels[ShutterID-1] ; temporary working variable to prevent a lot of writes to eeprom
     ShutterCT = ShutterGetClosingTime(ShutterID)                     ; define closing time for door or window
 
-    if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ; opening takes ususally longer than closing the shutter - in this case add up to 10% time
-        ShutterOpenAdd = (App_ShutterCLevels[ShutterID-1] - App_ShutterTLevels[ShutterID-1]) / 10
-        ShutterCT = ShutterCT + ShutterOpenAdd
+    if App_ShutterTLevels[ShutterID-1] > App_ShutterCLevels[ShutterID-1] then ; opening takes ususally longer than closing the shutter - in this case add 10% time
+        ShutterCT = (ShutterCT * 11) / 10
     endif
 
     App_EntitiesActive+=1
@@ -1163,6 +1185,10 @@ function MotionThreadX(int32 MotionID)             ; thread to handle motion det
     int32 InpID
 
     InpID = EntityIDtoIO(MotionID,4)         ; get the inputID for motion sensor   
+    if InpID < 1 or InpID > 8 then          ; unknown motion sensor (e.g. IO type changed meanwhile)
+        App_Message="Invalid motion id: " ~ MotionID
+        return
+    endif
     select InpID                            ; get input string for InputID
         case 1 IDstring = App_IOSet1
         case 2 IDstring = App_IOSet2
@@ -1298,11 +1324,12 @@ function Binary()                               ; processes incoming / outgpoing
 endfunction     
 function BinaryAES()                            ; processes incoming / outgpoing AES encrypted binary tcp/ip traffic
     if tcpLength > 31 then                      ; needs to be at least 32 bytes 
+        int32 i
         aes.decrypt(tcpInBuf, 16)
-        x = 12
-        NonceIn = tcpInBuf.GetNumBinary(x, 4)                   
-        for x = 0 to 15 
-            tcpOutBuf[x] = 0
+        i = 12
+        NonceIn = tcpInBuf.GetNumBinary(i, 4)                   
+        for i = 0 to 15 
+            tcpOutBuf[i] = 0
         next
         BinaryDo()                              ; actually execute the binary command
         aes.encrypt(tcpOutBuf, 16)
@@ -1314,6 +1341,8 @@ function BinaryDo()                             ; function interpreting the bina
     tcpLength = 0
 
     if App_ShutterCalibration == 1 then         ; do not process command if we are in shutter calibration mode
+        tcpOutBuf[0] = 0xff                     ; but answer with NACK so the client does not wait for a timeout
+        tcpLength = 1
         return
     endif
         
@@ -1357,8 +1386,6 @@ function BinaryGetStatus()                      ; GS, Get Status - returns 8 byt
     return
 endfunction
 function BinarySetRelay()                       ; SR, Set Relay - relay num, state, pulse time/state (4 bytes), total 7 byte command
-    x = 3                                           ; used as a temporary index (originally used with value PulseTime)
-    x = tcpInBuf.GetNumBinary(x, 4)                 ; originally got 4 byte pulse time ( no longer supported)
     select tcpInBuf[1]
         case 1 to 32
             if Nonce == NonceIn then                ; process command only Nonce counting is correct
@@ -1456,28 +1483,30 @@ function BinaryGetInput()                       ; GI, Get Input - 1st is request
     return
 endfunction
 function BinaryGetAnalogue()                    ; GA, Get Analog - 1st is high byte, 2nd is low byte of input - returns all 8 analog inputs (some may actually be digital)
-    for x=0 to 7                    ; initialize an empty tcpOutBuf of 16 bytes 
-        tcpOutBuf[(x*2)] = 0>>8
-        tcpOutBuf[((x*2)+1)] = 0&255
+    int32 i
+    int32 val
+    for i=0 to 7                    ; initialize an empty tcpOutBuf of 16 bytes 
+        tcpOutBuf[(i*2)] = 0>>8
+        tcpOutBuf[((i*2)+1)] = 0&255
     next 
     tcpLength = 16                  ; lenght reply is always 16 bytes
 
     ; fill return based on module and its connectors ;( 30=dS3484; 31=dS1242; 34=dS2824; 35=dS378; 36=TCP184 )
     if system.ModuleID == 30 or system.ModuleID == 31 then      ;( 30=dS3484; 31=dS1242 )
-        x = AD1                 ; returns first 2 analog inputs
-        tcpOutBuf[0] = x>>8           
-        tcpOutBuf[1] = x&255  
-        x = AD2
-        tcpOutBuf[2] = x>>8
-        tcpOutBuf[3] = x&255
+        val = AD1               ; returns first 2 analog inputs
+        tcpOutBuf[0] = val>>8           
+        tcpOutBuf[1] = val&255  
+        val = AD2
+        tcpOutBuf[2] = val>>8
+        tcpOutBuf[3] = val&255
     endif
     if system.ModuleID == 30 then                               ;( 30=dS3484 )
-        x = AD3                 ; returns analog inputs 3 & 4
-        tcpOutBuf[4] = x>>8
-        tcpOutBuf[5] = x&255  
-        x = AD4
-        tcpOutBuf[6] = x>>8
-        tcpOutBuf[7] = x&255  
+        val = AD3               ; returns analog inputs 3 & 4
+        tcpOutBuf[4] = val>>8
+        tcpOutBuf[5] = val&255  
+        val = AD4
+        tcpOutBuf[6] = val>>8
+        tcpOutBuf[7] = val&255  
     endif     
     if system.ModuleID == 34 or system.ModuleID == 35 or system.ModuleID == 36 then ;( 34=dS2824; 35=dS378; 36=TCP184 )
         tcpOutBuf[0] = IO1>>8   ; returns first 7 analog inputs (some may actually be digital)
@@ -1592,40 +1621,64 @@ function BinaryGetConfig()                      ; GO, Get Config - returns 12 by
 endfunction
 function BinaryGetLight()                       ; GL, Get Light - returns 1 byte
     int8 RelayID
-    RelayID=App_LightsOffset-(tcpInBuf[1]-1)    ; replace light id with rleay id
-    tcpOutBuf[0] = GetRelay(RelayID)
+    tcpOutBuf[0] = 0
+    select tcpInBuf[1]
+        case 1 to App_Lights                        ; only valid light ids
+            RelayID=App_LightsOffset-(tcpInBuf[1]-1)    ; replace light id with rleay id
+            tcpOutBuf[0] = GetRelay(RelayID)
+        else App_Message="Invalid light id: " ~ tcpInBuf[1]
+    endselect
     tcpLength = 1
     return
 endfunction
 function BinaryGetShutter()                     ; GH, Get Shutter - returns 2 bytes
-    tcpOutBuf[1] = App_ShutterStates[tcpInBuf[1]-1]
-    if App_ShutterStates[tcpInBuf[1]-1] == 0 then           ; currently stopped
-        tcpOutBuf[0] = App_ShutterLevels[tcpInBuf[1]-1]     ; use the 'Levels' value which is used for restoring, too
-    else tcpOutBuf[0] = App_ShutterCLevels[tcpInBuf[1]-1]   ; use the 'CLevels' value which is used for correct moving
-    endif
+    tcpOutBuf[0] = 0
+    tcpOutBuf[1] = 0
+    select tcpInBuf[1]
+        case 1 to App_Shutters                      ; only valid shutter ids (arrays are IDSIZE=16 long)
+            tcpOutBuf[1] = App_ShutterStates[tcpInBuf[1]-1]
+            if App_ShutterStates[tcpInBuf[1]-1] == 0 then           ; currently stopped
+                tcpOutBuf[0] = App_ShutterLevels[tcpInBuf[1]-1]     ; use the 'Levels' value which is used for restoring, too
+            else tcpOutBuf[0] = App_ShutterCLevels[tcpInBuf[1]-1]   ; use the 'CLevels' value which is used for correct moving
+            endif
+        else App_Message="Invalid shutter id: " ~ tcpInBuf[1]
+    endselect
     tcpLength = 2
     return
 endfunction
 function BinaryGetSocket()                      ; GK, Get Socket - returns 1 byte
     int8 RelayID
-    RelayID=App_PhysRelays-(tcpInBuf[1]-1)      ; replace socket id with rleay id
-    tcpOutBuf[0] = GetRelay(RelayID)            
-    if tcpOutBuf[0] == 0 then tcpOutBuf[0] = 1       ; sockets are usually connected to NC instead of NO - so invert here
-    elseif tcpOutBuf[0] == 1 tcpOutBuf[0] = 0 endif
+    tcpOutBuf[0] = 0
+    select tcpInBuf[1]
+        case 1 to App_Sockets                       ; only valid socket ids
+            RelayID=App_PhysRelays-(tcpInBuf[1]-1)      ; replace socket id with rleay id
+            tcpOutBuf[0] = GetRelay(RelayID)            
+            if tcpOutBuf[0] == 0 then tcpOutBuf[0] = 1       ; sockets are usually connected to NC instead of NO - so invert here
+            elseif tcpOutBuf[0] == 1 tcpOutBuf[0] = 0 endif
+        else App_Message="Invalid socket id: " ~ tcpInBuf[1]
+    endselect
     tcpLength = 1
     return
 endfunction
 function BinaryGetMotion()                      ; GM, Get Motion - returns 1 byte
     int32 InpID                                 ; the input ID assigned to tcpInBuf given MotionID
     InpID = EntityIDtoIO(tcpInBuf[1],4)
-    tcpOutBuf[0] = App_IOActive[InpID-1]
+    tcpOutBuf[0] = 0
+    if InpID >= 1 and InpID <= 8 then           ; EntityIDtoIO returns 0 for unknown motion ids
+        tcpOutBuf[0] = App_IOActive[InpID-1]
+    endif
     tcpLength = 1
     return
 endfunction
 function BinaryGetButton()                      ; GB, Get Button - returns 1 byte
-    tcpOutBuf[0] = App_ButtonClicks[tcpInBuf[1]-1]
+    tcpOutBuf[0] = 0
+    select tcpInBuf[1]
+        case 1 to CFGSIZE                           ; App_ButtonClicks is CFGSIZE long
+            tcpOutBuf[0] = App_ButtonClicks[tcpInBuf[1]-1]
+            App_ButtonClicks[tcpInBuf[1]-1] = 0
+        else App_Message="Invalid button id: " ~ tcpInBuf[1]
+    endselect
     tcpLength = 1
-    App_ButtonClicks[tcpInBuf[1]-1] = 0
     return
 endfunction
 function BinarySetRestart()                     ; SR, System Restart - returns 0 byte
@@ -1686,8 +1739,9 @@ endfunction
 function UpdateMotions()                             ; update the number of motion sensors connected
     int8 MotionsCount
     MotionsCount = 0    
-    for x = 1 to 8           
-        select x                                        ; count +1 if input type == 4 (motion)
+    int32 i
+    for i = 1 to 8           
+        select i                                        ; count +1 if input type == 4 (motion)
             case 1 if App_IOType1 == 4 MotionsCount+=1
             case 2 if App_IOType2 == 4 MotionsCount+=1
             case 3 if App_IOType3 == 4 MotionsCount+=1
@@ -1703,8 +1757,9 @@ endfunction
 function UpdateButtons()                             ; update the number of buttons connected
     int8 ButtonsCount
     ButtonsCount = 0    
-    for x = 1 to 8           
-        select x                                        ; count +1 if input type == 5 (button)
+    int32 i
+    for i = 1 to 8           
+        select i                                        ; count +1 if input type == 5 (button)
             case 1 if App_IOType1 == 5 ButtonsCount+=1
             case 2 if App_IOType2 == 5 ButtonsCount+=1
             case 3 if App_IOType3 == 5 ButtonsCount+=1
@@ -1720,8 +1775,9 @@ endfunction
 function UpdateDirects()                             ; update the number of buttons connected
     int8 DirectsCount
     DirectsCount = 0    
-    for x = 1 to 8           
-        select x                                        ; count +1 if input type == 5 (button)
+    int32 i
+    for i = 1 to 8           
+        select i                                        ; count +1 if input type == 5 (button)
             case 1 if App_IOType1 == 6 DirectsCount+=1
             case 2 if App_IOType2 == 6 DirectsCount+=1
             case 3 if App_IOType3 == 6 DirectsCount+=1
@@ -1735,140 +1791,103 @@ function UpdateDirects()                             ; update the number of butt
     App_Directs = DirectsCount
 endfunction
 
-function int32 dScriptServerPing()            ; try to ping dScriptServer and return the result 
-    int32 delay
-    if App_DSST_PingActive < 0 then
-        delay = 1000 ;wait until a very first ping after boot
-    else 
-        delay = 0
-    endif 
-        
-    int8 waiting                  ; if there is already a ping active, wait for this to complete and re-use the result
-    int8 timeout    ; timeout in seconds for the ping request
-    int8 timeout_c  ; counter for cycles until timeout
-    waiting = 0
-    timeout = 5
-    timeout_c = 0
-    do while App_DSST_PingActive > 0 and timeout >= timeout_c/4 ; wait for other active ping to complete or timeout (threadsleep 100 * 10 (timeout_c/10) = 1000ms = 1sec)
-        timeout_c+=1
-        waiting = 1
-        threadsleep 100
-    loop
-    if timeout < timeout_c/4 then ;timeout occoured
-        App_DSST_PingActive = 0
-        waiting = 0
-    endif 
-    if waiting > 0 return App_DSST_PingSuccess
+function int32 dScriptServerPing()            ; try to ping dScriptServer and return the result (only called by dScriptServerSender)
+    int32 timeout_c     ; counter for cycles until timeout
+    int32 result
 
     App_DSST_PingActive = 1
-    if App_DSST_PingIP == 0 then ;resolve the dScriptServer IP/Hostname to pingable object(int) - if not already the case!
-        DNSResolve(App_dScriptServer, App_DSST_PingIP) 
+    if App_DSST_PingIP == 0 then    ; resolve the dScriptServer IP/Hostname to pingable object(int) - if not already the case!
+        DNSResolve(App_dScriptServer, App_DSST_PingIP)
+        threadsleep 1000            ; give the (new) resolution some time before the first ping
     endif
-    threadsleep delay
 
-    timeout = 3
-    timeout_c = 0
     App_DSST_PingSuccess = 0
     tcpip.Ping(App_DSST_PingIP, App_DSST_PingSuccess)
-    do while App_DSST_PingSuccess == 0 and timeout >= timeout_c/4 ; wait for ping to complete or timeout (threadsleep 250 * 4 (timeout_c/4) = 1000ms = 1sec)
+    timeout_c = 0
+    do while App_DSST_PingSuccess == 0 and timeout_c < 12  ; wait for ping to complete or timeout (12 * 250ms = 3sec)
         timeout_c+=1
         threadsleep 250 
     loop
 
-    ;reset variables indicating in process and return the result
-    int32 result 
     result = App_DSST_PingSuccess
+    if result <= 0 then
+        App_DSST_PingIP = 0         ; force a new DNS resolution on next try (dScriptServer IP may have changed)
+    endif
     App_DSST_PingActive = 0
-    threadsleep 150 ; after completion wait another 150ms for pending pings to access the result
-    App_DSST_PingSuccess = 0
     return result
 endfunction
-function dScriptServerTrigger(int8 cmdID, int8 objID, int8 objSTATE)   ; trigger requests on status updates to dScriptServer
+function dScriptServerTrigger(int8 cmdID, int8 objID, int8 objSTATE)   ; queue status update for dScriptServer - never blocks the caller
+    int32 idx
+    int32 nxt
+
     if App_dScriptServer[0] == 0 then           ; skip if no dScriptServer is defined
-        ;App_Message="No dScriptServer"
-        App_DSST_PingIP=-1
+        App_DSST_PingIP = 0                     ; ensure a resolution is done as soon as a dScriptServer gets defined
         return
     endif
-    
-    int32 Ping
-    Ping = dScriptServerPing()    ;try to ping dScriptServer - if no success return
-    if Ping <= 0 then
-        App_Message="No dScriptServer ping"
+
+    idx = App_DSST_QHead
+    nxt = (idx + 1) // DSST_QSIZE
+    if nxt == App_DSST_QTail then               ; queue full (dScriptServer not reachable / too slow) - drop this update
+        App_Message="dScriptServer queue full"
         return
     endif
-    ;App_Message="dScriptServer available"
-
-    int8 App_DSST_active_tmp                        ; temporary value to hold active dscript connection count
-    do while App_DSST_active > App_DSST_activeMAX   ;while more than App_DSST_activeMAX open communications exist
-        App_DSST_active_tmp = App_DSST_active
-        threadsleep 500
-        if App_EntitiesActive == 0 and App_DSST_active_tmp <= App_DSST_active then      ;and no shutter is moving/light is on and we were not able to lower the requests, cancel the requests by performing a board reboot
-            SystemReset = 1
-            return
-        endif
-    loop
-
-    App_DSST_active+=1
-    App_DSST_cmdID = cmdID
-    App_DSST_objID = objID
-    App_DSST_objSTATE = objSTATE
-    threadstart dScriptServerTriggerDo
+    App_DSST_QCmd[idx] = cmdID                  ; write the slot first ...
+    App_DSST_QObj[idx] = objID
+    App_DSST_QState[idx] = objSTATE
+    App_DSST_QHead = nxt                        ; ... then publish it to dScriptServerSender
+    return
 endfunction
-thread dScriptServerTriggerDo(const)
-    ;App_Message="dScriptServerTrigger"
-    int8 cmdID
-    int8 objID
-    int8 objSTATE
-    
-    cmdID = App_DSST_cmdID
-    objID = App_DSST_objID
-    objSTATE = App_DSST_objSTATE
-    App_DSST_cmdID = 0
-    App_DSST_objID = 0
-    App_DSST_objSTATE = -1
+thread dScriptServerSender(const)                       ; the only thread talking to the dScriptServer - sends queued triggers one by one
+    string  clientBuf[3]                                ; all Get XXXXX commands in binary are two byte commands
+    int32   clientLength                                ;   based on this we are able to trigger an update on any specific object that changed
+    int32   idx
+    int32   idle                                        ; time in ms since the dScriptServer was successfully contacted
+    int8    cmdID
 
-    string  clientBuf[3]                               ; all Get XXXXX commands in binary are two byte commands
-    int32   clientLength                               ;   based on this we are able to trigger an update on any specific object that changed
-        
-    select cmdID
-        case 0                      ; hearbeat trigger to server
-            ;App_Message="dScriptServerHeartbeat"
-            clientBuf[0] = cmdID clientBuf[1] = 0 clientBuf[2] = objSTATE
-        case 48 ; decimal value for: GS, Get Status
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 51 ; decimal value for: GR, Get Relay      ;TO-DO: call this function from SetRelay
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 52 ; decimal value for: GI, Get Input      ;TO-DO: call this function from InputHandler
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 53 ; decimal value for: GA, Get Analog     ;TO-DO: call this function from ????
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 54 ; decimal value for: GC, Get Counter    ;TO-DO: call this function from ????
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 80 ; decimal value for: GO, Get Config
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 81 ; decimal value for: GL, Get Light
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 82 ; decimal value for: GH, Get Shutter
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 83 ; decimal value for: GC, Get Socket
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 84 ; decimal value for: GM, Get Motion
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        case 85 ; decimal value for: GB, Get Button
-            clientBuf[0] = cmdID clientBuf[1] = objID clientBuf[2] = objSTATE
-        else App_Message="Invalid dScriptServer cmdID"
-            App_DSST_active-=1
-            threadsuspend
-    endselect
+    idle = 60000                                        ; force a ping before the very first send
+    do
+        if App_DSST_QTail == App_DSST_QHead then         ; nothing to send
+            threadsleep 20
+            if idle < 60000 idle+=20
+        else
+            if idle >= 30000 then                       ; only ping if dScriptServer was not contacted for a while
+                if dScriptServerPing() <= 0 then
+                    App_Message="No dScriptServer ping"
+                    App_DSST_QTail = App_DSST_QHead     ; drop pending updates - states are re-read on next poll / heartbeat
+                    threadsleep 1000
+                else idle = 0 endif
+            endif
 
-    ;App_Message="BIN: " ~ cmdID ~ "|" ~ objID ~ "|" ~ objSTATE
-    ;clientport dScriptClient App_dScriptServer System_TcpPort 1000 ;(bad idea to open a new client port every time)
-    dScriptClient.Write(clientBuf,3, clientBuf, clientLength)    
-    App_DSST_active-=1
-    threadsuspend
+            if App_DSST_QTail != App_DSST_QHead then
+                idx = App_DSST_QTail
+                cmdID = App_DSST_QCmd[idx]
+                select cmdID
+                    case 0                      ; hearbeat trigger to server
+                        clientBuf[0] = cmdID clientBuf[1] = 0 clientBuf[2] = App_DSST_QState[idx]
+                    case 48 to 54               ; GS, GR, GI, GA, GC
+                        clientBuf[0] = cmdID clientBuf[1] = App_DSST_QObj[idx] clientBuf[2] = App_DSST_QState[idx]
+                    case 80 to 85               ; GO, GL, GH, GK, GM, GB
+                        clientBuf[0] = cmdID clientBuf[1] = App_DSST_QObj[idx] clientBuf[2] = App_DSST_QState[idx]
+                    else
+                        App_Message="Invalid dScriptServer cmdID"
+                        cmdID = -1
+                endselect
+                if cmdID >= 0 then
+                    App_DSST_cmdID = cmdID      ; for debug page only
+                    App_DSST_objID = clientBuf[1]
+                    App_DSST_objSTATE = clientBuf[2]
+                    dScriptClient.Write(clientBuf,3, clientBuf, clientLength)
+                    idle = 0
+                endif
+                App_DSST_QTail = (idx + 1) // DSST_QSIZE
+            endif
+        endif
+        App_DSST_active = (App_DSST_QHead - App_DSST_QTail + DSST_QSIZE) // DSST_QSIZE    ; queued triggers (debug page)
+    loop
 endthread
 thread dScriptServerContacter(300000)                   ; try to contact the dScriptServer at least every 5 minutes
     dScriptServerTrigger(0,99,-1)       ; send heartbeat trigger to server   
+    threadsuspend
 endthread
 
 thread CalcVoltsTemp(1000)                              ; update the systems voltage and temperature on config page (every 1 second)
@@ -1878,11 +1897,12 @@ thread CalcVoltsTemp(1000)                              ; update the systems vol
 endthread
 
 thread ShowAppVersion(const)                            ; blink LEDs in app version used  (on demand)
-    for x = 1 to AppMajor    ; flash blue led to indicate the AppVerMajor loaded
+    int32 i
+    for i = 1 to AppMajor    ; flash blue led to indicate the AppVerMajor loaded
         threadsleep 500 LedBlue = on
         threadsleep 500 LedBlue = off
     next
-    for x = 1 to AppMinor    ; flash green led to indicate the AppVerMinor loaded
+    for i = 1 to AppMinor    ; flash green led to indicate the AppVerMinor loaded
         threadsleep 200 LedGreen = on
         threadsleep 200 LedGreen = off
     next
@@ -1970,80 +1990,157 @@ thread UpdateShutterStates(1000)                        ; update webpage variabl
             case 16 App_ShutterLevel16 = ShutterState
          endselect
     next
-
+    threadsuspend
 endthread
 
 thread Input1(input Inp1)   ; triggered as soon as physical IO gets active
-    App_IOCtr1 +=1
-    App_IOActive[0] = 1
+    App_IORaw[0] = 1
+    if App_IODebounce[0] == 0 then     ; ignore contact bounce edges
+        App_IOCtr1 +=1
+        App_IOActive[0] = 1
+    endif
+    App_IODebounce[0] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input2(input Inp2)   ; triggered as soon as physical IO gets active
-    App_IOCtr2 +=1
-    App_IOActive[1] = 1
+    App_IORaw[1] = 1
+    if App_IODebounce[1] == 0 then     ; ignore contact bounce edges
+        App_IOCtr2 +=1
+        App_IOActive[1] = 1
+    endif
+    App_IODebounce[1] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input3(input Inp3)   ; triggered as soon as physical IO gets active
-    App_IOCtr3 +=1
-    App_IOActive[2] = 1
+    App_IORaw[2] = 1
+    if App_IODebounce[2] == 0 then     ; ignore contact bounce edges
+        App_IOCtr3 +=1
+        App_IOActive[2] = 1
+    endif
+    App_IODebounce[2] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input4(input Inp4)   ; triggered as soon as physical IO gets active
-    App_IOCtr4 +=1
-    App_IOActive[3] = 1
+    App_IORaw[3] = 1
+    if App_IODebounce[3] == 0 then     ; ignore contact bounce edges
+        App_IOCtr4 +=1
+        App_IOActive[3] = 1
+    endif
+    App_IODebounce[3] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input5(input Inp5)   ; triggered as soon as physical IO gets active
-    App_IOCtr5 +=1
-    App_IOActive[4] = 1
+    App_IORaw[4] = 1
+    if App_IODebounce[4] == 0 then     ; ignore contact bounce edges
+        App_IOCtr5 +=1
+        App_IOActive[4] = 1
+    endif
+    App_IODebounce[4] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input6(input Inp6)   ; triggered as soon as physical IO gets active
-    App_IOCtr6 +=1
-    App_IOActive[5] = 1
+    App_IORaw[5] = 1
+    if App_IODebounce[5] == 0 then     ; ignore contact bounce edges
+        App_IOCtr6 +=1
+        App_IOActive[5] = 1
+    endif
+    App_IODebounce[5] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input7(input Inp7)   ; triggered as soon as physical IO gets active
-    App_IOCtr7 +=1
-    App_IOActive[6] = 1
+    App_IORaw[6] = 1
+    if App_IODebounce[6] == 0 then     ; ignore contact bounce edges
+        App_IOCtr7 +=1
+        App_IOActive[6] = 1
+    endif
+    App_IODebounce[6] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input8(input Inp8)   ; triggered as soon as physical IO gets active
-    App_IOCtr8 +=1
-    App_IOActive[7] = 1
+    App_IORaw[7] = 1
+    if App_IODebounce[7] == 0 then     ; ignore contact bounce edges
+        App_IOCtr8 +=1
+        App_IOActive[7] = 1
+    endif
+    App_IODebounce[7] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 
 thread Input1off(!input Inp1)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[0] = 0
+    App_IORaw[0] = 0
+    if App_IODebounce[0] == 0 then     ; ignore contact bounce edges
+        App_IOActive[0] = 0
+    endif
+    App_IODebounce[0] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input2off(!input Inp2)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[1] = 0
+    App_IORaw[1] = 0
+    if App_IODebounce[1] == 0 then     ; ignore contact bounce edges
+        App_IOActive[1] = 0
+    endif
+    App_IODebounce[1] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input3off(!input Inp3)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[2] = 0
+    App_IORaw[2] = 0
+    if App_IODebounce[2] == 0 then     ; ignore contact bounce edges
+        App_IOActive[2] = 0
+    endif
+    App_IODebounce[2] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input4off(!input Inp4)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[3] = 0
+    App_IORaw[3] = 0
+    if App_IODebounce[3] == 0 then     ; ignore contact bounce edges
+        App_IOActive[3] = 0
+    endif
+    App_IODebounce[3] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input5off(!input Inp5)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[4] = 0
+    App_IORaw[4] = 0
+    if App_IODebounce[4] == 0 then     ; ignore contact bounce edges
+        App_IOActive[4] = 0
+    endif
+    App_IODebounce[4] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input6off(!input Inp6)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[5] = 0
+    App_IORaw[5] = 0
+    if App_IODebounce[5] == 0 then     ; ignore contact bounce edges
+        App_IOActive[5] = 0
+    endif
+    App_IODebounce[5] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input7off(!input Inp7)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[6] = 0
+    App_IORaw[6] = 0
+    if App_IODebounce[6] == 0 then     ; ignore contact bounce edges
+        App_IOActive[6] = 0
+    endif
+    App_IODebounce[6] = DEBOUNCE_TICKS
     threadsuspend
 endthread
 thread Input8off(!input Inp8)   ; triggered as soon as physical IO gets inactive
-    App_IOActive[7] = 0
+    App_IORaw[7] = 0
+    if App_IODebounce[7] == 0 then     ; ignore contact bounce edges
+        App_IOActive[7] = 0
+    endif
+    App_IODebounce[7] = DEBOUNCE_TICKS
+    threadsuspend
+endthread
+
+thread IODebounceTimer(DEBOUNCE_MS)   ; counts down the debounce windows of the physical inputs
+    int32 i
+    for i = 0 to 7
+        if App_IODebounce[i] > 0 then
+            App_IODebounce[i] -= 1
+            if App_IODebounce[i] == 0 then
+                App_IOActive[i] = App_IORaw[i]  ; window over - take over the last real input state (e.g. very short press)
+            endif
+        endif
+    next
     threadsuspend
 endthread
 
@@ -2364,10 +2461,12 @@ thread InputHandler8(const)   ; handles special input as thread
 endthread
 
 thread Reboot(SystemReset)     ; thread is triggered when webpage sets "SystemReset" to non-zero.
+    int32 r
     if SystemReset == 1 then
         SystemReset = 0
-        x = system.Restart          ; no further processing after this  (CPU is reset)
+        r = system.Restart          ; no further processing after this  (CPU is reset)
     endif
+    threadsuspend
 endthread
 
 thread TcpipCmd(tcpip)         ; starts the actual tcp/ip server with defined protocol
