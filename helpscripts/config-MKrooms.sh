@@ -220,7 +220,7 @@ if [ "${r}" -ne 0 ];then
 	>&2 echo "$0: error: configuration test for board failed: ${board} -> ${r}"
 	exit ${r};fi 
 
-if [ -n "${room}"];then
+if [ -n "${room}" ];then
 	echo "I: configure room: ${room}" 
 	#add --pass="${pass}" if possible
 	"${dScriptRoom}" ${verbose} --board="${board}" --mode='config' --hostname="dS-${room}" --dscriptserver="${dScriptServer}" \
