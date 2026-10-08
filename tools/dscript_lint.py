@@ -7,7 +7,9 @@ Checks:
   suspend      every thread ends with 'threadsuspend' (or an endless do ... loop) before 'endthread'
   forvar       'for' loop variables are local variables / parameters of the enclosing function or thread
                (globals are shared by all threads - see the former use of the global 'x')
-  webvars      every ~variable~ used in the web pages is declared
+  webvars      every ~variable~ and getValue('variable') used in the web pages is declared
+  timer        timer thread intervals are numeric literals >= MIN_TIMER_MS (a constant does not compile,
+               10ms was never triggered on the board - see IODebounceTimer)
 
 Usage: dscript_lint.py <project dir containing *.dsj>   (exit code 1 on errors)
 """
@@ -22,6 +24,7 @@ CONST = re.compile(r"^\s*const\s+([A-Za-z_]\w*)", re.I)
 PORT = re.compile(r"^\s*(?:digitalport|analogport|flexport|clientport)\s+([A-Za-z_]\w*)", re.I)
 BLOCK_START = re.compile(r"^\s*(function|thread)\b\s*(.*)$", re.I)
 STATEMENT_WORDS = {"return", "threadstart", "threadsleep", "threadsuspend"}
+MIN_TIMER_MS = 20
 PAIRS = {"do": "loop", "for": "next", "select": "endselect"}
 
 
@@ -71,6 +74,7 @@ class Linter:
     def __init__(self):
         self.errors = []
         self.globals = set()
+        self.consts = set()
         self.threads = set()
         self.threadstarts = []  # (file, line, name)
 
@@ -91,6 +95,8 @@ class Linter:
                     d = rx.match(code)
                     if d:
                         self.globals.add(d.group(1))
+                        if rx is CONST:
+                            self.consts.add(d.group(1))
                 # tcpip.ip System_IP etc. are bindings, not declarations
 
     def check_file(self, path, lines):
@@ -112,6 +118,7 @@ class Linter:
                 block = {"kind": kind, "name": name, "line": lineno, "locals": params, "last": None, "forvars": []}
                 if kind == "thread":
                     self.threads.add(name)
+                    self.check_timer(path, lineno, name, sig)
                 stack = []
                 continue
             end = re.match(r"^\s*end(function|thread)\b", code, re.I)
@@ -158,6 +165,17 @@ class Linter:
         if block is not None:
             self.error(path, block["line"], "%s '%s' is not closed" % (block["kind"], block["name"]))
 
+    def check_timer(self, path, lineno, name, sig):
+        trigger = re.match(r"[A-Za-z_]\w*\s*\(\s*([^)]*?)\s*\)", sig.strip())
+        if not trigger:
+            return
+        value = trigger.group(1)
+        if re.fullmatch(r"\d+", value):
+            if int(value) < MIN_TIMER_MS:
+                self.error(path, lineno, "timer thread '%s' interval %sms is below %sms (not triggered on the board)" % (name, value, MIN_TIMER_MS))
+        elif value in self.consts:
+            self.error(path, lineno, "timer thread '%s' interval must be a numeric literal, not the constant '%s'" % (name, value))
+
     def close(self, path, lineno, stack, opener, closer, block):
         if not stack:
             self.error(path, lineno, "'%s' without '%s' in %s '%s'" % (closer, opener, block["kind"], block["name"]))
@@ -180,7 +198,8 @@ class Linter:
             path = os.path.join(webdir, fn)
             with open(path, encoding="latin-1") as fh:
                 for lineno, line in enumerate(fh, 1):
-                    for var in re.findall(r"~([A-Za-z_]\w*)~", line):
+                    getvalues = [] if line.lstrip().startswith("//") else re.findall(r"getValue\(\s*['\"]([A-Za-z_]\w*)['\"]\s*\)", line)  # skip commented out JavaScript
+                    for var in re.findall(r"~([A-Za-z_]\w*)~", line) + getvalues:
                         if var not in self.globals:
                             self.error(path, lineno, "web page uses undeclared variable '%s'" % var)
 

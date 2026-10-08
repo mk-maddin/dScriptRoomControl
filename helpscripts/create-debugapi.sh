@@ -34,7 +34,9 @@ cat > "${htm_f}" <<-EOF
 EOF
 
 ##create a list of variables defined within "$var_v" file
-variables=$(cat "${var_f}" | egrep "int|string" | sed 's#^\s*##g' | sed 's#\s*;.*$##g' | egrep -v "^.*int.*\[.*\].*$" | sed 's#\(^[^ ]\+\s\+\)\([A-Za-z0-9_]\+\)\(.*$\)#\2#g' | sort -u)
+# comments are removed first (a comment containing e.g. "input" must not select a const line); the sort order is
+# locale independent (case folded, "_" ignored) so the generated page does not depend on the machine
+variables=$(cat "${var_f}" | sed 's#^\s*##g' | sed 's#\s*;.*$##g' | egrep "int|string" | egrep -v "^.*int.*\[.*\].*$" | sed 's#\(^[^ ]\+\s\+\)\([A-Za-z0-9_]\+\)\(.*$\)#\2#g' | LC_ALL=C sort -d -f | uniq)
 
 ##create a labeled input box for each variable
 for var in ${variables};do

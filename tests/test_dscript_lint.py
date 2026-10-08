@@ -103,3 +103,41 @@ def test_web_variables(tmp_path):
     src = "int32 Known\nconst Limit 3\n"
     errors = lint(tmp_path, src, web="<p>~Known~ ~Limit~ ~Unknown~</p>")
     assert len(errors) == 1 and "'Unknown'" in errors[0]
+
+
+def test_timer_intervals(tmp_path):
+    src = """
+const TICK 10
+int32 g
+thread Ok(30)
+    g = 1
+    threadsuspend
+endthread
+thread TooFast(10)
+    g = 1
+    threadsuspend
+endthread
+thread FromConst(TICK)
+    g = 1
+    threadsuspend
+endthread
+thread OnVar(g)
+    g = 0
+    threadsuspend
+endthread
+thread Always(const)
+    do
+        threadsleep 10
+    loop
+endthread
+"""
+    errors = lint(tmp_path, src)
+    assert len(errors) == 2, errors
+    assert any("'TooFast' interval 10ms is below 20ms" in e for e in errors)
+    assert any("'FromConst' interval must be a numeric literal" in e for e in errors)
+
+
+def test_web_getvalue(tmp_path):
+    src = "int32 Known\n"
+    errors = lint(tmp_path, src, web="<script>getValue('Known'); getValue(\"Missing\")\n// getValue('Commented')</script>")
+    assert len(errors) == 1 and "'Missing'" in errors[0]
