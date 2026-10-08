@@ -2131,7 +2131,7 @@ thread Input8off(!input Inp8)   ; triggered as soon as physical IO gets inactive
     threadsuspend
 endthread
 
-thread IODebounceTimer(DEBOUNCE_MS)   ; counts down the debounce windows of the physical inputs
+thread IODebounceTimer(30)   ; counts down the debounce windows of the physical inputs
     int32 i
     for i = 0 to 7
         if App_IODebounce[i] > 0 then

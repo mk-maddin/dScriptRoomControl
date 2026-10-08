@@ -256,7 +256,7 @@ int8    App_Sockets               ; number of sockets connected to relays ( =phy
 int32 App_EntityCountsUpdated   ; used to tell when webpage updates the number of lights or shutters
 int8 App_IOActive[CFGSIZE]      ;tracking values to check which pyhsical inputs are active and which are not
 
-const DEBOUNCE_TICKS  4          ; input edges within 30-40ms (DEBOUNCE_TICKS * DEBOUNCE_MS) after the last edge are contact bounce and ignored
+const DEBOUNCE_TICKS  2          ; input edges within 30-60ms (DEBOUNCE_TICKS-1 .. DEBOUNCE_TICKS times the 30ms interval of thread IODebounceTimer) after the last edge are contact bounce and ignored
 int8 App_IODebounce[CFGSIZE]    ;remaining debounce ticks per physical input (0 = edges are accepted)
 int8 App_IORaw[CFGSIZE]         ;last (not debounced) edge seen per physical input (1 = active; 0 = inactive)
 
