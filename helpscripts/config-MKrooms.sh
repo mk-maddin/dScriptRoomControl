@@ -84,6 +84,7 @@ if [ -z "${dScriptRoom}" ];then
 	>&2 echo "$scriptName: error: no such file or directory: ${dScriptSH}"
 	>&2 echo "Try '$scriptName --help' for more information."
 	exit 2;fi
+[ -n "${verbose}" ] && echo "D: dScriptRoom = ${dScriptRoom}"
 
 [ -n "${verbose}" ] && echo "D: find configuration for room: ${room}"
 case $room in
