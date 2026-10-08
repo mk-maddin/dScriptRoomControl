@@ -2131,7 +2131,7 @@ thread Input8off(!input Inp8)   ; triggered as soon as physical IO gets inactive
     threadsuspend
 endthread
 
-thread IODebounceTimer(30)   ; counts down the debounce windows of the physical inputs (interval must be a literal; 10ms is never triggered on the board, keep >= 20ms; keep in sync with DEBOUNCE_TICKS)const DEBOUNCE_TICKS  2          ; input edges within 30-60ms (DEBOUNCE_TICKS-1 .. DEBOUNCE_TICKS times the 30ms interval of thread IODebounceTimer) after the last edge are contact bounce and ignored
+thread IODebounceTimer(30)   ; counts down the debounce windows of the physical inputs (interval must be a literal; 10ms is never triggered on the board, keep >= 20ms; keep in sync with DEBOUNCE_TICKS)
     int32 i
     for i = 0 to 7
         if App_IODebounce[i] > 0 then
