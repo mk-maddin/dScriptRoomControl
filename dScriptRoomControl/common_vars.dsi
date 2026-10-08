@@ -8,7 +8,7 @@
 ;************************************
 
 const       AppMajor    3                       ; version of this application.
-const       AppMinor    8                       ; Note. This is NOT the Firmware version that is on the
+const       AppMinor    9                       ; Note. This is NOT the Firmware version that is on the
 const       AppVersion  (AppMajor*256)+AppMinor ; config status screen - that comes from Firmware.
 
 const        NAMESIZE  20       ; typical size for text values
@@ -27,6 +27,11 @@ int32 AppVerMajor
 int32 AppVerMinor
 int32 BrdTemp
 int32 Volts
+int32 App_InstrPerSec           ; dScript instructions executed during the last second (all threads) - read from system.DespatchCounter by CalcVoltsTemp only
+int32 App_InstrPerSecMax        ; maximum of App_InstrPerSec within the last LOADWINDOW seconds
+const LOADWINDOW 60             ; number of seconds (samples) for App_InstrPerSecMax
+int32 App_InstrPerSecHist[LOADWINDOW] ; last LOADWINDOW samples of App_InstrPerSec (ring buffer)
+int32 App_InstrPerSecIdx        ; next ring buffer slot to write; -1 = first sample after boot not taken yet
 eeint8 InitOnRestart
 
 int32   SystemReset                 ; set by webpage to request a reboot

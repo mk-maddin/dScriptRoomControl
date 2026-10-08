@@ -24,10 +24,15 @@
      <tr><td>App_DSST_PingActive</td><td><input type="text" disabled size="50" value="~App_DSST_PingActive~" id="InpApp_DSST_PingActive" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_PingActive='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_DSST_PingIP</td><td><input type="text" disabled size="50" value="~App_DSST_PingIP~" id="InpApp_DSST_PingIP" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_PingIP='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_DSST_PingSuccess</td><td><input type="text" disabled size="50" value="~App_DSST_PingSuccess~" id="InpApp_DSST_PingSuccess" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_PingSuccess='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_QHead</td><td><input type="text" disabled size="50" value="~App_DSST_QHead~" id="InpApp_DSST_QHead" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_QHead='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_DSST_QTail</td><td><input type="text" disabled size="50" value="~App_DSST_QTail~" id="InpApp_DSST_QTail" onkeyup="newAJAXCommand('dscript.cgi?App_DSST_QTail='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EnableAutoIO</td><td><input type="text" disabled size="50" value="~App_EnableAutoIO~" id="InpApp_EnableAutoIO" onkeyup="newAJAXCommand('dscript.cgi?App_EnableAutoIO='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EntitiesActive</td><td><input type="text" disabled size="50" value="~App_EntitiesActive~" id="InpApp_EntitiesActive" onkeyup="newAJAXCommand('dscript.cgi?App_EntitiesActive='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_EntityCountsUpdated</td><td><input type="text" disabled size="50" value="~App_EntityCountsUpdated~" id="InpApp_EntityCountsUpdated" onkeyup="newAJAXCommand('dscript.cgi?App_EntityCountsUpdated='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_InpType</td><td><input type="text" disabled size="50" value="~App_InpType~" id="InpApp_InpType" onkeyup="newAJAXCommand('dscript.cgi?App_InpType='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_InstrPerSec</td><td><input type="text" disabled size="50" value="~App_InstrPerSec~" id="InpApp_InstrPerSec" onkeyup="newAJAXCommand('dscript.cgi?App_InstrPerSec='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_InstrPerSecIdx</td><td><input type="text" disabled size="50" value="~App_InstrPerSecIdx~" id="InpApp_InstrPerSecIdx" onkeyup="newAJAXCommand('dscript.cgi?App_InstrPerSecIdx='+encodeURIComponent(this.value));"></td></tr>
+     <tr><td>App_InstrPerSecMax</td><td><input type="text" disabled size="50" value="~App_InstrPerSecMax~" id="InpApp_InstrPerSecMax" onkeyup="newAJAXCommand('dscript.cgi?App_InstrPerSecMax='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_IOCtr1</td><td><input type="text" disabled size="50" value="~App_IOCtr1~" id="InpApp_IOCtr1" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr1='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_IOCtr2</td><td><input type="text" disabled size="50" value="~App_IOCtr2~" id="InpApp_IOCtr2" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr2='+encodeURIComponent(this.value));"></td></tr>
      <tr><td>App_IOCtr3</td><td><input type="text" disabled size="50" value="~App_IOCtr3~" id="InpApp_IOCtr3" onkeyup="newAJAXCommand('dscript.cgi?App_IOCtr3='+encodeURIComponent(this.value));"></td></tr>
@@ -199,6 +204,12 @@ function ajaxUpdate() {
     var v = getValue('App_DSST_PingSuccess'); 
     if (v != document.getElementById('InpApp_DSST_PingSuccess').value){console.log("App_DSST_PingSuccess: " + getValue('App_DSST_PingSuccess'));}
     document.getElementById('InpApp_DSST_PingSuccess').value = getValue('App_DSST_PingSuccess');
+    var v = getValue('App_DSST_QHead'); 
+    if (v != document.getElementById('InpApp_DSST_QHead').value){console.log("App_DSST_QHead: " + getValue('App_DSST_QHead'));}
+    document.getElementById('InpApp_DSST_QHead').value = getValue('App_DSST_QHead');
+    var v = getValue('App_DSST_QTail'); 
+    if (v != document.getElementById('InpApp_DSST_QTail').value){console.log("App_DSST_QTail: " + getValue('App_DSST_QTail'));}
+    document.getElementById('InpApp_DSST_QTail').value = getValue('App_DSST_QTail');
     var v = getValue('App_EnableAutoIO'); 
     if (v != document.getElementById('InpApp_EnableAutoIO').value){console.log("App_EnableAutoIO: " + getValue('App_EnableAutoIO'));}
     document.getElementById('InpApp_EnableAutoIO').value = getValue('App_EnableAutoIO');
@@ -211,6 +222,15 @@ function ajaxUpdate() {
     var v = getValue('App_InpType'); 
     if (v != document.getElementById('InpApp_InpType').value){console.log("App_InpType: " + getValue('App_InpType'));}
     document.getElementById('InpApp_InpType').value = getValue('App_InpType');
+    var v = getValue('App_InstrPerSec'); 
+    if (v != document.getElementById('InpApp_InstrPerSec').value){console.log("App_InstrPerSec: " + getValue('App_InstrPerSec'));}
+    document.getElementById('InpApp_InstrPerSec').value = getValue('App_InstrPerSec');
+    var v = getValue('App_InstrPerSecIdx'); 
+    if (v != document.getElementById('InpApp_InstrPerSecIdx').value){console.log("App_InstrPerSecIdx: " + getValue('App_InstrPerSecIdx'));}
+    document.getElementById('InpApp_InstrPerSecIdx').value = getValue('App_InstrPerSecIdx');
+    var v = getValue('App_InstrPerSecMax'); 
+    if (v != document.getElementById('InpApp_InstrPerSecMax').value){console.log("App_InstrPerSecMax: " + getValue('App_InstrPerSecMax'));}
+    document.getElementById('InpApp_InstrPerSecMax').value = getValue('App_InstrPerSecMax');
     var v = getValue('App_IOCtr1'); 
     if (v != document.getElementById('InpApp_IOCtr1').value){console.log("App_IOCtr1: " + getValue('App_IOCtr1'));}
     document.getElementById('InpApp_IOCtr1').value = getValue('App_IOCtr1');

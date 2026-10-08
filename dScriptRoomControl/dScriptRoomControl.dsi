@@ -243,7 +243,14 @@ function InitRestore()  ; restore temporary from volatile variables_
     next
     App_ShutterCalibration = 0
     App_EntitiesActive = 0
-    threadstart CalcVoltsTemp        ; keep config page volt & temp updated
+    int32 LoadSample
+    for LoadSample = 1 to LOADWINDOW ; reset the load history (instructions per second)
+        App_InstrPerSecHist[LoadSample-1] = 0
+    next
+    App_InstrPerSec = 0
+    App_InstrPerSecMax = 0
+    App_InstrPerSecIdx = -1          ; first counter value after boot covers the whole boot and is discarded
+    threadstart CalcVoltsTemp        ; keep config page volt & temp & load updated
     threadstart UpdateShutterStates  ; keep shutter values on index page updated
 
     App_DSST_PingIP = 0     ; set DNSResolution object of dScriptServer IP/Hostname to 0 (to force a new resolution)
@@ -1365,6 +1372,8 @@ function BinaryDo()                             ; function interpreting the bina
         case 0x55   BinaryGetButton()           ; decimal 85
         case 0xfd   BinarySetRestart()          ; decimal 253  - requires (& provides) Nonce
         else App_Message="Invalid binary cmd: " ~ tcpInBuf[0]
+            tcpOutBuf[0] = 0xff                 ; answer with NACK so the client does not wait for a timeout (e.g. newer library, older firmware)
+            tcpLength = 1
     endselect
     return
 endfunction 
@@ -1890,9 +1899,26 @@ thread dScriptServerContacter(300000)                   ; try to contact the dSc
     threadsuspend
 endthread
 
-thread CalcVoltsTemp(1000)                              ; update the systems voltage and temperature on config page (every 1 second)
+thread CalcVoltsTemp(1000)                              ; update the systems voltage, temperature and load on config page (every 1 second)
+    int32 i
+    int32 maxval
     BrdTemp = ((TS1*3223)-500000)/1000              ; thread runs once per second to keep
     Volts = PSU*18369/100000                        ; board temperature and volts updated
+
+    ; this thread is the ONLY reader of system.DespatchCounter - reading it resets it to zero, everything else uses App_InstrPerSec
+    App_InstrPerSec = system.DespatchCounter
+    if App_InstrPerSecIdx < 0 then                  ; first value after boot contains all instructions since boot - discard it
+        App_InstrPerSec = 0
+        App_InstrPerSecIdx = 0
+    else
+        App_InstrPerSecHist[App_InstrPerSecIdx] = App_InstrPerSec
+        App_InstrPerSecIdx = (App_InstrPerSecIdx + 1) // LOADWINDOW
+        maxval = 0
+        for i = 1 to LOADWINDOW                     ; maximum of the last LOADWINDOW seconds
+            if App_InstrPerSecHist[i-1] > maxval maxval = App_InstrPerSecHist[i-1]
+        next
+        App_InstrPerSecMax = maxval
+    endif
     threadsuspend
 endthread
 
