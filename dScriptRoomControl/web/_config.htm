@@ -21,6 +21,8 @@
                 App Version <br><br>
                 Supplied Voltage <br>
                 Internal Temperature <br>
+                Load (instructions/s) <br>
+                Load max. last minute <br>
             </div>
              <div id="status">
                 ~Module~ <br>
@@ -29,6 +31,8 @@
                 ~AppVerMajor~.~AppVerMinor~ <br><br>
                 <div id="DCvolts">?</div>
                 <div id="T1">?</div>
+                <div id="Load">?</div>
+                <div id="LoadMax">?</div>
             </div>
             <div id="reboot">
                 <button id="restart" onmouseover="RebootText(this)" onmouseout="PageText(this)" onmousedown="newAJAXCommand('dscript.cgi?SystemReset=1');">System Reboot</button>
@@ -51,6 +55,8 @@
 function ajaxUpdate() {
     document.getElementById('DCvolts').innerHTML = Number(getValue('Volts')/10).toFixed(1) + " Vdc";
     document.getElementById('T1').innerHTML = Number(getValue('BrdTemp')/10).toFixed(1) + " &deg;C";
+    document.getElementById('Load').innerHTML = getValue('App_InstrPerSec');
+    document.getElementById('LoadMax').innerHTML = getValue('App_InstrPerSecMax');
 }
 
 // define the default help text for this page

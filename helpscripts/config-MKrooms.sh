@@ -84,6 +84,7 @@ if [ -z "${dScriptRoom}" ];then
 	>&2 echo "$scriptName: error: no such file or directory: ${dScriptSH}"
 	>&2 echo "Try '$scriptName --help' for more information."
 	exit 2;fi
+[ -n "${verbose}" ] && echo "D: dScriptRoom = ${dScriptRoom}"
 
 [ -n "${verbose}" ] && echo "D: find configuration for room: ${room}"
 case $room in
@@ -220,7 +221,7 @@ if [ "${r}" -ne 0 ];then
 	>&2 echo "$0: error: configuration test for board failed: ${board} -> ${r}"
 	exit ${r};fi 
 
-if [ -n "${room}"];then
+if [ -n "${room}" ];then
 	echo "I: configure room: ${room}" 
 	#add --pass="${pass}" if possible
 	"${dScriptRoom}" ${verbose} --board="${board}" --mode='config' --hostname="dS-${room}" --dscriptserver="${dScriptServer}" \
